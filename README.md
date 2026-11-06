@@ -4,7 +4,7 @@ Experiencia inmersiva en VR con **Unity + XR Interaction Toolkit** para **Meta Q
 desarrollada para la empresa ficticia *UAO Immersive Solutions*.
 
 ## Proyecto elegido
-> _Pendiente de definir_ (ver `docs/PROYECTO.md`)
+**Control de Calidad XR** (ver `docs/PROYECTO.md`). Unity 6000.0.58f2 (6 LTS) + XR Interaction Toolkit 3.0 + OpenXR, Meta Quest 2/3.
 
 ## Requerimientos obligatorios
 - [ ] **Onboarding VR**: movimiento, interacciones, agarre, uso de controles
@@ -22,5 +22,5 @@ desarrollada para la empresa ficticia *UAO Immersive Solutions*.
 ## Estructura
 ```
 docs/        Enunciado (pptx) y notas del proyecto
-Assets/      Proyecto Unity (se agregará al crearlo)
+Assets/Scripts  Core, Conveyor, Products, Tools, UI (namespace QualityControlXR)
 ```

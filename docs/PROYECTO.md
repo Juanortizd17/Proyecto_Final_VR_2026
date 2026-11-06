@@ -16,4 +16,4 @@ Elegir **una**. Todas usan Unity + XR Interaction Toolkit, Meta Quest 2/3.
    activación de órganos, paneles biomédicos XR, audio narrativo, navegación inmersiva.
 
 ## Decisión
-_Pendiente._
+**Control de Calidad XR.**
