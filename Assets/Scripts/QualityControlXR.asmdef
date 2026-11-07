@@ -1,0 +1,17 @@
+{
+    "name": "QualityControlXR",
+    "rootNamespace": "QualityControlXR",
+    "references": [
+        "Unity.XR.Interaction.Toolkit",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

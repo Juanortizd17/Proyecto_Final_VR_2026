@@ -4,47 +4,72 @@ using UnityEngine;
 namespace QualityControlXR
 {
     /// <summary>
-    /// Banda transportadora: genera productos (5 tipos, ~35% defectuosos) y los
-    /// mueve. Incluye eventos inesperados: aceleración de la banda y avería breve.
-    /// Los productos se mueven por transformación, así el jugador puede agarrarlos
-    /// (al agarrarlos el Rigidbody deja de estar kinematic-controlado por la banda).
+    /// Banda transportadora física: un Rigidbody cinemático que "arrastra" por fricción
+    /// lo que está encima (truco clásico: se mueve hacia atrás y MovePosition hacia adelante).
+    /// Así los productos siguen siendo objetos físicos que se pueden agarrar y soltar.
+    /// También genera productos y dispara eventos inesperados (aceleración o avería).
     /// </summary>
+    [RequireComponent(typeof(Rigidbody))]
     public class ConveyorBelt : MonoBehaviour
     {
         [SerializeField] Transform spawnPoint;
-        [SerializeField] Transform endPoint;
+        [SerializeField] Vector3 localDirection = Vector3.right;
         [SerializeField] Product[] productPrefabs;          // 5 prefabs, uno por ProductType
-        [SerializeField] float speed = 0.4f;
-        [SerializeField] Vector2 spawnInterval = new Vector2(4f, 7f);
-        [SerializeField, Range(0f, 1f)] float defectChance = 0.35f;
+        [SerializeField] float speed = 0.25f;
+        [SerializeField] Vector2 spawnInterval = new Vector2(5f, 8f);
+        [SerializeField, Range(0f, 1f)] float defectChance = 0.4f;
 
         [Header("Eventos inesperados")]
+        [SerializeField] float firstEventAt = 40f;
         [SerializeField] float eventEverySeconds = 45f;
-        [SerializeField] float surgeMultiplier = 2f;
+        [SerializeField] float surgeMultiplier = 2.2f;
         [SerializeField] float eventDuration = 8f;
+        [SerializeField] AudioSource alarm;
 
+        Rigidbody rb;
         float currentSpeed;
 
-        void Start()
+        public float CurrentSpeed => currentSpeed;
+        public event System.Action<string> OnBeltEvent;
+
+        public void Setup(Transform spawn, Product[] prefabs, AudioSource alarmSource)
         {
-            currentSpeed = speed;
-            GameManager.Instance.OnStateChanged += OnState;
+            spawnPoint = spawn; productPrefabs = prefabs; alarm = alarmSource;
         }
+
+        void Awake()
+        {
+            rb = GetComponent<Rigidbody>();
+            rb.isKinematic = true;
+            currentSpeed = 0f;
+        }
+
+        void Start() => GameManager.Instance.OnStateChanged += OnState;
 
         void OnDestroy()
         {
             if (GameManager.Instance != null) GameManager.Instance.OnStateChanged -= OnState;
         }
 
+        void FixedUpdate()
+        {
+            if (currentSpeed <= 0f) return;
+            Vector3 dir = transform.TransformDirection(localDirection).normalized;
+            Vector3 pos = rb.position;
+            rb.position -= dir * currentSpeed * Time.fixedDeltaTime;
+            rb.MovePosition(pos);
+        }
+
         void OnState(GameState s)
         {
             StopAllCoroutines();
-            currentSpeed = speed;
+            currentSpeed = s == GameState.Playing ? speed : 0f;
             if (s == GameState.Playing) { StartCoroutine(SpawnLoop()); StartCoroutine(EventLoop()); }
         }
 
         IEnumerator SpawnLoop()
         {
+            yield return new WaitForSeconds(1f);
             while (GameManager.Instance.State == GameState.Playing)
             {
                 Spawn();
@@ -54,14 +79,27 @@ namespace QualityControlXR
 
         IEnumerator EventLoop()
         {
+            yield return new WaitForSeconds(firstEventAt);
             while (GameManager.Instance.State == GameState.Playing)
             {
-                yield return new WaitForSeconds(eventEverySeconds);
                 bool surge = Random.value > 0.5f;
-                currentSpeed = surge ? speed * surgeMultiplier : 0f; // aceleración o avería
-                GameManager.Instance.AddTime(surge ? 0f : 5f);       // compensa la avería
+                if (alarm) alarm.Play();
+                if (surge)
+                {
+                    currentSpeed = speed * surgeMultiplier;
+                    OnBeltEvent?.Invoke("¡ALERTA! La banda se aceleró");
+                }
+                else
+                {
+                    currentSpeed = 0f;
+                    GameManager.Instance.AddTime(eventDuration);
+                    OnBeltEvent?.Invoke("¡AVERÍA! Banda detenida: aprovecha para inspeccionar");
+                }
                 yield return new WaitForSeconds(eventDuration);
+                if (GameManager.Instance.State != GameState.Playing) yield break;
                 currentSpeed = speed;
+                OnBeltEvent?.Invoke("Banda funcionando con normalidad");
+                yield return new WaitForSeconds(eventEverySeconds);
             }
         }
 
@@ -69,41 +107,9 @@ namespace QualityControlXR
         {
             if (productPrefabs == null || productPrefabs.Length == 0) return;
             var prefab = productPrefabs[Random.Range(0, productPrefabs.Length)];
-            var p = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation, transform);
-            var defect = Random.value < defectChance
-                ? (DefectType)Random.Range(1, 4) : DefectType.None;
+            var p = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
+            var defect = Random.value < defectChance ? (DefectType)Random.Range(1, 4) : DefectType.None;
             p.Configure(p.Type, defect);
-            p.gameObject.AddComponent<BeltRider>().Init(this);
-        }
-
-        public Vector3 Direction => (endPoint.position - spawnPoint.position).normalized;
-        public float Speed => currentSpeed;
-        public Transform End => endPoint;
-    }
-
-    /// <summary>Mueve el producto por la banda hasta que el jugador lo agarra.</summary>
-    public class BeltRider : MonoBehaviour
-    {
-        ConveyorBelt belt;
-        UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grab;
-
-        public void Init(ConveyorBelt b)
-        {
-            belt = b;
-            grab = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
-        }
-
-        void Update()
-        {
-            if (belt == null) return;
-            if (grab != null && grab.isSelected) { enabled = false; return; }
-            transform.position += belt.Direction * belt.Speed * Time.deltaTime;
-            if (Vector3.Distance(transform.position, belt.End.position) < 0.1f)
-            {
-                // Producto perdido sin revisar = fallo
-                GameManager.Instance.RegisterMistake($"Producto {GetComponent<Product>().Type} se escapó de la banda");
-                Destroy(gameObject);
-            }
         }
     }
 }
