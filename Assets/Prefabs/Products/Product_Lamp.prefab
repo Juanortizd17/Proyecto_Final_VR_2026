@@ -271,6 +271,7 @@ GameObject:
   - component: {fileID: 7209519380959310085}
   - component: {fileID: 5838915297697596448}
   - component: {fileID: 1009623962689186041}
+  - component: {fileID: 4295431402797735108}
   - component: {fileID: 8814282387389114703}
   m_Layer: 0
   m_Name: Product_Lamp
@@ -467,6 +468,19 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 0
+--- !u!114 &4295431402797735108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7527265283043084062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d286ba0703824e54b8e0c1b0acd1d808, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayName: "L\xE1mpara"
 --- !u!114 &8814282387389114703
 MonoBehaviour:
   m_ObjectHideFlags: 0

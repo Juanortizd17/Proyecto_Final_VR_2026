@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7921662330560910680}
   - component: {fileID: 2104892093304678586}
   - component: {fileID: 8152299907122070843}
+  - component: {fileID: 1771152920143877546}
   - component: {fileID: 1138340837042383438}
   m_Layer: 0
   m_Name: Product_Bear
@@ -208,6 +209,19 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 0
+--- !u!114 &1771152920143877546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1307669497005429095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d286ba0703824e54b8e0c1b0acd1d808, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayName: Oso de peluche
 --- !u!114 &1138340837042383438
 MonoBehaviour:
   m_ObjectHideFlags: 0

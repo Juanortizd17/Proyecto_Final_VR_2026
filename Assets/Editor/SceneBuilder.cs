@@ -6,6 +6,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -49,7 +50,13 @@ namespace QualityControlXR.EditorTools
             new ProductDef { type = ProductType.Bear, fbx = "bear", color = new Color(0.85f, 0.6f, 0.45f) },
         };
 
-        [MenuItem("Tools/Quality Control XR/Build Scene")]
+        /// <summary>
+        /// true = juego de PC (primera persona, mouse y teclado, sin gafas).
+        /// false = rig XR para Meta Quest (para la conversión a VR).
+        /// </summary>
+        public static bool DesktopMode = true;
+
+        [MenuItem("Tools/Quality Control XR/Build Scene (PC)")]
         public static void Build()
         {
             font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -75,20 +82,28 @@ namespace QualityControlXR.EditorTools
             BuildLighting();
             BuildEnvironment();
 
-            // ---------- Rig XR ----------
-            var rigPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(RigPath);
-            var rig = (GameObject)PrefabUtility.InstantiatePrefab(rigPrefab);
-            rig.transform.SetPositionAndRotation(PlayerStart, Quaternion.identity);
-            rigCamera = rig.GetComponentInChildren<Camera>(true);
-            ConfigureDeviceSimulator();
-
-            var fallback = new GameObject("DesktopFallback");
-            fallback.transform.SetParent(managers.transform);
-            fallback.AddComponent<DesktopFallback>().Setup(AssetDatabase.LoadAssetAtPath<GameObject>(SimulatorPath));
+            // ---------- Jugador ----------
+            GameObject rig;
+            if (DesktopMode)
+            {
+                rig = BuildDesktopPlayer(Clip("select"), Clip("impactSoft_medium"), Clip("click"));
+                var es = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+                es.transform.SetParent(managers.transform);
+            }
+            else
+            {
+                var rigPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(RigPath);
+                rig = (GameObject)PrefabUtility.InstantiatePrefab(rigPrefab);
+                rig.transform.SetPositionAndRotation(PlayerStart, Quaternion.identity);
+                rigCamera = rig.GetComponentInChildren<Camera>(true);
+                ConfigureDeviceSimulator();
+                var fallback = new GameObject("DesktopFallback");
+                fallback.transform.SetParent(managers.transform);
+                fallback.AddComponent<DesktopFallback>().Setup(AssetDatabase.LoadAssetAtPath<GameObject>(SimulatorPath));
+                var es = new GameObject("EventSystem", typeof(EventSystem), typeof(XRUIInputModule));
+                es.transform.SetParent(managers.transform);
+            }
             new GameObject("AutoDemo (solo con -autodemo)").AddComponent<AutoDemo>().transform.SetParent(managers.transform);
-
-            var es = new GameObject("EventSystem", typeof(EventSystem), typeof(XRUIInputModule));
-            es.transform.SetParent(managers.transform);
 
             var workSpot = new GameObject("WorkSpot").transform;
             workSpot.SetParent(managers.transform);
@@ -131,11 +146,58 @@ namespace QualityControlXR.EditorTools
             // ---------- Onboarding ----------
             BuildOnboarding(rig.transform, hud, uiAudio, clipStep, clipTap, clipFound);
 
+            if (DesktopMode) new GameObject("DesktopHUD").AddComponent<DesktopHud>().transform.SetParent(managers.transform);
+
             // ---------- Guardar ----------
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();
             Debug.Log("[SceneBuilder] Escena generada: " + ScenePath);
+        }
+
+        [MenuItem("Tools/Quality Control XR/Build Scene (VR - Meta Quest)")]
+        public static void BuildVr()
+        {
+            DesktopMode = false;
+            try { Build(); } finally { DesktopMode = true; }
+        }
+
+        // =====================================================================
+        // Jugador de PC
+        // =====================================================================
+
+        static GameObject BuildDesktopPlayer(AudioClip pick, AudioClip drop, AudioClip click)
+        {
+            var player = new GameObject("Player (PC)");
+            player.layer = 2;   // Ignore Raycast: la mira no se apunta a sí misma
+            player.transform.SetPositionAndRotation(PlayerStart, Quaternion.identity);
+            var cc = player.AddComponent<CharacterController>();
+            cc.height = 1.8f; cc.radius = 0.3f; cc.center = new Vector3(0f, 0.9f, 0f);
+            cc.stepOffset = 0.25f; cc.slopeLimit = 45f; cc.skinWidth = 0.03f; cc.minMoveDistance = 0f;
+
+            var camGo = new GameObject("PlayerCamera", typeof(Camera), typeof(AudioListener));
+            camGo.tag = "MainCamera";
+            camGo.transform.SetParent(player.transform, false);
+            camGo.transform.localPosition = new Vector3(0f, 1.65f, 0f);
+            var cam = camGo.GetComponent<Camera>();
+            cam.fieldOfView = 70f; cam.nearClipPlane = 0.03f; cam.farClipPlane = 60f;
+            rigCamera = cam;
+
+            var productHold = new GameObject("ProductHold").transform;
+            productHold.SetParent(camGo.transform, false);
+            productHold.localPosition = new Vector3(-0.05f, -0.2f, 0.55f);
+            var toolHold = new GameObject("ToolHold").transform;
+            toolHold.SetParent(camGo.transform, false);
+            toolHold.localPosition = new Vector3(0.3f, -0.28f, 0.42f);
+
+            var steps = AddAudio(player, 0f);
+            var footsteps = AssetDatabase.FindAssets("footstep_concrete t:AudioClip", new[] { Kenney + "/Audio" })
+                .Select(g => AssetDatabase.LoadAssetAtPath<AudioClip>(AssetDatabase.GUIDToAssetPath(g))).ToArray();
+            player.AddComponent<DesktopPlayer>().Setup(camGo.transform, steps, footsteps);
+
+            var handAudio = AddAudio(camGo, 0f);
+            camGo.AddComponent<DesktopInteractor>().Setup(productHold, toolHold, handAudio, pick, drop, click);
+            return player;
         }
 
         // =====================================================================
@@ -197,16 +259,17 @@ namespace QualityControlXR.EditorTools
             Prim(PrimitiveType.Cube, "Line_R", env, new Vector3(1.6f, 0.005f, -0.9f), new Vector3(0.06f, 0.01f, 2.7f), stripeMat, false);
 
             // Decoración Kenney Factory Kit
-            Fit("FactoryKit", "robot-arm-a", env, new Vector3(-3.4f, 0f, 1.6f), 1.2f, 135f);
-            Fit("FactoryKit", "robot-arm-b", env, new Vector3(3.6f, 0f, 1.8f), 1.2f, -135f);
-            Fit("FactoryKit", "machine-fortified", env, new Vector3(-4.6f, 0f, 3.6f), 1.6f, 0f);
-            Fit("FactoryKit", "machine-window", env, new Vector3(4.4f, 0f, 3.6f), 1.6f, 0f);
-            Fit("FactoryKit", "box-large", env, new Vector3(4.8f, 0f, -2.2f), 0.9f, 20f);
-            Fit("FactoryKit", "box-long", env, new Vector3(4.9f, 0f, -3.4f), 0.9f, 80f);
-            Fit("FactoryKit", "box-small", env, new Vector3(4.2f, 0f, -2.9f), 0.5f, 10f);
-            Fit("FactoryKit", "warning-orange", env, new Vector3(-1.9f, 0f, 1.9f), 0.35f, 0f);
-            Fit("FactoryKit", "warning-orange", env, new Vector3(1.9f, 0f, 1.9f), 0.35f, 0f);
-            Fit("FactoryKit", "crane", env, new Vector3(-4.4f, 0f, -4.6f), 2.2f, 90f);
+            // Decoración sólida: el jugador ya no atraviesa robots, máquinas ni cajas.
+            Solid(Fit("FactoryKit", "robot-arm-a", env, new Vector3(-3.4f, 0f, 1.6f), 1.2f, 135f));
+            Solid(Fit("FactoryKit", "robot-arm-b", env, new Vector3(3.6f, 0f, 1.8f), 1.2f, -135f));
+            Solid(Fit("FactoryKit", "machine-fortified", env, new Vector3(-4.6f, 0f, 3.6f), 1.6f, 0f));
+            Solid(Fit("FactoryKit", "machine-window", env, new Vector3(4.4f, 0f, 3.6f), 1.6f, 0f));
+            Solid(Fit("FactoryKit", "box-large", env, new Vector3(4.8f, 0f, -2.2f), 0.9f, 20f));
+            Solid(Fit("FactoryKit", "box-long", env, new Vector3(4.9f, 0f, -3.4f), 0.9f, 80f));
+            Solid(Fit("FactoryKit", "box-small", env, new Vector3(4.2f, 0f, -2.9f), 0.5f, 10f));
+            Solid(Fit("FactoryKit", "warning-orange", env, new Vector3(-1.9f, 0f, 1.9f), 0.35f, 0f));
+            Solid(Fit("FactoryKit", "warning-orange", env, new Vector3(1.9f, 0f, 1.9f), 0.35f, 0f));
+            Solid(Fit("FactoryKit", "crane", env, new Vector3(-4.4f, 0f, -4.6f), 2.2f, 90f));
             Fit("FactoryKit", "pipe-large-long", env, new Vector3(-5.6f, 2.6f, -1f), 1.4f, 0f);
             Fit("FactoryKit", "screen-wide", env, new Vector3(0f, 2.9f, 4.85f), 2.4f, 180f);
         }
@@ -268,7 +331,7 @@ namespace QualityControlXR.EditorTools
             var belt = surface.AddComponent<ConveyorBelt>();
 
             // Máquina de salida (de donde aparecen los productos) y punto de aparición
-            Fit("FactoryKit", "machine", root, new Vector3(startX - 0.45f, 0f, BeltZ), 1.1f, 90f);
+            Solid(Fit("FactoryKit", "machine", root, new Vector3(startX - 0.45f, 0f, BeltZ), 1.1f, 90f));
             var spawn = new GameObject("SpawnPoint").transform;
             spawn.SetParent(root);
             spawn.position = new Vector3(startX + 0.35f, BeltTopY + 0.22f, BeltZ);
@@ -278,12 +341,12 @@ namespace QualityControlXR.EditorTools
             belt.Setup(spawn, prefabs, alarm);
 
             // Zona de pérdida al final de la banda: producto no clasificado = fallo
-            Fit("FactoryKit", "hopper-square", root, new Vector3(-startX + 0.45f, 0f, BeltZ), 0.95f, 0f);
+            Solid(Fit("FactoryKit", "hopper-square", root, new Vector3(-startX + 0.45f, 0f, BeltZ), 0.95f, 0f));
             var lost = new GameObject("LostZone_EndOfBelt");
             lost.transform.SetParent(root);
-            lost.transform.position = new Vector3(-startX + 0.45f, 0.45f, BeltZ);
+            lost.transform.position = new Vector3(-startX + 0.45f, 0.7f, BeltZ);
             var lc = lost.AddComponent<BoxCollider>();
-            lc.isTrigger = true; lc.size = new Vector3(0.7f, 0.9f, 1.2f);
+            lc.isTrigger = true; lc.size = new Vector3(0.8f, 1.4f, 1.2f);   // cubre también la tapa de la tolva
             var lostAudio = AddAudio(lost, 1f); lostAudio.clip = lostClip;
             lost.AddComponent<LostProductZone>().Setup("llegó al final sin ser inspeccionado", lostAudio);
             EditorUtility.SetDirty(belt);
@@ -313,6 +376,7 @@ namespace QualityControlXR.EditorTools
             var grab = root.AddComponent<XRGrabInteractable>();
             grab.useDynamicAttach = true;
             grab.throwOnDetach = true;
+            root.AddComponent<Grabbable>().SetName(ProductBin.Es(def.type));
 
             var bad = Prim(PrimitiveType.Sphere, "DefectMarker", root.transform,
                 new Vector3(b.center.x, b.max.y + 0.07f, b.center.z), Vector3.one * 0.07f,
@@ -365,6 +429,12 @@ namespace QualityControlXR.EditorTools
 
         static void FinishTool(GameObject go, DefectType detects, AudioClip use, AudioClip found, Vector3 tipPos, float tipRadius)
         {
+            string toolName = detects switch
+            {
+                DefectType.Crack => "Lupa",
+                DefectType.LooseScrew => "Destornillador",
+                _ => "Martillo"
+            };
             var tip = new GameObject("InspectionTip");
             tip.transform.SetParent(go.transform, false);
             tip.transform.localPosition = tipPos;
@@ -378,8 +448,9 @@ namespace QualityControlXR.EditorTools
             var grab = go.AddComponent<XRGrabInteractable>();
             grab.useDynamicAttach = true;
             grab.throwOnDetach = false;
+            go.AddComponent<Grabbable>().SetName(toolName);
             var audio = AddAudio(go, 1f);
-            go.AddComponent<InspectionTool>().Setup(detects, audio, use, found);
+            go.AddComponent<InspectionTool>().Setup(detects, toolName, audio, use, found);
             go.AddComponent<ReturnHome>();
 
             // La herramienta se construye "de pie" (eje Y). Se acuesta sobre la mesa.
@@ -518,6 +589,7 @@ namespace QualityControlXR.EditorTools
                 Vector3.one * 0.12f, Mat("PracticeOrange", new Color(1f, 0.55f, 0.15f)));
             var brb = box.AddComponent<Rigidbody>(); brb.mass = 0.5f; brb.interpolation = RigidbodyInterpolation.Interpolate;
             var boxGrab = box.AddComponent<XRGrabInteractable>(); boxGrab.useDynamicAttach = true;
+            var boxGrabbable = box.AddComponent<Grabbable>(); boxGrabbable.SetName("Caja de práctica");
             box.AddComponent<ReturnHome>();
             var practice = box.AddComponent<PracticeTarget>();
 
@@ -531,8 +603,12 @@ namespace QualityControlXR.EditorTools
             var socketGo = new GameObject("PracticeSocket");
             socketGo.transform.SetParent(root);
             socketGo.transform.position = pedestal.transform.position + Vector3.up * 0.12f;
-            var ssc = socketGo.AddComponent<SphereCollider>(); ssc.isTrigger = true; ssc.radius = 0.12f;
-            var socket = socketGo.AddComponent<XRSocketInteractor>();
+            var ssc = socketGo.AddComponent<SphereCollider>(); ssc.isTrigger = true; ssc.radius = 0.14f;
+            var snap = new GameObject("SnapPoint").transform;
+            snap.SetParent(socketGo.transform, false);
+            snap.position = pedestal.transform.position + Vector3.up * 0.09f;
+            var socket = socketGo.AddComponent<PracticeSocket>();
+            socket.Setup(snap);
 
             // Tablero de instrucciones
             var canvas = MakeCanvas("OnboardingBoard", new Vector3(0f, 1.65f, -2.75f), Quaternion.identity, new Vector2(1150, 700), 0.001f);
@@ -552,10 +628,11 @@ namespace QualityControlXR.EditorTools
             MakeButton(canvas.transform, "SkipButton", "Saltar tutorial", new Vector2(30, 20), new Vector2(280, 80),
                 new Color(0.25f, 0.27f, 0.3f), tutorial.Skip, 28);
 
-            tutorial.Setup(instr, progress, rig, boxGrab, tool.GetComponent<XRGrabInteractable>(), socket, start.gameObject, uiAudio, step);
+            tutorial.Setup(instr, progress, rig, boxGrabbable, socket, start.gameObject, uiAudio, step, DesktopMode);
             practice.Setup(tutorial);
             EditorUtility.SetDirty(tutorial);
             EditorUtility.SetDirty(practice);
+            EditorUtility.SetDirty(socket);
         }
 
         // =====================================================================
@@ -564,7 +641,8 @@ namespace QualityControlXR.EditorTools
 
         static Canvas MakeCanvas(string name, Vector3 pos, Quaternion rot, Vector2 sizePx, float scale)
         {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(TrackedDeviceGraphicRaycaster));
+            // GraphicRaycaster: la mira del PC pulsa botones · TrackedDeviceGraphicRaycaster: rayos de los controles VR.
+            var go = new GameObject(name, typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(TrackedDeviceGraphicRaycaster));
             var c = go.GetComponent<Canvas>();
             c.renderMode = RenderMode.WorldSpace;
             c.worldCamera = rigCamera;
@@ -709,6 +787,22 @@ namespace QualityControlXR.EditorTools
             go.transform.position += pos - new Vector3(b.center.x, b.min.y, b.center.z);
             go.transform.SetParent(parent, true);
             foreach (var c in go.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+            return go;
+        }
+
+        /// <summary>Añade un BoxCollider que envuelve el modelo (para que el jugador no lo atraviese).</summary>
+        static GameObject Solid(GameObject go)
+        {
+            // Se mide sin rotación para obtener la caja en el espacio local del modelo.
+            var rot = go.transform.rotation;
+            go.transform.rotation = Quaternion.identity;
+            var b = Bounds(go);
+            var s = go.transform.lossyScale;
+            var box = go.AddComponent<BoxCollider>();
+            box.center = go.transform.InverseTransformPoint(b.center);
+            box.size = new Vector3(b.size.x / Mathf.Abs(s.x), b.size.y / Mathf.Abs(s.y), b.size.z / Mathf.Abs(s.z));
+            go.transform.rotation = rot;
+            go.isStatic = true;
             return go;
         }
 

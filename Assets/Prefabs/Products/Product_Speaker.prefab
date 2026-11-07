@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7141514943447749320}
   - component: {fileID: 199100075835578261}
   - component: {fileID: 8311401402800952763}
+  - component: {fileID: 1710374386369562833}
   - component: {fileID: 6861996893246882780}
   m_Layer: 0
   m_Name: Product_Speaker
@@ -208,6 +209,19 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 0
+--- !u!114 &1710374386369562833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2360510077177292389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d286ba0703824e54b8e0c1b0acd1d808, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayName: Parlante
 --- !u!114 &6861996893246882780
 MonoBehaviour:
   m_ObjectHideFlags: 0

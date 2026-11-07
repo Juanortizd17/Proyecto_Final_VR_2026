@@ -34,6 +34,27 @@ namespace QualityControlXR.EditorTools
             Debug.Log("[Setup] Proyecto configurado para Meta Quest (Android/OpenXR) y PC (OpenXR).");
         }
 
+        /// <summary>
+        /// Modo PC puro: las gafas no se inicializan al abrir la app (OpenXR queda configurado
+        /// pero apagado en Windows). Para volver a VR: Configure for Meta Quest.
+        /// </summary>
+        [MenuItem("Tools/Quality Control XR/Configure for PC (sin gafas)")]
+        public static void ConfigureDesktop()
+        {
+            PlayerSettings.companyName = "UAO Immersive Solutions";
+            PlayerSettings.productName = "Control de Calidad XR";
+            PlayerSettings.colorSpace = ColorSpace.Linear;
+            PlayerSettings.fullScreenMode = FullScreenMode.FullScreenWindow;
+            ConfigureXRManagement(BuildTargetGroup.Standalone);
+            if (EditorBuildSettings.TryGetConfigObject(XRGeneralSettings.k_SettingsKey, out XRGeneralSettingsPerBuildTarget perTarget))
+            {
+                var s = perTarget.SettingsForBuildTarget(BuildTargetGroup.Standalone);
+                if (s != null) { s.InitManagerOnStart = false; EditorUtility.SetDirty(s); }
+            }
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Setup] Modo PC: XR desactivado al iniciar en Windows.");
+        }
+
         static void ConfigurePlayer()
         {
             PlayerSettings.companyName = "UAO Immersive Solutions";
