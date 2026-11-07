@@ -1,31 +1,41 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
-using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace QualityControlXR
 {
     /// <summary>
-    /// Onboarding VR guiado en 5 pasos: moverse, agarrar, inspeccionar con una herramienta,
-    /// colocar en un socket y pulsar INICIAR. Cada paso se valida con eventos XR reales.
+    /// Entrenamiento guiado en 5 pasos: moverse, agarrar, inspeccionar con una herramienta,
+    /// colocar en el soporte y pulsar INICIAR. Cada paso se valida con eventos reales del juego.
+    /// Tiene textos para PC (mouse y teclado) y para VR (controles del visor).
     /// </summary>
     public class OnboardingTutorial : MonoBehaviour
     {
         [SerializeField] Text instructionText;
         [SerializeField] Text progressText;
         [SerializeField] Transform playerRig;
-        [SerializeField] XRGrabInteractable practiceObject;
-        [SerializeField] XRGrabInteractable practiceTool;
-        [SerializeField] XRSocketInteractor practiceSocket;
+        [SerializeField] Grabbable practiceObject;
+        [SerializeField] PracticeSocket practiceSocket;
         [SerializeField] GameObject startButton;
         [SerializeField] AudioSource sfx;
         [SerializeField] AudioClip stepClip;
-        [SerializeField] float moveDistance = 0.6f;
+        [SerializeField] bool desktopMode = true;
+        [SerializeField] float moveDistance = 0.4f;
 
         int step;
-        Vector3 rigStart;
+        Vector3 headStart;
+        bool startRecorded;
+        float startTime;
 
-        readonly string[] steps =
+        static readonly string[] DesktopSteps =
+        {
+            "PASO 1 · MOVERSE\nCamina con <b>W A S D</b> y mira con el <b>mouse</b>.\nAcércate a la mesa de práctica.",
+            "PASO 2 · AGARRAR\nApunta a la <b>caja naranja</b> con la mira y haz <b>CLIC IZQUIERDO</b>.",
+            "PASO 3 · INSPECCIONAR\nApunta a la <b>lupa</b> y haz <b>CLIC IZQUIERDO</b> para tomarla.\nLuego haz <b>CLIC DERECHO</b> para revisar la caja.",
+            "PASO 4 · COLOCAR\nApunta al <b>soporte verde</b> y haz <b>CLIC IZQUIERDO</b> para dejar la caja.",
+            "¡ENTRENAMIENTO COMPLETO!\nApunta a <b>INICIAR TURNO</b> y haz <b>CLIC IZQUIERDO</b>."
+        };
+
+        static readonly string[] VrSteps =
         {
             "PASO 1 · MOVERSE\nUsa el joystick IZQUIERDO para caminar y el DERECHO para girar.\nAcércate a la mesa de práctica.",
             "PASO 2 · AGARRAR\nAcerca la mano a la caja y mantén el botón lateral (GRIP).",
@@ -34,50 +44,46 @@ namespace QualityControlXR
             "¡ENTRENAMIENTO COMPLETO!\nApunta al botón INICIAR TURNO y presiona el GATILLO."
         };
 
-        public void Setup(Text instr, Text progress, Transform rig, XRGrabInteractable obj,
-                          XRGrabInteractable tool, XRSocketInteractor socket, GameObject start,
-                          AudioSource source, AudioClip clip)
+        string[] Steps => desktopMode ? DesktopSteps : VrSteps;
+
+        /// <summary>Se mide la cabeza (cámara): cuenta caminar, joystick o simulador por igual.</summary>
+        Transform Head => Camera.main ? Camera.main.transform : playerRig;
+
+        public void Setup(Text instr, Text progress, Transform rig, Grabbable obj, PracticeSocket socket,
+                          GameObject start, AudioSource source, AudioClip clip, bool desktop)
         {
             instructionText = instr; progressText = progress; playerRig = rig; practiceObject = obj;
-            practiceTool = tool; practiceSocket = socket; startButton = start; sfx = source; stepClip = clip;
+            practiceSocket = socket; startButton = start; sfx = source; stepClip = clip; desktopMode = desktop;
         }
-
-        bool startRecorded;
-        float startTime;
-
-        /// <summary>
-        /// Se mide la cabeza (cámara), no el rig: así cuenta tanto la locomoción con joystick
-        /// como caminar físicamente o mover la cabeza con WASD en el simulador.
-        /// </summary>
-        Transform Head => Camera.main ? Camera.main.transform : playerRig;
 
         void Start()
         {
             startTime = Time.time;
             startButton.SetActive(false);
-            practiceObject.selectEntered.AddListener(_ => Complete(1));
-            practiceSocket.selectEntered.AddListener(_ => Complete(3));
+            if (practiceObject) practiceObject.OnGrabbed += _ => Complete(1);
+            if (practiceSocket) practiceSocket.OnPlaced += () => Complete(3);
             Show();
         }
 
         void Update()
         {
             if (step != 0 || Head == null) return;
-            // Esperamos a que el visor o el simulador fijen la posición inicial de la cabeza.
             if (!startRecorded)
             {
-                if (Time.time - startTime < 2f) return;
-                rigStart = Head.position; startRecorded = true;
+                if (Time.time - startTime < 1f) return;
+                headStart = Head.position; startRecorded = true;
                 return;
             }
-            if (Vector3.Distance(Flat(Head.position), Flat(rigStart)) > moveDistance) Complete(0);
+            if (Vector3.Distance(Flat(Head.position), Flat(headStart)) > moveDistance) Complete(0);
         }
 
-        /// <summary>Llamado por la caja de práctica cuando una herramienta la toca.</summary>
+        /// <summary>Llamado por la caja de práctica cuando una herramienta la revisa.</summary>
         public void OnPracticeInspected() => Complete(2);
 
-        /// <summary>Permite saltar el tutorial (botón "Saltar").</summary>
-        public void Skip() { step = steps.Length - 1; Show(); }
+        /// <summary>Botón "Saltar tutorial".</summary>
+        public void Skip() { step = Steps.Length - 1; Show(); }
+
+        public int CurrentStep => step;
 
         void Complete(int s)
         {
@@ -89,6 +95,7 @@ namespace QualityControlXR
 
         void Show()
         {
+            var steps = Steps;
             instructionText.text = steps[Mathf.Min(step, steps.Length - 1)];
             if (progressText) progressText.text = $"{Mathf.Min(step, steps.Length - 1)}/{steps.Length - 1}";
             startButton.SetActive(step >= steps.Length - 1);

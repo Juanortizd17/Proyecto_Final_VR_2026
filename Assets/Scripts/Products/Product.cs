@@ -56,7 +56,33 @@ namespace QualityControlXR
             {
                 okMarker.SetActive(true);
             }
-            return foundNow;
+            ShowResult(detectableBy);
+            return DefectRevealed && defect == detectableBy;
+        }
+
+        static readonly Color Red = new Color(1f, 0.35f, 0.3f);
+        static readonly Color Green = new Color(0.4f, 1f, 0.5f);
+        static readonly Color Gray = new Color(0.9f, 0.93f, 1f);
+
+        void ShowResult(DefectType tool)
+        {
+            string msg; Color c;
+            if (DefectRevealed && defect == tool) { msg = "¡DEFECTO: " + ProductBin.Es(defect).ToUpper() + "!"; c = Red; }
+            else if (DefectRevealed) { msg = "Ya tiene defecto: " + ProductBin.Es(defect); c = Red; }
+            else if (!IsDefective && FullyInspected) { msg = "Revisado: en buen estado"; c = Green; }
+            else
+            {
+                msg = tool switch
+                {
+                    DefectType.Crack => "Lupa: sin grietas",
+                    DefectType.LooseScrew => "Destornillador: tornillos firmes",
+                    _ => "Martillo: pieza sólida"
+                };
+                c = Gray;
+            }
+            var col = GetComponent<Collider>();
+            float top = col ? col.bounds.max.y : transform.position.y + 0.2f;
+            InspectionPopup.Show(new Vector3(transform.position.x, top + 0.18f, transform.position.z), msg, c);
         }
     }
 }

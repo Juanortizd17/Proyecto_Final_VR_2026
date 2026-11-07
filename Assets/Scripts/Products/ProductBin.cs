@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 namespace QualityControlXR
 {
@@ -19,6 +18,8 @@ namespace QualityControlXR
         [SerializeField] AudioClip okClip;
         [SerializeField] AudioClip failClip;
 
+        public string DisplayLabel => kind == BinKind.Reject ? "RECHAZO" : Es(acceptedType).ToUpper();
+
         public void Setup(BinKind k, ProductType t, AudioSource source, AudioClip ok, AudioClip fail)
         {
             kind = k; acceptedType = t; sfx = source; okClip = ok; failClip = fail;
@@ -30,8 +31,7 @@ namespace QualityControlXR
         {
             var p = other.GetComponentInParent<Product>();
             if (p == null || p.Processed || GameManager.Instance == null) return;
-            var grab = p.GetComponent<XRGrabInteractable>();
-            if (grab != null && grab.isSelected) return;
+            if (Grabbable.IsHeldObject(p)) return;   // aún en la mano: no cuenta
 
             p.Processed = true;
             bool correct = kind == BinKind.Reject

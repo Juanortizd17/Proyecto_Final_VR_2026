@@ -101,6 +101,14 @@ namespace QualityControlXR
         void MoveToWorkSpot()
         {
             if (!playerRig || !workSpot) return;
+            var desktop = playerRig.GetComponent<DesktopPlayer>();
+            if (desktop != null)
+            {
+                // PC: frente a la banda, mirando un poco hacia abajo para ver productos y tablero.
+                desktop.TeleportTo(new Vector3(workSpot.position.x, playerRig.position.y, workSpot.position.z),
+                                   workSpot.eulerAngles.y, 14f);
+                return;
+            }
             var cam = Camera.main ? Camera.main.transform : null;
             Vector3 headOffset = cam ? cam.position - playerRig.position : Vector3.zero;
             headOffset.y = 0f;
