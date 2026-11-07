@@ -3,6 +3,7 @@
     "rootNamespace": "QualityControlXR",
     "references": [
         "Unity.XR.Interaction.Toolkit",
+        "Unity.XR.Management",
         "UnityEngine.UI"
     ],
     "includePlatforms": [],

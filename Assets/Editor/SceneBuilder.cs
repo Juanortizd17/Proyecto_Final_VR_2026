@@ -82,6 +82,10 @@ namespace QualityControlXR.EditorTools
             rigCamera = rig.GetComponentInChildren<Camera>(true);
             ConfigureDeviceSimulator();
 
+            var fallback = new GameObject("DesktopFallback");
+            fallback.transform.SetParent(managers.transform);
+            fallback.AddComponent<DesktopFallback>().Setup(AssetDatabase.LoadAssetAtPath<GameObject>(SimulatorPath));
+
             var es = new GameObject("EventSystem", typeof(EventSystem), typeof(XRUIInputModule));
             es.transform.SetParent(managers.transform);
 
@@ -802,11 +806,11 @@ namespace QualityControlXR.EditorTools
                 if (p != null && p.CanWrite) p.SetValue(inst, v);
                 else Debug.LogWarning("[SceneBuilder] Propiedad no encontrada: " + prop);
             }
-            Set("automaticallyInstantiateSimulatorPrefab", true);
-            Set("automaticallyInstantiateInEditorOnly", true);
+            // DesktopFallback decide en tiempo de ejecución: simulador solo si no hay visor.
+            Set("automaticallyInstantiateSimulatorPrefab", false);
             Set("simulatorPrefab", prefab);
             EditorUtility.SetDirty(inst);
-            Debug.Log("[SceneBuilder] XR Device Simulator activado (solo Editor)");
+            Debug.Log("[SceneBuilder] Simulador delegado a DesktopFallback (se activa sin visor)");
         }
     }
 }

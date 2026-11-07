@@ -122,5 +122,12 @@ namespace QualityControlXR.EditorTools
             SceneBuilder.Build();
             SceneSnapshot.Capture();
         }
+
+        /// <summary>Plataforma Windows: regenera la escena y compila el .exe.</summary>
+        public static void WindowsAll()
+        {
+            SceneBuilder.Build();
+            BuildQuest.BuildWindows();
+        }
     }
 }

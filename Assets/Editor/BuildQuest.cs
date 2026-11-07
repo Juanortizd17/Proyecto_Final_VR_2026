@@ -6,29 +6,48 @@ using UnityEngine;
 namespace QualityControlXR.EditorTools
 {
     /// <summary>
-    /// Compila el APK para Meta Quest en Builds/ControlCalidadXR.apk.
-    /// Menú: Tools > Quality Control XR > Build Quest APK, o en batchmode con
-    /// -buildTarget Android -executeMethod QualityControlXR.EditorTools.BuildQuest.Build
+    /// Compilación del proyecto:
+    ///  · Windows (plataforma por defecto): Builds/Windows/ControlCalidadXR.exe
+    ///    Funciona con el Quest por Link o, sin visor, con el simulador (mouse y teclado).
+    ///  · Meta Quest (Android): Builds/ControlCalidadXR.apk
+    /// En batchmode: -buildTarget Win64 -executeMethod QualityControlXR.EditorTools.BuildQuest.BuildWindows
+    ///               -buildTarget Android -executeMethod QualityControlXR.EditorTools.BuildQuest.Build
     /// </summary>
     public static class BuildQuest
     {
-        const string Output = "Builds/ControlCalidadXR.apk";
+        const string ApkOutput = "Builds/ControlCalidadXR.apk";
+        const string WindowsOutput = "Builds/Windows/ControlCalidadXR.exe";
+
+        [MenuItem("Tools/Quality Control XR/Switch Platform to Windows")]
+        public static void SwitchToWindows() =>
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
+
+        [MenuItem("Tools/Quality Control XR/Switch Platform to Meta Quest (Android)")]
+        public static void SwitchToQuest()
+        {
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+            ProjectSetup.ConfigureQuest();
+        }
+
+        [MenuItem("Tools/Quality Control XR/Build Windows App")]
+        public static void BuildWindows() => Run(WindowsOutput, BuildTarget.StandaloneWindows64, BuildTargetGroup.Standalone);
 
         [MenuItem("Tools/Quality Control XR/Build Quest APK")]
-        public static void Build()
+        public static void Build() => Run(ApkOutput, BuildTarget.Android, BuildTargetGroup.Android);
+
+        static void Run(string output, BuildTarget target, BuildTargetGroup group)
         {
-            Directory.CreateDirectory("Builds");
-            var options = new BuildPlayerOptions
+            Directory.CreateDirectory(Path.GetDirectoryName(output));
+            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
                 scenes = new[] { SceneBuilder.ScenePath },
-                locationPathName = Output,
-                target = BuildTarget.Android,
-                targetGroup = BuildTargetGroup.Android,
+                locationPathName = output,
+                target = target,
+                targetGroup = group,
                 options = BuildOptions.None
-            };
-            var report = BuildPipeline.BuildPlayer(options);
+            });
             var s = report.summary;
-            Debug.Log($"[Build] Resultado: {s.result} · {s.totalSize / (1024f * 1024f):F1} MB · {s.totalTime} · errores: {s.totalErrors}");
+            Debug.Log($"[Build] {target}: {s.result} · {s.totalSize / (1024f * 1024f):F1} MB · {s.totalTime} · errores: {s.totalErrors}");
             if (Application.isBatchMode) EditorApplication.Exit(s.result == BuildResult.Succeeded ? 0 : 1);
         }
     }
