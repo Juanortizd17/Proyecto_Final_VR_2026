@@ -124,7 +124,7 @@ namespace QualityControlXR.EditorTools
             var belt = BuildConveyor(productPrefabs, grip, clipAlarm, clipFail);
 
             // ---------- Herramientas ----------
-            BuildToolTable(new Vector3(-1.2f, 0f, 0.15f), clipTap, clipScrew, clipHammer, clipLens, clipFound);
+            BuildToolTable(new Vector3(-1.2f, 0f, -0.05f), clipTap, clipScrew, clipHammer, clipLens, clipFound);
 
             // ---------- Contenedores ----------
             var bins = new GameObject("--- CONTENEDORES ---").transform;
@@ -404,12 +404,14 @@ namespace QualityControlXR.EditorTools
             var root = new GameObject("--- HERRAMIENTAS ---").transform;
             var wood = Mat("TableTop", new Color(0.45f, 0.32f, 0.2f));
             var metal = Mat("MetalDark", new Color(0.18f, 0.19f, 0.21f));
-            float top = BuildTable(root, "ToolTable", pos, new Vector2(0.55f, 1.15f), 0.8f, wood, metal);
+            // Mesa de 1.0 m de fondo, separada de la banda (antes se metía debajo de la baranda).
+            float top = BuildTable(root, "ToolTable", pos, new Vector2(0.55f, 1.0f), 0.8f, wood, metal);
 
-            // Las herramientas quedan acostadas hacia -X desde su raíz: se corre la raíz +0.15 para centrarlas.
-            BuildMagnifier(root, new Vector3(pos.x + 0.12f, top + 0.04f, pos.z + 0.38f), DefectType.Crack, lens, found);
-            BuildScrewdriver(root, new Vector3(pos.x + 0.12f, top + 0.04f, pos.z), screw, found);
-            BuildHammer(root, new Vector3(pos.x + 0.16f, top + 0.04f, pos.z - 0.38f), hammer, found);
+            // Las herramientas quedan acostadas hacia -X desde su raíz: se corre la raíz la mitad
+            // de su largo para que queden centradas en la mesa, repartidas a lo ancho.
+            BuildMagnifier(root, new Vector3(pos.x + 0.11f, top + 0.04f, pos.z + 0.3f), DefectType.Crack, lens, found);
+            BuildScrewdriver(root, new Vector3(pos.x + 0.11f, top + 0.04f, pos.z), screw, found);
+            BuildHammer(root, new Vector3(pos.x + 0.15f, top + 0.04f, pos.z - 0.3f), hammer, found);
 
             var sign = MakeCanvas("ToolSign", new Vector3(pos.x - 0.32f, 1.35f, pos.z), Quaternion.Euler(0f, -90f, 0f),
                 new Vector2(620, 330), 0.001f);
