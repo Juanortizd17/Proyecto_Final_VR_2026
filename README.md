@@ -21,15 +21,25 @@ almacenan en su contenedor.
 
 ## Cómo abrirlo y probarlo
 
-La plataforma por defecto es **Windows**: el mismo build funciona en PC y con el Quest por Link.
+Por ahora el proyecto es un **juego de PC en primera persona** (mouse y teclado, sin gafas).
+La versión VR se genera después con `Tools › Quality Control XR › Build Scene (VR - Meta Quest)`.
 
 1. Abrir la carpeta con **Unity 6000.0.58f2**.
 2. Abrir `Assets/Scenes/QualityControl.unity` y darle **Play**, o ejecutar `Builds/Windows/ControlCalidadXR.exe`.
-3. **Sin visor** se activa solo el *XR Device Simulator* (`DesktopFallback`): WASD para caminar,
-   clic derecho + mouse para mirar, Tab para cambiar entre cabeza y manos, G para agarrar, clic
-   izquierdo para el gatillo y botón "−" para plegar el panel de ayuda.
-4. **Con el Quest**: activar Quest Link antes de abrir. La guía de la primera prueba está en
-   [docs/PRUEBAS_QUEST.md](docs/PRUEBAS_QUEST.md).
+
+| Control | Acción |
+|---|---|
+| WASD / Shift | Caminar / correr |
+| Mouse | Mirar |
+| Clic izquierdo | Agarrar o soltar producto, tomar herramienta, depositar en contenedor, pulsar botones |
+| Clic derecho | Usar la herramienta sobre el producto apuntado o el que tienes en la mano |
+| 1 · 2 · 3 | Lupa · Destornillador · Martillo |
+| R | Devolver la herramienta a la mesa |
+| Q | Lanzar el producto |
+| Esc | Pausa (continuar, reiniciar, salir, sensibilidad del mouse) |
+| H | Mostrar u ocultar la ayuda |
+
+Guía para la futura prueba con gafas: [docs/PRUEBAS_QUEST.md](docs/PRUEBAS_QUEST.md).
 
 **Modo demostración**: `ControlCalidadXR.exe -autodemo -roundSeconds 60` juega un turno solo, guarda capturas
 y se cierra (las de la última corrida están en [docs/pc_demo](docs/pc_demo)).
