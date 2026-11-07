@@ -21,14 +21,25 @@ almacenan en su contenedor.
 
 ## Cómo abrirlo y probarlo
 
-1. Abrir la carpeta con **Unity 6000.0.58f2** (incluye el módulo Android).
-2. Abrir `Assets/Scenes/QualityControl.unity` y darle Play. Sin visor se activa el **XR Device Simulator**.
-3. Con visor: conectar el Quest por Link (PC) o compilar el APK.
+La plataforma por defecto es **Windows**: el mismo build funciona en PC y con el Quest por Link.
+
+1. Abrir la carpeta con **Unity 6000.0.58f2**.
+2. Abrir `Assets/Scenes/QualityControl.unity` y darle **Play**, o ejecutar `Builds/Windows/ControlCalidadXR.exe`.
+3. **Sin visor** se activa solo el *XR Device Simulator* (`DesktopFallback`): WASD para caminar,
+   clic derecho + mouse para mirar, Tab para cambiar entre cabeza y manos, G para agarrar, clic
+   izquierdo para el gatillo y botón "−" para plegar el panel de ayuda.
+4. **Con el Quest**: activar Quest Link antes de abrir. La guía de la primera prueba está en
+   [docs/PRUEBAS_QUEST.md](docs/PRUEBAS_QUEST.md).
+
+**Modo demostración**: `ControlCalidadXR.exe -autodemo -roundSeconds 60` juega un turno solo, guarda capturas
+y se cierra (las de la última corrida están en [docs/pc_demo](docs/pc_demo)).
 
 ### Menú `Tools › Quality Control XR`
 
 | Opción | Qué hace |
 |---|---|
+| Switch Platform to Windows / to Meta Quest (Android) | Cambia la plataforma activa |
+| Build Windows App | Compila `Builds/Windows/ControlCalidadXR.exe` |
 | Configure for Meta Quest | Android, IL2CPP ARM64, Vulkan, OpenXR con Meta Quest y controles Touch |
 | Build Scene | Regenera toda la escena, los prefabs y los materiales desde código |
 | Capture Screenshots | Renderiza vistas a `docs/screenshots` |
