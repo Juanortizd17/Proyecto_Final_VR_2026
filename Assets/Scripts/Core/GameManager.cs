@@ -94,6 +94,13 @@ namespace QualityControlXR
             if (Mistakes >= maxMistakes) Finish(false);
         }
 
+        /// <summary>Permite acortar el turno (modo demostración).</summary>
+        public void OverrideRoundDuration(float seconds)
+        {
+            roundDuration = Mathf.Max(10f, seconds);
+            if (State != GameState.Playing) TimeLeft = roundDuration;
+        }
+
         /// <summary>Usado por eventos inesperados (p. ej. avería de la banda compensa tiempo).</summary>
         public void AddTime(float seconds) => TimeLeft = Mathf.Max(0f, TimeLeft + seconds);
 

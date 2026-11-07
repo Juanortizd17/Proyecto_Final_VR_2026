@@ -75,13 +75,12 @@ namespace QualityControlXR
             if (s != GameState.Finished) return;
 
             string title = gm.Won ? "¡TURNO COMPLETADO!" : "TURNO FALLIDO";
-            string last = string.Join("\n", gm.Reports.Reverse().Take(4));
+            string last = string.Join("\n", gm.Reports.Reverse().Take(3));
             resultsText.text =
-                $"<size=56><b>{title}</b></size>\n\n" +
+                $"<size=56><b>{title}</b></size>\n" +
                 $"Puntaje final: <b>{gm.Score}</b>{(gm.NewRecord ? "  <color=#FFD54A>¡NUEVO RÉCORD!</color>" : "")}\n" +
-                $"Récord histórico: {gm.BestScore}\n" +
-                $"Aciertos: {gm.Correct}    Fallos: {gm.Mistakes}\n\n" +
-                $"<i>{Feedback()}</i>\n\n<size=26>{last}</size>";
+                $"Récord histórico: {gm.BestScore}    Aciertos: {gm.Correct}    Fallos: {gm.Mistakes}\n" +
+                $"<i>{Feedback()}</i>\n<size=28><color=#B8C2D0>{last}</color></size>";
         }
 
         string Feedback()

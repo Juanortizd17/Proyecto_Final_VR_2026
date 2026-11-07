@@ -25,6 +25,12 @@ namespace QualityControlXR
             // Damos tiempo a que OpenXR intente inicializar el visor.
             yield return new WaitForSeconds(waitForHeadsetSeconds);
             if (HeadsetActive() || simulatorPrefab == null || SimulatorActive) yield break;
+            // El simulador se controla con teclado; sin teclado (o en batchmode/CI) su UI falla.
+            if (Application.isBatchMode || UnityEngine.InputSystem.Keyboard.current == null)
+            {
+                Debug.Log("[DesktopFallback] Sin visor ni teclado: no se activa el simulador.");
+                yield break;
+            }
 
             Debug.Log("[DesktopFallback] No se detectó visor: se activa el simulador (mouse y teclado).");
             var sim = Instantiate(simulatorPrefab);

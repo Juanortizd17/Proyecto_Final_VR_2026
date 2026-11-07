@@ -85,6 +85,7 @@ namespace QualityControlXR.EditorTools
             var fallback = new GameObject("DesktopFallback");
             fallback.transform.SetParent(managers.transform);
             fallback.AddComponent<DesktopFallback>().Setup(AssetDatabase.LoadAssetAtPath<GameObject>(SimulatorPath));
+            new GameObject("AutoDemo (solo con -autodemo)").AddComponent<AutoDemo>().transform.SetParent(managers.transform);
 
             var es = new GameObject("EventSystem", typeof(EventSystem), typeof(XRUIInputModule));
             es.transform.SetParent(managers.transform);
@@ -470,7 +471,8 @@ namespace QualityControlXR.EditorTools
 
         static HudController BuildMainBoard(ConveyorBelt belt, AudioSource uiAudio, AudioClip warn)
         {
-            var canvas = MakeCanvas("MainBoard", new Vector3(0f, 2.05f, 1.75f), Quaternion.identity, new Vector2(1600, 720), 0.0012f);
+            // Un poco más bajo e inclinado hacia el operario: se lee completo en VR y en pantalla de PC.
+            var canvas = MakeCanvas("MainBoard", new Vector3(0f, 1.88f, 1.7f), Quaternion.Euler(-12f, 0f, 0f), new Vector2(1600, 720), 0.0012f);
             Panel(canvas.transform, "Bg", new Color(0.06f, 0.07f, 0.09f, 0.9f));
             Label(canvas.transform, "Header", "<b>LÍNEA DE INSPECCIÓN 01</b>  ·  UAO Immersive Solutions", 34, TextAnchor.UpperCenter,
                 new Color(0.6f, 0.75f, 0.9f), new Vector2(20, 640), new Vector2(-20, -16), anchored: true);

@@ -37,6 +37,9 @@ namespace QualityControlXR
             spawnPoint = spawn; productPrefabs = prefabs; alarm = alarmSource;
         }
 
+        /// <summary>Adelanta el primer evento inesperado (modo demostración).</summary>
+        public void OverrideFirstEvent(float seconds) => firstEventAt = Mathf.Max(5f, seconds);
+
         void Awake()
         {
             rb = GetComponent<Rigidbody>();
