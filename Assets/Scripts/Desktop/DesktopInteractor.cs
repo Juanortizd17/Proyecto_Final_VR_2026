@@ -18,7 +18,8 @@ namespace QualityControlXR
     {
         [SerializeField] Transform productHold;
         [SerializeField] Transform toolHold;
-        [SerializeField] float reach = 2.7f;
+        [SerializeField] float reach = 3.0f;
+        [SerializeField] float aimAssistRadius = 0.08f;   // tolerancia para objetos delgados (lupa, destornillador)
         [SerializeField] float uiReach = 7f;
         [SerializeField] AudioSource sfx;
         [SerializeField] AudioClip pickClip;
@@ -70,9 +71,20 @@ namespace QualityControlXR
             bool lmb = mouse != null && mouse.leftButton.wasPressedThisFrame;
             bool rmb = mouse != null && mouse.rightButton.wasPressedThisFrame;
 
+            // Capa "Ignore Raycast" (jugador y lo que tiene en la mano) queda fuera de la mira.
+            const int mask = Physics.DefaultRaycastLayers;
             Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-            bool hit = Physics.Raycast(ray, out var h, reach, ~0, QueryTriggerInteraction.Ignore);
-            Physics.Raycast(ray, out var ht, reach, ~0, QueryTriggerInteraction.Collide);
+            bool hit = Physics.Raycast(ray, out var h, reach, mask, QueryTriggerInteraction.Ignore);
+            Physics.Raycast(ray, out var ht, reach, mask, QueryTriggerInteraction.Collide);
+
+            // Asistencia de puntería: si el rayo no toca nada agarrable, probamos un "rayo grueso".
+            if (!hit || h.collider.GetComponentInParent<Grabbable>() == null)
+            {
+                if (Physics.SphereCast(ray, aimAssistRadius, out var hs, reach, mask, QueryTriggerInteraction.Ignore) &&
+                    hs.collider.GetComponentInParent<Grabbable>() != null &&
+                    (!hit || hs.distance <= h.distance + 0.3f))
+                { h = hs; hit = true; }
+            }
 
             var lines = new List<string>();
 
@@ -82,7 +94,7 @@ namespace QualityControlXR
             {
                 SetHover(null);
                 SetHoverButton(button);
-                lines.Add($"Clic izq: {ButtonLabel(button)}");
+                lines.Add(Key("Clic izq") + Cap(ButtonLabel(button)));
                 if (lmb) { Play(clickClip); button.onClick.Invoke(); }
                 Finish(lines);
                 return;
@@ -105,17 +117,17 @@ namespace QualityControlXR
                 bool isPractice = held.GetComponent<PracticeTarget>() != null;
                 if (aimedBin != null && !isPractice)
                 {
-                    lines.Add($"Clic izq: depositar en {aimedBin.Label}");
+                    lines.Add(Key("Clic izq") + "Depositar en " + aimedBin.Label);
                     if (lmb) DepositInto(aimedBin.DropPoint);
                 }
                 else if (aimedSocket != null && isPractice && !aimedSocket.Occupied)
                 {
-                    lines.Add("Clic izq: colocar en el soporte");
+                    lines.Add(Key("Clic izq") + "Colocar en el soporte");
                     if (lmb) DepositInto(aimedSocket.SnapPosition + Vector3.up * 0.02f);
                 }
                 else
                 {
-                    lines.Add("Clic izq: soltar   ·   Q: lanzar");
+                    lines.Add(Key("Clic izq") + "Soltar     " + Key("Q") + "Lanzar");
                     if (lmb) Drop(0.6f);
                 }
                 if (kb != null && kb.qKey.wasPressedThisFrame) Throw();
@@ -123,7 +135,7 @@ namespace QualityControlXR
             else if (target != null)
             {
                 var tool = target.GetComponent<InspectionTool>();
-                lines.Add(tool ? $"Clic izq: tomar {tool.ToolName}" : $"Clic izq: agarrar {target.DisplayName}");
+                lines.Add(Key("Clic izq") + (tool ? "Tomar " + tool.ToolName : "Agarrar " + target.DisplayName));
                 if (lmb) { if (tool) Equip(tool); else Grab(target); }
             }
 
@@ -146,7 +158,7 @@ namespace QualityControlXR
 
                 if (useTarget != null)
                 {
-                    lines.Add($"Clic der: usar {equipped.ToolName}");
+                    lines.Add(Key("Clic der") + "Revisar con " + equipped.ToolName);
                     if (rmb) UseToolOn(useTarget);
                 }
                 if (kb != null && kb.rKey.wasPressedThisFrame) Unequip();
@@ -161,6 +173,9 @@ namespace QualityControlXR
 
             Finish(lines);
         }
+
+        static string Key(string k) => $"<color=#FFC21A><b>{k}</b></color>  ";
+        static string Cap(string s) => string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0]) + s.Substring(1);
 
         void Finish(List<string> lines)
         {
@@ -224,6 +239,7 @@ namespace QualityControlXR
             if (held == null) return;
             var g = held; held = null;
             RestoreLayers(g.gameObject);
+            SetColliders(g.gameObject, true);
             SetIgnoreBody(g.gameObject, false);
             g.SetDesktopHeld(false);
             StartCoroutine(Fly(g, point));
@@ -298,15 +314,18 @@ namespace QualityControlXR
             var rb = g.GetComponent<Rigidbody>();
             if (isHeld)
             {
+                // En la mano no colisiona: no tapa la mira ni empuja productos fuera de la banda.
                 SaveLayers(g.gameObject);
                 SetLayer(g.gameObject, IgnoreRaycastLayer);
                 SetIgnoreBody(g.gameObject, true);
+                SetColliders(g.gameObject, false);
                 if (rb) { rb.isKinematic = true; rb.interpolation = RigidbodyInterpolation.None; }
                 if (hovered == g) SetHover(null);
             }
             else
             {
                 RestoreLayers(g.gameObject);
+                SetColliders(g.gameObject, true);
                 if (rb) { rb.isKinematic = false; rb.interpolation = RigidbodyInterpolation.Interpolate; }
                 StartCoroutine(ReenableBodyCollision(g.gameObject));
             }
@@ -323,6 +342,11 @@ namespace QualityControlXR
         {
             if (body == null) return;
             foreach (var c in go.GetComponentsInChildren<Collider>()) if (c) Physics.IgnoreCollision(body, c, ignore);
+        }
+
+        static void SetColliders(GameObject go, bool enabled)
+        {
+            foreach (var c in go.GetComponentsInChildren<Collider>(true)) c.enabled = enabled;
         }
 
         void SaveLayers(GameObject go)

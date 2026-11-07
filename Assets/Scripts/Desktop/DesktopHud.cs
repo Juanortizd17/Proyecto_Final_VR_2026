@@ -18,9 +18,9 @@ namespace QualityControlXR
         DesktopPlayer player;
         DesktopInteractor interactor;
         Font font;
-        Image crosshair;
+        Image crosshair, promptBg;
         Text prompt, toolText, helpText, sensValue;
-        GameObject helpPanel, pausePanel;
+        GameObject helpPanel, helpHint, pausePanel;
         Slider sensSlider;
 
         void Start()
@@ -29,16 +29,28 @@ namespace QualityControlXR
             interactor = FindFirstObjectByType<DesktopInteractor>();
             font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             Build();
+            // La ayuda se ve durante el entrenamiento; al empezar el turno se pliega a "H Controles".
+            if (GameManager.Instance != null)
+                GameManager.Instance.OnStateChanged += s => { if (s == GameState.Playing) ShowHelp(false); };
+            ShowHelp(true);
+        }
+
+        void ShowHelp(bool show)
+        {
+            helpPanel.SetActive(show);
+            helpHint.SetActive(!show);
         }
 
         void Update()
         {
             var kb = Keyboard.current;
             if (kb != null && kb.escapeKey.wasPressedThisFrame) SetPaused(!pausePanel.activeSelf);
-            if (kb != null && kb.hKey.wasPressedThisFrame) helpPanel.SetActive(!helpPanel.activeSelf);
+            if (kb != null && kb.hKey.wasPressedThisFrame) ShowHelp(!helpPanel.activeSelf);
             if (pausePanel.activeSelf || interactor == null) return;
 
-            prompt.text = interactor.Prompt;
+            bool hasPrompt = !string.IsNullOrEmpty(interactor.Prompt);
+            if (promptBg.gameObject.activeSelf != hasPrompt) promptBg.gameObject.SetActive(hasPrompt);
+            if (prompt.text != interactor.Prompt) prompt.text = interactor.Prompt;
             crosshair.color = interactor.HasTarget ? Accent : new Color(1f, 1f, 1f, 0.85f);
             crosshair.rectTransform.sizeDelta = Vector2.one * (interactor.HasTarget ? 12f : 7f);
 
@@ -80,16 +92,30 @@ namespace QualityControlXR
             var outline = crosshair.gameObject.AddComponent<Outline>();
             outline.effectColor = new Color(0f, 0f, 0f, 0.8f); outline.effectDistance = new Vector2(1.5f, -1.5f);
 
-            // Indicación contextual bajo la mira
-            prompt = MakeText(root, "Prompt", "", 24, TextAnchor.UpperCenter, new Vector2(0.5f, 0.5f), new Vector2(0f, -30f), new Vector2(900f, 90f));
-            AddShadow(prompt);
+            // Indicación contextual: cápsula discreta debajo de la mira (no encima)
+            promptBg = MakeImage(root, "PromptBg", new Color(0.04f, 0.05f, 0.07f, 0.62f), new Vector2(0.5f, 0.5f), new Vector2(0f, -38f), Vector2.zero, new Vector2(0.5f, 1f));
+            var layout = promptBg.gameObject.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(18, 18, 8, 9);
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childControlWidth = layout.childControlHeight = true;
+            layout.childForceExpandWidth = layout.childForceExpandHeight = false;
+            var fitter = promptBg.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            prompt = MakeText(promptBg.transform, "Prompt", "", 20, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            prompt.horizontalOverflow = HorizontalWrapMode.Overflow;
+            prompt.lineSpacing = 1.15f;
+            promptBg.gameObject.SetActive(false);
 
             // Herramienta activa (abajo a la derecha)
             var toolBg = MakeImage(root, "ToolPanel", Panel, new Vector2(1f, 0f), new Vector2(-30f, 30f), new Vector2(620f, 74f), new Vector2(1f, 0f));
             toolText = MakeText(toolBg.transform, "Text", "", 21, TextAnchor.MiddleLeft, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(590f, 70f));
 
             // Ayuda de controles (abajo a la izquierda)
-            var help = MakeImage(root, "HelpPanel", Panel, new Vector2(0f, 0f), new Vector2(30f, 30f), new Vector2(420f, 210f), new Vector2(0f, 0f));
+            var hint = MakeImage(root, "HelpHint", new Color(0.04f, 0.05f, 0.07f, 0.55f), new Vector2(0f, 0f), new Vector2(30f, 30f), new Vector2(170f, 40f), new Vector2(0f, 0f));
+            helpHint = hint.gameObject;
+            MakeText(hint.transform, "Text", "<color=#FFC21A><b>H</b></color>  Controles", 19, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(170f, 40f));
+
+            var help = MakeImage(root, "HelpPanel", new Color(0.06f, 0.07f, 0.09f, 0.72f), new Vector2(0f, 0f), new Vector2(30f, 30f), new Vector2(420f, 210f), new Vector2(0f, 0f));
             helpPanel = help.gameObject;
             helpText = MakeText(help.transform, "Text",
                 "<b><color=#FFC21A>CONTROLES</color></b>\n" +

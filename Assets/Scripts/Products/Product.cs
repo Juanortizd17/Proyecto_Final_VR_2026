@@ -82,7 +82,8 @@ namespace QualityControlXR
             }
             var col = GetComponent<Collider>();
             float top = col ? col.bounds.max.y : transform.position.y + 0.2f;
-            InspectionPopup.Show(new Vector3(transform.position.x, top + 0.18f, transform.position.z), msg, c);
+            // Por encima de la esfera indicadora (que está a +0.07 m).
+            InspectionPopup.Show(new Vector3(transform.position.x, top + 0.2f, transform.position.z), msg, c);
         }
     }
 }

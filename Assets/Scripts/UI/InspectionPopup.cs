@@ -21,8 +21,9 @@ namespace QualityControlXR
             canvas.renderMode = RenderMode.WorldSpace;
             canvas.sortingOrder = 50;
             var rt = (RectTransform)go.transform;
+            // ~4 cm de alto por letra: legible sobre el producto sin tapar la vista.
             rt.sizeDelta = new Vector2(700, 120);
-            rt.localScale = Vector3.one * 0.0022f;
+            rt.localScale = Vector3.one * 0.0007f;
             rt.position = worldPos;
 
             var label = new GameObject("Text", typeof(RectTransform)).AddComponent<Text>();
@@ -30,7 +31,7 @@ namespace QualityControlXR
             label.rectTransform.anchorMin = Vector2.zero; label.rectTransform.anchorMax = Vector2.one;
             label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            label.fontSize = 56; label.fontStyle = FontStyle.Bold;
+            label.fontSize = 50; label.fontStyle = FontStyle.Bold;
             label.alignment = TextAnchor.MiddleCenter;
             label.horizontalOverflow = HorizontalWrapMode.Overflow;
             label.text = message; label.color = color; label.raycastTarget = false;
@@ -45,7 +46,7 @@ namespace QualityControlXR
         {
             t += Time.deltaTime;
             float k = t / Life;
-            transform.position = start + Vector3.up * (0.25f * Mathf.Sqrt(k));
+            transform.position = start + Vector3.up * (0.12f * Mathf.Sqrt(k));
             var cam = Camera.main;
             if (cam) transform.rotation = Quaternion.LookRotation(transform.position - cam.transform.position);
             float a = k < 0.7f ? 1f : Mathf.Lerp(1f, 0f, (k - 0.7f) / 0.3f);
