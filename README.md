@@ -1,93 +1,86 @@
-# Control de Calidad XR
+# Laboratorio de Mezclas
 
-Proyecto Final de **Fundamentos de Realidad Virtual 2026**. Experiencia inmersiva para **Meta Quest 2 / 3**
-hecha con **Unity 6 (6000.0.58f2) + XR Interaction Toolkit 3.0 + OpenXR**, para la empresa ficticia
-*UAO Immersive Solutions*.
+Proyecto Final de **Fundamentos de Realidad Virtual 2026** (opción 3 del enunciado: *Laboratorio Científico XR*),
+hecho con **Unity 6 (6000.0.58f2)** para la empresa ficticia *UAO Immersive Solutions*.
 
-El operario trabaja frente a una banda transportadora que entrega 5 tipos de producto (radio, lámpara,
-parlante, televisor y oso de peluche). Con **lupa, destornillador y martillo** debe descubrir defectos
-(grietas, tornillos flojos, piezas huecas). Los defectuosos se desechan y se reportan; los perfectos se
-almacenan en su contenedor.
+Eres el encargado de un laboratorio-bar. Ramiro, el cliente de prueba, pide bebidas; tú combinas ingredientes
+con propiedades químicas (ácido, gas, alcohol, picante, lácteo, cafeína…), ajustas la temperatura, agitas y sirves.
+Si aciertas, suma puntos. Si te equivocas, **su cuerpo reacciona**: se pone rojo y suda con el picante, se marea,
+se pone verde, le explota la mezcla en la cara o cae desmayado. Hay **12 reacciones por descubrir** en el libro.
 
-![Vista general](docs/screenshots/01_vista_general.png)
+![Vista del jugador](docs/screenshots/mix/01_jugador.png)
 
 ## Requerimientos del enunciado
 
-- [x] **Onboarding VR**: moverse, agarrar, inspeccionar y colocar en un socket, validado con eventos XR
-- [x] **Interacciones principales**: Grab Interactable, Socket, botones UI XR, háptica, audio espacial
-- [x] **Eventos dinámicos**: temporizador de 3:00, fallo con 5 errores, aceleración o avería inesperada de la banda, alerta a 30 s
-- [x] **Puntuación verificable**: +100 por acierto, −50 por error o producto perdido, récord histórico
-- [x] **Cierre**: panel final con resultado, retroalimentación, reportes de daño y opción de reiniciar o salir
+- [x] **Onboarding**: entrenamiento guiado (moverse, verter, agitar, servir) validado con acciones reales
+- [x] **Interacciones principales**: ingredientes, palanca de temperatura, palanca de agitar, vaso que se agarra,
+      posavasos del cliente (socket), lavaplatos, botones en tableros
+- [x] **Eventos dinámicos**: tiempo del turno, paciencia del cliente, *hora pico* (doble afán) y *apagón*
+      (sin etiquetas: toca reconocer los ingredientes), 3 desmayos suspenden el turno
+- [x] **Puntuación verificable**: +100 y bono por rapidez en pedido perfecto; cada reacción resta o suma
+- [x] **Cierre**: panel final con puntaje, récord, pedidos perfectos, reacciones descubiertas y retroalimentación
 
-## Cómo abrirlo y probarlo
+## Cómo abrirlo
 
-Por ahora el proyecto es un **juego de PC en primera persona** (mouse y teclado, sin gafas).
-La versión VR se genera después con `Tools › Quality Control XR › Build Scene (VR - Meta Quest)`.
+Por ahora es un **juego de PC en primera persona** (mouse y teclado). La conversión a Meta Quest es el siguiente paso.
 
 1. Abrir la carpeta con **Unity 6000.0.58f2**.
-2. Abrir `Assets/Scenes/QualityControl.unity` y darle **Play**, o ejecutar `Builds/Windows/ControlCalidadXR.exe`.
+2. Abrir `Assets/Scenes/MixLab.unity` y darle **Play**, o ejecutar `Builds/Windows/ControlCalidadXR.exe`.
 
 | Control | Acción |
 |---|---|
-| WASD / Shift | Caminar / correr |
-| Mouse | Mirar |
-| Clic izquierdo | Agarrar o soltar producto, tomar herramienta, depositar en contenedor, pulsar botones |
-| Clic derecho | Usar la herramienta sobre el producto apuntado o el que tienes en la mano |
-| 1 · 2 · 3 | Lupa · Destornillador · Martillo |
-| R | Devolver la herramienta a la mesa |
-| Q | Lanzar el producto |
-| Esc | Pausa (continuar, reiniciar, salir, sensibilidad del mouse) |
-| H | Mostrar u ocultar la ayuda |
+| WASD · Mouse | Caminar · mirar |
+| Clic izquierdo sobre un ingrediente | Verter una dosis en el vaso (máximo 4) |
+| Clic izquierdo sobre una palanca | Cambiar temperatura / agitar |
+| Clic izquierdo sobre el vaso | Agarrarlo; luego apunta al cliente y haz clic para servir |
+| Clic izquierdo sobre el lavaplatos | Vaciar el vaso |
+| R | Dejar el vaso en la estación |
+| Esc · H | Pausa (con sensibilidad del mouse) · ayuda |
 
-Guía para la futura prueba con gafas: [docs/PRUEBAS_QUEST.md](docs/PRUEBAS_QUEST.md).
+**Modo demostración**: `ControlCalidadXR.exe -autodemo -roundSeconds 70` juega un turno solo y guarda capturas
+(las de la última corrida están en [docs/pc_demo](docs/pc_demo)).
 
-**Modo demostración**: `ControlCalidadXR.exe -autodemo -roundSeconds 60` juega un turno solo, guarda capturas
-y se cierra (las de la última corrida están en [docs/pc_demo](docs/pc_demo)).
+## Reacciones
 
-### Menú `Tools › Quality Control XR`
-
-| Opción | Qué hace |
+| Mezcla | Reacción |
 |---|---|
-| Switch Platform to Windows / to Meta Quest (Android) | Cambia la plataforma activa |
-| Build Windows App | Compila `Builds/Windows/ControlCalidadXR.exe` |
-| Configure for Meta Quest | Android, IL2CPP ARM64, Vulkan, OpenXR con Meta Quest y controles Touch |
-| Build Scene | Regenera toda la escena, los prefabs y los materiales desde código |
-| Capture Screenshots | Renderiza vistas a `docs/screenshots` |
-| Build Quest APK | Compila `Builds/ControlCalidadXR.apk` |
-| Import XRI Samples / Fix Sample Materials | Importa los Starter Assets y adapta sus materiales al pipeline integrado |
+| Exactamente el pedido (y su temperatura) | Pedido perfecto |
+| Ají | Picante: rojo y sudando |
+| Salsa del Diablo | Picante infernal: humo por las orejas |
+| Soda + efervescente | Explosión en la cara |
+| Mucho alcohol | Mareo total |
+| Alcohol fuerte + caliente | Llamarada |
+| Leche + limón | Náusea verde |
+| Menta + frío | Cerebro congelado |
+| Doble café | Sobredosis de café |
+| Salsa del Diablo + alcohol | Desmayo (cuenta para perder) |
 
-Instalar el APK en el visor (modo desarrollador activado):
+## Manejo de datos
 
-```bash
-adb install -r Builds/ControlCalidadXR.apk
-```
-
-### Pruebas automáticas
-
-7 pruebas PlayMode en `Assets/Tests/PlayMode` (Window › General › Test Runner). Cubren la banda física,
-la clasificación en contenedores, la zona de pérdida, el onboarding, el cierre con guardado en JSON y el
-fin del turno por fallos.
+- **ScriptableObjects** en `Assets/Data/Mix`: 12 ingredientes (color y propiedades), 7 recetas y 12 reacciones
+  (texto, puntaje, color). Se agregan o cambian sin tocar código.
+- **JSON** en `Application.persistentDataPath/mix_save.json`: libro de reacciones descubiertas, récord e
+  historial de turnos. El libro se conserva entre partidas.
 
 ## Estructura
 
 ```
 Assets/
-  Scripts/      Core · Conveyor · Products · Tools · UI   (namespace QualityControlXR)
-  Editor/       SceneBuilder · ProjectSetup · SceneSnapshot · BuildQuest
-  Prefabs/      Products/ (5 productos)
-  Scenes/       QualityControl.unity
-  Tests/        PlayMode/
-  ThirdParty/   Kenney (CC0): Factory Kit, Furniture Kit, Interface e Impact Sounds
-  Samples/      XRI Starter Assets y XR Device Simulator
-docs/           Enunciado, opciones de proyecto y capturas
-presentation/   Presentación de sustentación (.pptx) y su generador (node build_deck.js)
+  Scripts/MixLab/   Data · Core · Interaction · Customer · UI
+  Scripts/Desktop/  Jugador de PC, mira y HUD (compartidos)
+  Editor/           MixSceneBuilder (genera la escena), MixSnapshot, BuildQuest
+  Data/Mix/         Ingredients · Recipes · Reactions (ScriptableObjects)
+  Scenes/           MixLab.unity  (y QualityControl.unity, el prototipo anterior)
+  Tests/PlayMode/   19 pruebas automáticas
+  ThirdParty/Kenney Modelos y sonidos CC0 (Food Kit, Furniture Kit, Factory Kit, sonidos)
+docs/               Enunciado, capturas y guía de prueba con Quest
+presentation/       Presentación de sustentación
 ```
 
-## Manejo de datos
+Menú **Tools › Mix Lab**: *Build Scene* regenera la escena y los datos; *Capture Screenshots* saca vistas.
+`Tools › Quality Control XR › Build Windows App` compila el `.exe`.
 
-Cada turno se guarda en `Application.persistentDataPath/qc_history.json` (`ScoreRepository`). Se guardan
-la fecha, el puntaje, los aciertos, los fallos, el tiempo jugado y los reportes de daño. Se conservan las
-últimas 50 sesiones y de ahí sale el récord.
+`Assets/Scenes/QualityControl.unity` conserva el primer prototipo (Control de Calidad XR, opción 1).
 
 ## Rúbrica
 
@@ -98,4 +91,4 @@ la fecha, el puntaje, los aciertos, los fallos, el tiempo jugado y los reportes 
 
 ## Créditos
 
-Modelos y sonidos de [Kenney](https://kenney.nl) (CC0). Rig XR y simulador de los samples del XR Interaction Toolkit de Unity.
+Modelos y sonidos de [Kenney](https://kenney.nl) (CC0).
