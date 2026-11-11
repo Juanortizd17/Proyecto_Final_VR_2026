@@ -14,7 +14,7 @@ namespace QualityControlXR
     ///  · Clic derecho: usar la herramienta sobre el producto apuntado o el que se tiene en la mano.
     ///  · Q: lanzar el producto · 1/2/3: lupa/destornillador/martillo · R: devolver la herramienta.
     /// </summary>
-    public class DesktopInteractor : MonoBehaviour
+    public class DesktopInteractor : MonoBehaviour, IAimHud
     {
         [SerializeField] Transform productHold;
         [SerializeField] Transform toolHold;
@@ -44,6 +44,20 @@ namespace QualityControlXR
         public InspectionTool Equipped => equipped;
         public string Prompt { get; private set; } = "";
         public bool HasTarget { get; private set; }
+
+        public string StatusText =>
+            $"<b>Herramienta:</b> <color=#FFC21A>{(equipped ? equipped.ToolName : "ninguna")}</color>     <b>Mano:</b> {(held ? held.DisplayName : "vacía")}\n" +
+            "<size=17>[1] Lupa   [2] Destornillador   [3] Martillo   [R] Guardar</size>";
+
+        public string HelpText =>
+            "<b><color=#FFC21A>CONTROLES</color></b>\n" +
+            "WASD  caminar   ·   Shift  correr\n" +
+            "Mouse  mirar\n" +
+            "Clic izq  agarrar / soltar / botones\n" +
+            "Clic der  usar herramienta\n" +
+            "1 2 3  elegir herramienta   ·   R  guardar\n" +
+            "Q  lanzar producto\n" +
+            "Esc  pausa   ·   H  ocultar ayuda";
 
         public void Setup(Transform productPoint, Transform toolPoint, AudioSource source, AudioClip pick, AudioClip drop, AudioClip click)
         {

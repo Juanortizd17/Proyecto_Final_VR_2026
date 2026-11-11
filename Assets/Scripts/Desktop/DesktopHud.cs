@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -16,7 +17,7 @@ namespace QualityControlXR
         static readonly Color Accent = new Color(1f, 0.78f, 0.1f);
 
         DesktopPlayer player;
-        DesktopInteractor interactor;
+        IAimHud interactor;
         Font font;
         Image crosshair, promptBg;
         Text prompt, toolText, helpText, sensValue;
@@ -26,12 +27,14 @@ namespace QualityControlXR
         void Start()
         {
             player = FindFirstObjectByType<DesktopPlayer>();
-            interactor = FindFirstObjectByType<DesktopInteractor>();
+            interactor = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IAimHud>().FirstOrDefault();
             font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             Build();
             // La ayuda se ve durante el entrenamiento; al empezar el turno se pliega a "H Controles".
             if (GameManager.Instance != null)
                 GameManager.Instance.OnStateChanged += s => { if (s == GameState.Playing) ShowHelp(false); };
+            if (MixLab.MixGameManager.Instance != null)
+                MixLab.MixGameManager.Instance.OnStateChanged += s => { if (s == MixLab.MixState.Playing) ShowHelp(false); };
             ShowHelp(true);
         }
 
@@ -54,10 +57,7 @@ namespace QualityControlXR
             crosshair.color = interactor.HasTarget ? Accent : new Color(1f, 1f, 1f, 0.85f);
             crosshair.rectTransform.sizeDelta = Vector2.one * (interactor.HasTarget ? 12f : 7f);
 
-            string tool = interactor.Equipped ? interactor.Equipped.ToolName : "ninguna";
-            string hand = interactor.Held ? interactor.Held.DisplayName : "vacía";
-            toolText.text = $"<b>Herramienta:</b> <color=#FFC21A>{tool}</color>     <b>Mano:</b> {hand}\n" +
-                            "<size=17>[1] Lupa   [2] Destornillador   [3] Martillo   [R] Guardar</size>";
+            toolText.text = interactor.StatusText;
         }
 
         public void SetPaused(bool paused)
@@ -117,15 +117,7 @@ namespace QualityControlXR
 
             var help = MakeImage(root, "HelpPanel", new Color(0.06f, 0.07f, 0.09f, 0.72f), new Vector2(0f, 0f), new Vector2(30f, 30f), new Vector2(420f, 210f), new Vector2(0f, 0f));
             helpPanel = help.gameObject;
-            helpText = MakeText(help.transform, "Text",
-                "<b><color=#FFC21A>CONTROLES</color></b>\n" +
-                "WASD  caminar   ·   Shift  correr\n" +
-                "Mouse  mirar\n" +
-                "Clic izq  agarrar / soltar / botones\n" +
-                "Clic der  usar herramienta\n" +
-                "1 2 3  elegir herramienta   ·   R  guardar\n" +
-                "Q  lanzar producto\n" +
-                "Esc  pausa   ·   H  ocultar ayuda",
+            helpText = MakeText(help.transform, "Text", interactor != null ? interactor.HelpText : "",
                 19, TextAnchor.MiddleLeft, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(390f, 190f));
 
             // Menú de pausa
