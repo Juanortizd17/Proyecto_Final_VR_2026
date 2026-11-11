@@ -37,11 +37,11 @@ namespace QualityControlXR.EditorTools
         static readonly Vector3 WorkSpot = new Vector3(0f, 0f, -0.15f);
         static readonly Vector3 PlayerStart = new Vector3(0f, 0f, -4.3f);
 
-        static Font font;
-        static Camera rigCamera;
+        internal static Font font;
+        internal static Camera rigCamera;
 
-        struct ProductDef { public ProductType type; public string fbx; public Color color; }
-        static readonly ProductDef[] Products =
+        internal struct ProductDef { public ProductType type; public string fbx; public Color color; }
+        internal static readonly ProductDef[] Products =
         {
             new ProductDef { type = ProductType.Radio, fbx = "radio", color = new Color(0.95f, 0.55f, 0.2f) },
             new ProductDef { type = ProductType.Lamp, fbx = "lampSquareTable", color = new Color(0.95f, 0.85f, 0.3f) },
@@ -166,7 +166,7 @@ namespace QualityControlXR.EditorTools
         // Jugador de PC
         // =====================================================================
 
-        static GameObject BuildDesktopPlayer(AudioClip pick, AudioClip drop, AudioClip click)
+        internal static GameObject BuildDesktopPlayer(AudioClip pick, AudioClip drop, AudioClip click)
         {
             var player = new GameObject("Player (PC)");
             player.layer = 2;   // Ignore Raycast: la mira no se apunta a sí misma
@@ -204,7 +204,7 @@ namespace QualityControlXR.EditorTools
         // Entorno
         // =====================================================================
 
-        static void BuildLighting()
+        internal static void BuildLighting()
         {
             var sun = new GameObject("Directional Light").AddComponent<Light>();
             sun.type = LightType.Directional;
@@ -233,7 +233,7 @@ namespace QualityControlXR.EditorTools
             }
         }
 
-        static void BuildEnvironment()
+        internal static void BuildEnvironment()
         {
             var env = new GameObject("--- ENTORNO ---").transform;
             var floorMat = Mat("Floor", new Color(0.28f, 0.29f, 0.31f));
@@ -278,7 +278,7 @@ namespace QualityControlXR.EditorTools
         // Banda transportadora
         // =====================================================================
 
-        static ConveyorBelt BuildConveyor(Product[] prefabs, PhysicsMaterial grip, AudioClip alarmClip, AudioClip lostClip)
+        internal static ConveyorBelt BuildConveyor(Product[] prefabs, PhysicsMaterial grip, AudioClip alarmClip, AudioClip lostClip)
         {
             var root = new GameObject("--- BANDA ---").transform;
             var metal = Mat("MetalDark", new Color(0.18f, 0.19f, 0.21f));
@@ -357,7 +357,7 @@ namespace QualityControlXR.EditorTools
         // Productos
         // =====================================================================
 
-        static Product BuildProductPrefab(ProductDef def, PhysicsMaterial grip)
+        internal static Product BuildProductPrefab(ProductDef def, PhysicsMaterial grip)
         {
             var root = new GameObject("Product_" + def.type);
             var model = Fit("FurnitureKit", def.fbx, root.transform, Vector3.zero, 0.26f, 0f, allAxes: true);
@@ -399,7 +399,7 @@ namespace QualityControlXR.EditorTools
         // Herramientas
         // =====================================================================
 
-        static void BuildToolTable(Vector3 pos, AudioClip tap, AudioClip screw, AudioClip hammer, AudioClip lens, AudioClip found)
+        internal static void BuildToolTable(Vector3 pos, AudioClip tap, AudioClip screw, AudioClip hammer, AudioClip lens, AudioClip found)
         {
             var root = new GameObject("--- HERRAMIENTAS ---").transform;
             var wood = Mat("TableTop", new Color(0.45f, 0.32f, 0.2f));
@@ -421,7 +421,7 @@ namespace QualityControlXR.EditorTools
                 38, TextAnchor.MiddleCenter, Color.white, new Vector2(20, 15), new Vector2(-20, -15));
         }
 
-        static GameObject ToolRoot(Transform parent, string name, Vector3 pos)
+        internal static GameObject ToolRoot(Transform parent, string name, Vector3 pos)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent);
@@ -429,7 +429,7 @@ namespace QualityControlXR.EditorTools
             return go;
         }
 
-        static void FinishTool(GameObject go, DefectType detects, AudioClip use, AudioClip found, Vector3 tipPos, float tipRadius)
+        internal static void FinishTool(GameObject go, DefectType detects, AudioClip use, AudioClip found, Vector3 tipPos, float tipRadius)
         {
             string toolName = detects switch
             {
@@ -459,7 +459,7 @@ namespace QualityControlXR.EditorTools
             go.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
         }
 
-        static GameObject BuildMagnifier(Transform parent, Vector3 pos, DefectType detects, AudioClip use, AudioClip found)
+        internal static GameObject BuildMagnifier(Transform parent, Vector3 pos, DefectType detects, AudioClip use, AudioClip found)
         {
             var go = ToolRoot(parent, "Tool_Lupa", pos);
             var handleMat = Mat("ToolHandleBlue", new Color(0.15f, 0.45f, 0.85f));
@@ -470,7 +470,7 @@ namespace QualityControlXR.EditorTools
             return go;
         }
 
-        static void BuildScrewdriver(Transform parent, Vector3 pos, AudioClip use, AudioClip found)
+        internal static void BuildScrewdriver(Transform parent, Vector3 pos, AudioClip use, AudioClip found)
         {
             var go = ToolRoot(parent, "Tool_Destornillador", pos);
             Part(PrimitiveType.Cylinder, "Handle", go.transform, new Vector3(0f, 0.05f, 0f), new Vector3(0.036f, 0.05f, 0.036f), Quaternion.identity, Mat("ToolHandleYellow", new Color(1f, 0.8f, 0.1f)));
@@ -479,7 +479,7 @@ namespace QualityControlXR.EditorTools
             FinishTool(go, DefectType.LooseScrew, use, found, new Vector3(0f, 0.225f, 0f), 0.035f);
         }
 
-        static void BuildHammer(Transform parent, Vector3 pos, AudioClip use, AudioClip found)
+        internal static void BuildHammer(Transform parent, Vector3 pos, AudioClip use, AudioClip found)
         {
             var go = ToolRoot(parent, "Tool_Martillo", pos);
             Part(PrimitiveType.Cylinder, "Handle", go.transform, new Vector3(0f, 0.14f, 0f), new Vector3(0.03f, 0.14f, 0.03f), Quaternion.identity, Mat("ToolHandleWood", new Color(0.55f, 0.35f, 0.18f)));
@@ -491,7 +491,7 @@ namespace QualityControlXR.EditorTools
         // Contenedores
         // =====================================================================
 
-        static void BuildBin(Transform parent, string name, Vector3 pos, float yaw, Material color, string label,
+        internal static void BuildBin(Transform parent, string name, Vector3 pos, float yaw, Material color, string label,
                              BinKind kind, ProductType type, string previewFbx, AudioClip ok, AudioClip fail)
         {
             var root = new GameObject(name).transform;
@@ -542,7 +542,7 @@ namespace QualityControlXR.EditorTools
         // UI
         // =====================================================================
 
-        static HudController BuildMainBoard(ConveyorBelt belt, AudioSource uiAudio, AudioClip warn)
+        internal static HudController BuildMainBoard(ConveyorBelt belt, AudioSource uiAudio, AudioClip warn)
         {
             // Un poco más bajo e inclinado hacia el operario: se lee completo en VR y en pantalla de PC.
             var canvas = MakeCanvas("MainBoard", new Vector3(0f, 1.88f, 1.7f), Quaternion.Euler(-12f, 0f, 0f), new Vector2(1600, 720), 0.0012f);
@@ -578,7 +578,7 @@ namespace QualityControlXR.EditorTools
             return hud;
         }
 
-        static void BuildOnboarding(Transform rig, HudController hud, AudioSource uiAudio, AudioClip step, AudioClip tap, AudioClip found)
+        internal static void BuildOnboarding(Transform rig, HudController hud, AudioSource uiAudio, AudioClip step, AudioClip tap, AudioClip found)
         {
             var root = new GameObject("--- ONBOARDING ---").transform;
             var wood = Mat("TableTop", new Color(0.45f, 0.32f, 0.2f));
@@ -641,7 +641,7 @@ namespace QualityControlXR.EditorTools
         // Helpers de UI
         // =====================================================================
 
-        static Canvas MakeCanvas(string name, Vector3 pos, Quaternion rot, Vector2 sizePx, float scale)
+        internal static Canvas MakeCanvas(string name, Vector3 pos, Quaternion rot, Vector2 sizePx, float scale)
         {
             // GraphicRaycaster: la mira del PC pulsa botones · TrackedDeviceGraphicRaycaster: rayos de los controles VR.
             var go = new GameObject(name, typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(TrackedDeviceGraphicRaycaster));
@@ -656,7 +656,7 @@ namespace QualityControlXR.EditorTools
             return c;
         }
 
-        static RectTransform Child(Transform parent, string name)
+        internal static RectTransform Child(Transform parent, string name)
         {
             var go = new GameObject(name, typeof(RectTransform));
             var rt = (RectTransform)go.transform;
@@ -666,7 +666,7 @@ namespace QualityControlXR.EditorTools
             return rt;
         }
 
-        static Image Panel(Transform parent, string name, Color color)
+        internal static Image Panel(Transform parent, string name, Color color)
         {
             var rt = Child(parent, name);
             var img = rt.gameObject.AddComponent<Image>();
@@ -679,7 +679,7 @@ namespace QualityControlXR.EditorTools
         /// Texto. Por defecto los dos vectores son márgenes (offsetMin/offsetMax) sobre el padre completo.
         /// Con absolute=true son esquinas en píxeles (abajo-izquierda, arriba-derecha) desde la esquina inferior izquierda.
         /// </summary>
-        static Text Label(Transform parent, string name, string text, int size, TextAnchor align, Color color,
+        internal static Text Label(Transform parent, string name, string text, int size, TextAnchor align, Color color,
                           Vector2 a, Vector2 b, bool absolute = false, bool anchored = false)
         {
             var rt = Child(parent, name);
@@ -704,7 +704,7 @@ namespace QualityControlXR.EditorTools
             return t;
         }
 
-        static Button MakeButton(Transform parent, string name, string label, Vector2 min, Vector2 max, Color bg,
+        internal static Button MakeButton(Transform parent, string name, string label, Vector2 min, Vector2 max, Color bg,
                                  UnityAction action, int fontSize = 40)
         {
             var rt = Child(parent, name);
@@ -725,7 +725,7 @@ namespace QualityControlXR.EditorTools
         // Helpers de geometría / assets
         // =====================================================================
 
-        static float BuildTable(Transform parent, string name, Vector3 pos, Vector2 size, float height, Material top, Material legs)
+        internal static float BuildTable(Transform parent, string name, Vector3 pos, Vector2 size, float height, Material top, Material legs)
         {
             var root = new GameObject(name).transform;
             root.SetParent(parent);
@@ -737,7 +737,7 @@ namespace QualityControlXR.EditorTools
             return pos.y + height;
         }
 
-        static GameObject Prim(PrimitiveType type, string name, Transform parent, Vector3 pos, Vector3 scale, Material mat,
+        internal static GameObject Prim(PrimitiveType type, string name, Transform parent, Vector3 pos, Vector3 scale, Material mat,
                                bool collider = true, bool local = false)
         {
             var go = GameObject.CreatePrimitive(type);
@@ -751,7 +751,7 @@ namespace QualityControlXR.EditorTools
         }
 
         /// <summary>Pieza de herramienta en coordenadas locales con BoxCollider ajustado a su malla.</summary>
-        static void Part(PrimitiveType type, string name, Transform parent, Vector3 localPos, Vector3 scale, Quaternion rot,
+        internal static void Part(PrimitiveType type, string name, Transform parent, Vector3 localPos, Vector3 scale, Quaternion rot,
                          Material mat, bool collider = true)
         {
             var go = GameObject.CreatePrimitive(type);
@@ -774,7 +774,7 @@ namespace QualityControlXR.EditorTools
         /// Instancia un FBX de Kenney y lo escala uniformemente para que su mayor dimensión horizontal
         /// (o de cualquier eje si allAxes) mida targetSize; lo apoya con la base centrada en pos.
         /// </summary>
-        static GameObject Fit(string kit, string fbx, Transform parent, Vector3 pos, float targetSize, float yaw, bool allAxes = false)
+        internal static GameObject Fit(string kit, string fbx, Transform parent, Vector3 pos, float targetSize, float yaw, bool allAxes = false)
         {
             string path = $"{Kenney}/{kit}/{fbx}.fbx";
             var asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
@@ -793,7 +793,7 @@ namespace QualityControlXR.EditorTools
         }
 
         /// <summary>Añade un BoxCollider que envuelve el modelo (para que el jugador no lo atraviese).</summary>
-        static GameObject Solid(GameObject go)
+        internal static GameObject Solid(GameObject go)
         {
             // Se mide sin rotación para obtener la caja en el espacio local del modelo.
             var rot = go.transform.rotation;
@@ -808,7 +808,7 @@ namespace QualityControlXR.EditorTools
             return go;
         }
 
-        static Bounds Bounds(GameObject go)
+        internal static Bounds Bounds(GameObject go)
         {
             var rs = go.GetComponentsInChildren<Renderer>();
             if (rs.Length == 0) return new Bounds(go.transform.position, Vector3.zero);
@@ -817,7 +817,7 @@ namespace QualityControlXR.EditorTools
             return b;
         }
 
-        static Material Mat(string name, Color color, bool emissive = false, bool transparent = false)
+        internal static Material Mat(string name, Color color, bool emissive = false, bool transparent = false)
         {
             string path = $"Assets/Materials/{name}.mat";
             var m = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -850,7 +850,7 @@ namespace QualityControlXR.EditorTools
             return m;
         }
 
-        static AudioClip Clip(string prefix)
+        internal static AudioClip Clip(string prefix)
         {
             var guid = AssetDatabase.FindAssets(prefix + " t:AudioClip", new[] { Kenney + "/Audio" })
                 .Select(AssetDatabase.GUIDToAssetPath)
@@ -860,7 +860,7 @@ namespace QualityControlXR.EditorTools
             return guid == null ? null : AssetDatabase.LoadAssetAtPath<AudioClip>(guid);
         }
 
-        static AudioSource AddAudio(GameObject go, float spatial)
+        internal static AudioSource AddAudio(GameObject go, float spatial)
         {
             var a = go.AddComponent<AudioSource>();
             a.playOnAwake = false;
@@ -870,13 +870,13 @@ namespace QualityControlXR.EditorTools
             return a;
         }
 
-        static void CreateOrReplace(Object asset, string path)
+        internal static void CreateOrReplace(Object asset, string path)
         {
             if (AssetDatabase.LoadAssetAtPath<Object>(path) != null) AssetDatabase.DeleteAsset(path);
             AssetDatabase.CreateAsset(asset, path);
         }
 
-        static void EnsureFolder(string path)
+        internal static void EnsureFolder(string path)
         {
             if (AssetDatabase.IsValidFolder(path)) return;
             var parent = Path.GetDirectoryName(path).Replace('\\', '/');
@@ -885,7 +885,7 @@ namespace QualityControlXR.EditorTools
         }
 
         /// <summary>Activa el XR Device Simulator automático (solo en el Editor) para probar sin visor.</summary>
-        static void ConfigureDeviceSimulator()
+        internal static void ConfigureDeviceSimulator()
         {
             var type = System.AppDomain.CurrentDomain.GetAssemblies()
                 .Select(a => a.GetType("UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation.XRDeviceSimulatorSettings"))

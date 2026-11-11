@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/MixLab.unity
+    guid: ac52b70228a6d184f8ea31c16322b161
+  - enabled: 1
     path: Assets/Scenes/QualityControl.unity
     guid: cb479e663c9dd6d42a2a27b2e79b68c4
   m_configObjects:
