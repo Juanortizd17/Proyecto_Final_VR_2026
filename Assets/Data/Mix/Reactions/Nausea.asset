@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8938a5eb7da61054db60dea00d642a6a, type: 3}
+  m_Name: Nausea
+  m_EditorClassIdentifier: 
+  id: 6
+  displayName: "N\xE1usea verde"
+  hint: "Leche + lim\xF3n"
+  customerLine: "Creo que\u2026 la leche y el lim\xF3n\u2026 no se llevan\u2026"
+  points: -50
+  knockout: 0
+  skinColor: {r: 0.66, g: 0.85, b: 0.42, a: 1}
+  bookColor: {r: 0.66, g: 0.85, b: 0.42, a: 1}
+  duration: 3.6

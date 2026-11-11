@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5584b02e417d5241a226b0b7b82a595, type: 3}
+  m_Name: Sangrita
+  m_EditorClassIdentifier: 
+  displayName: Sangrita
+  requestLine: una sangrita
+  ingredients:
+  - {fileID: 11400000, guid: 5168bff3b2a918a4ba3d0ffe8d26417f, type: 2}
+  - {fileID: 11400000, guid: 90ac4ec76c026fd4bbec501cbed58040, type: 2}
+  - {fileID: 11400000, guid: f304f7fda1f8e9c439f465b1d3ddc630, type: 2}
+  needsTemperature: 0
+  temperature: 0

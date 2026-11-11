@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98653b2cc07e35647b060901f7938da5, type: 3}
+  m_Name: Cola
+  m_EditorClassIdentifier: 
+  displayName: Cola
+  tag: "gas + cafe\xEDna"
+  color: {r: 0.27, g: 0.13, b: 0.09, a: 1}
+  props:
+    water: 0
+    cold: 0
+    acid: 0
+    spicy: 0
+    alcohol: 0
+    gas: 1
+    fizz: 0
+    dairy: 0
+    mint: 0
+    caffeine: 1
+    fruit: 0
+    sweet: 0

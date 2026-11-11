@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8938a5eb7da61054db60dea00d642a6a, type: 3}
+  m_Name: Borracho
+  m_EditorClassIdentifier: 
+  id: 4
+  displayName: Mareo total
+  hint: Demasiado alcohol
+  customerLine: "Hip\u2026 \xBFpor qu\xE9 hay dos barras? \xBFY dos t\xFA?"
+  points: -50
+  knockout: 0
+  skinColor: {r: 0.97, g: 0.69, b: 0.63, a: 1}
+  bookColor: {r: 1, g: 0.62, b: 0.69, a: 1}
+  duration: 3.8
