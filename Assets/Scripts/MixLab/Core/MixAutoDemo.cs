@@ -17,7 +17,11 @@ namespace MixLab
         // Mezclas "equivocadas" para mostrar reacciones (nombres de assets de ingredientes).
         static readonly string[][] FunMixes =
         {
+            new[] { "Cafe", "Ron" },
             new[] { "Soda", "Efervescente" },
+            new[] { "Leche", "Leche" },
+            new[] { "Soda", "Cola" },
+            new[] { "Limon", "Limon" },
             new[] { "SalsaDiablo", "Agua" },
             new[] { "Tequila", "Ron" },
             new[] { "Leche", "Limon" },
@@ -50,6 +54,7 @@ namespace MixLab
             var shake = FindFirstObjectByType<ShakeLever>();
             var bottles = FindObjectsByType<Bottle>(FindObjectsSortMode.None);
             gm.OverrideShiftDuration(round);
+            if (player) player.SimulateMove(Vector2.zero);   // la demo no lee el mouse ni el teclado reales
 
             yield return new WaitForSeconds(2f);
             yield return Shot("inicio");

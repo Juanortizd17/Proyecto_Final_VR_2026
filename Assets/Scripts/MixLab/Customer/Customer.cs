@@ -15,8 +15,8 @@ namespace MixLab
     {
         enum Eyes { Normal, Wide, Closed, Happy, X, Dizzy, Half, Flat }
         enum Mouth { Smile, Big, O, Wavy, Puffed, Fire, Chatter, Tongue, Flat }
-        enum Body { Idle, Wobble, Shake, Shiver, Faint, Hyper, Sway }
-        enum Gesture { Rest, Fan, Belly, HoldHead, OneHandHead, Cheer, Face, Limp, Tap }
+        enum Body { Idle, Wobble, Shake, Shiver, Faint, Hyper, Sway, Hiccup, Dance, Sleep }
+        enum Gesture { Rest, Fan, Belly, HoldHead, OneHandHead, Cheer, Face, Limp, Tap, Dance }
 
         [SerializeField] string customerName = "Ramiro";
         [SerializeField] Color normalSkin = new Color(0.95f, 0.76f, 0.61f);
@@ -145,6 +145,10 @@ namespace MixLab
                 case ReactionId.Hiper: Pose(Eyes.Wide, Mouth.Big, Body.Hyper, Gesture.Cheer); break;
                 case ReactionId.Azucar: Pose(Eyes.Wide, Mouth.Big, Body.Hyper, Gesture.Cheer); Cheeks(Blush, 1.2f); Play(fxHearts); break;
                 case ReactionId.Llamarada: Pose(Eyes.Wide, Mouth.O, Body.Idle, Gesture.Face); Hair(true); Play(fxSmoke); break;
+                case ReactionId.Hipo: Pose(Eyes.Wide, Mouth.O, Body.Hiccup, Gesture.Belly); Cheeks(Blush, 1f); break;
+                case ReactionId.Agrio: Pose(Eyes.Closed, Mouth.Puffed, Body.Shiver, Gesture.Rest); Cheeks(data.skinColor * 0.9f, 1.3f); break;
+                case ReactionId.Dormido: Pose(Eyes.Closed, Mouth.O, Body.Sleep, Gesture.Rest); break;
+                case ReactionId.Bailarin: Pose(Eyes.Happy, Mouth.Big, Body.Dance, Gesture.Dance); Cheeks(Blush, 1.1f); Play(fxHearts); break;
                 case ReactionId.Desmayo: Pose(Eyes.X, Mouth.Tongue, Body.Faint, Gesture.Limp); stars.gameObject.SetActive(true); break;
                 default: Pose(Eyes.Flat, Mouth.Flat, Body.Idle, Gesture.Rest); break;
             }
@@ -289,6 +293,9 @@ namespace MixLab
                     l = new Vector3(-0.3f, 0.93f + w, 0.1f); r = new Vector3(0.3f, 0.93f - w, 0.1f); break;
                 case Gesture.Face: l = new Vector3(-0.17f, 0.66f, 0.25f); r = new Vector3(0.17f, 0.66f, 0.25f); break;
                 case Gesture.Limp: l = new Vector3(-0.27f, -0.02f, 0.05f); r = new Vector3(0.27f, -0.02f, 0.05f); break;
+                case Gesture.Dance:
+                    float beatSwing = Mathf.Sin(DiscoLights.Beat * Mathf.PI) * 0.2f;
+                    l = new Vector3(-0.3f, 0.7f + beatSwing, 0.15f); r = new Vector3(0.3f, 0.7f - beatSwing, 0.15f); break;
                 case Gesture.Tap: r = RestR + Vector3.up * (Mathf.Max(0f, Mathf.Sin(t * 11f)) * 0.05f); break;
             }
             if (heldGlass != null)
@@ -350,6 +357,17 @@ namespace MixLab
                 case Body.Shiver: pos += Vector3.right * (Mathf.Sin(t * 60f) * 0.006f); break;
                 case Body.Hyper: pos += Vector3.up * (Mathf.Abs(Mathf.Sin(t * 14f)) * 0.035f); break;
                 case Body.Sway: rot = pivotRot * Quaternion.Euler(0f, 0f, Mathf.Sin(t * 1.8f) * 5f); break;
+                case Body.Hiccup:     // saltito seco cada cierto tiempo
+                    float hp = Mathf.Repeat(t, 0.9f);
+                    if (hp < 0.12f) pos += Vector3.up * (Mathf.Sin(hp / 0.12f * Mathf.PI) * 0.05f);
+                    break;
+                case Body.Dance:      // baila al ritmo de la música del bar
+                    float db = DiscoLights.Beat;
+                    pos += Vector3.up * (Mathf.Abs(Mathf.Sin(db * Mathf.PI)) * 0.04f);
+                    rot = pivotRot * Quaternion.Euler(0f, Mathf.Sin(db * Mathf.PI * 0.5f) * 14f, Mathf.Sin(db * Mathf.PI) * 7f); break;
+                case Body.Sleep:      // cabecea y respira hondo
+                    float sk = Mathf.Clamp01(t / 1.2f);
+                    rot = pivotRot * Quaternion.Euler(9f * sk + Mathf.Sin(t * 1.2f) * 1.5f, 0f, 4f * sk); break;
                 case Body.Faint:
                     float k = Mathf.Clamp01(t / 0.7f); k = k * k * (3f - 2f * k);
                     rot = pivotRot * Quaternion.Euler(0f, 0f, 80f * k);
@@ -384,7 +402,7 @@ namespace MixLab
         {
             Quaternion want = Quaternion.identity;
             var cam = Camera.main;
-            if (cam != null && body != Body.Faint && eyes != Eyes.Dizzy)
+            if (cam != null && body != Body.Faint && body != Body.Sleep && eyes != Eyes.Dizzy)
             {
                 Vector3 local = pivot.InverseTransformPoint(cam.transform.position) - headPos;
                 float yaw = Mathf.Clamp(Mathf.Atan2(local.x, local.z) * Mathf.Rad2Deg, -32f, 32f);
@@ -393,6 +411,7 @@ namespace MixLab
             }
             if (body == Body.Wobble) want *= Quaternion.Euler(0f, 0f, Mathf.Sin(t * 2.5f) * 10f);
             if (body == Body.Faint) want = Quaternion.Euler(0f, 0f, 12f);
+            if (body == Body.Sleep) want = Quaternion.Euler(20f + Mathf.Sin(t * 1.2f) * 4f, 0f, 9f);
             head.localRotation = Quaternion.Slerp(head.localRotation, want, 1f - Mathf.Exp(-5f * dt));
         }
 

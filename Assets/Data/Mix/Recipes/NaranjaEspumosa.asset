@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5584b02e417d5241a226b0b7b82a595, type: 3}
+  m_Name: NaranjaEspumosa
+  m_EditorClassIdentifier: 
+  displayName: Naranja espumosa
+  requestLine: una naranja espumosa
+  ingredients:
+  - {fileID: 11400000, guid: 5168bff3b2a918a4ba3d0ffe8d26417f, type: 2}
+  - {fileID: 11400000, guid: 544e8c1bd93e98e418dfb88d1dbf64e9, type: 2}
+  - {fileID: 11400000, guid: 335b1f7d48602354c8a6c0f68895007d, type: 2}
+  needsTemperature: 0
+  temperature: 0

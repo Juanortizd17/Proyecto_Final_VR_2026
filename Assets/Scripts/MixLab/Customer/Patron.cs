@@ -46,7 +46,7 @@ namespace MixLab
         void React(ReactionData reaction, bool isNew)
         {
             if (anim == null) return;
-            string clip = reaction.id == ReactionId.Perfecto || reaction.id == ReactionId.Alegre ? happyClip : shockedClip;
+            string clip = reaction.id == ReactionId.Perfecto || reaction.id == ReactionId.Alegre || reaction.id == ReactionId.Bailarin ? happyClip : shockedClip;
             if (reaction.id == ReactionId.SinChiste || anim.GetClip(clip) == null) return;
             anim[clip].wrapMode = WrapMode.Once;
             anim.CrossFade(clip, 0.15f);

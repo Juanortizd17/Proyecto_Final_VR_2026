@@ -34,7 +34,7 @@ namespace MixLab
                 if (gm.IsDiscovered(r.id))
                 {
                     string hex = ColorUtility.ToHtmlStringRGB(r.bookColor);
-                    rows[i].text = $"<color=#{hex}>●</color> <b>{r.displayName}</b>  <size=34><color=#B6A8D6>{r.hint}</color></size>";
+                    rows[i].text = $"<color=#{hex}>●</color> <b>{r.displayName}</b>  <size=30><color=#B6A8D6>{r.hint}</color></size>";
                 }
                 else rows[i].text = "<color=#6E6490>?  Reacción sin descubrir</color>";
             }

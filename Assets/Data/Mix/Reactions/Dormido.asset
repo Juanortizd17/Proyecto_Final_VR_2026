@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8938a5eb7da61054db60dea00d642a6a, type: 3}
+  m_Name: Dormido
+  m_EditorClassIdentifier: 
+  id: 15
+  displayName: "Sue\xF1o profundo"
+  hint: Leche tibia o doble leche
+  customerLine: "Zzz\u2026 cinco minuticos m\xE1s, mam\xE1\u2026 zzz\u2026"
+  points: -20
+  knockout: 0
+  skinColor: {r: 0.93, g: 0.78, b: 0.7, a: 1}
+  bookColor: {r: 0.6, g: 0.62, b: 0.9, a: 1}
+  duration: 3.8

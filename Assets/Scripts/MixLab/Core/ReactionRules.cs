@@ -40,9 +40,13 @@ namespace MixLab
             if (MatchesRecipe(mix, temp, order)) return ReactionId.Perfecto;
             if (p.spicy >= 3) return ReactionId.Infierno;
             if (p.spicy > 0) return ReactionId.Picante;
+            if (p.caffeine > 0 && p.alcohol > 0) return ReactionId.Bailarin;   // cafeína + alcohol: fiebre de baile
             if (p.caffeine >= 2) return ReactionId.Hiper;
             if (p.sweet >= 3) return ReactionId.Azucar;                    // subidón de azúcar
             if (cold && p.mint > 0) return ReactionId.Congelado;
+            if (p.acid >= 2) return ReactionId.Agrio;                      // doble ácido
+            if (p.gas >= 2) return ReactionId.Hipo;                        // doble gas
+            if (p.caffeine == 0 && (p.dairy >= 2 || (p.dairy > 0 && hot))) return ReactionId.Dormido;   // leche tibia: a dormir
             if (p.alcohol > 0) return ReactionId.Alegre;
             return ReactionId.SinChiste;
         }

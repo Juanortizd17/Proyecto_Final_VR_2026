@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8938a5eb7da61054db60dea00d642a6a, type: 3}
+  m_Name: Bailarin
+  m_EditorClassIdentifier: 
+  id: 16
+  displayName: Fiebre de baile
+  hint: "Cafe\xEDna + alcohol"
+  customerLine: "\xA1S\xFAbele a esa m\xFAsica! \xA1Esta es mi canci\xF3n!"
+  points: 10
+  knockout: 0
+  skinColor: {r: 0.98, g: 0.72, b: 0.62, a: 1}
+  bookColor: {r: 0.75, g: 0.5, b: 1, a: 1}
+  duration: 3.8

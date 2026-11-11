@@ -71,7 +71,13 @@ namespace QualityControlXR.Tests
             Assert.AreEqual(ReactionId.Hiper, Eval(none, null, "Cafe", "Cola"));
             Assert.AreEqual(ReactionId.Azucar, Eval(none, null, "Azucar", "Azucar", "Azucar"));
             Assert.AreEqual(ReactionId.Explosion, Eval(none, null, "Cerveza", "Efervescente"));
-            Assert.AreEqual(20, gm.Recipes.Count, "20 bebidas en la carta");
+            Assert.AreEqual(30, gm.Recipes.Count, "30 bebidas en la carta");
+            Assert.AreEqual(17, gm.Reactions.Count, "17 reacciones en el libro");
+            Assert.AreEqual(ReactionId.Bailarin, Eval(none, null, "Cafe", "Ron"));
+            Assert.AreEqual(ReactionId.Hipo, Eval(none, null, "Soda", "Soda"));
+            Assert.AreEqual(ReactionId.Agrio, Eval(none, null, "Limon", "Limon"));
+            Assert.AreEqual(ReactionId.Dormido, Eval(none, null, "Leche", "Leche"));
+            Assert.AreEqual(ReactionId.Dormido, Eval(Temperature.Caliente, null, "Leche", "Agua"));
             Assert.AreEqual(ReactionId.Congelado, Eval(none, null, "Hielo", "Menta"));
             Assert.AreEqual(ReactionId.Congelado, Eval(Temperature.Frio, null, "Agua", "Menta"));
             Assert.AreEqual(ReactionId.Alegre, Eval(none, null, "Ron", "Agua"));

@@ -19,7 +19,7 @@ namespace QualityControlXR.EditorTools
     /// cliente con reacciones, clientes de fondo animados, tableros y jugador de PC.
     /// Menú: Tools > Mix Lab > Build Scene.
     /// </summary>
-    public static class MixSceneBuilder
+    public static partial class MixSceneBuilder
     {
         public const string ScenePath = "Assets/Scenes/MixLab.unity";
         const string DataDir = "Assets/Data/Mix";
@@ -93,8 +93,7 @@ namespace QualityControlXR.EditorTools
                 SB.Clip("slime"), SB.Clip("confirmation"), SB.Clip("error"), SB.Clip("explosionCrunch"),
                 SB.Clip("impactBell_heavy"), SB.Clip("glitch"), SB.Clip("maximize"));
 
-            var ambient = SB.AddAudio(managers, 0f);
-            ambient.clip = SB.Clip("computerNoise"); ambient.loop = true; ambient.playOnAwake = true; ambient.volume = 0.1f;
+            BuildDisco(managers);
 
             var board = BuildMainBoard();
             BuildBook(reactions.Length);
@@ -185,6 +184,16 @@ namespace QualityControlXR.EditorTools
             Add("MentaFrappe", "Frappé de menta", "un frappé de menta", null, "Menta", "Leche", "Hielo", "Azucar");
             Add("Sangrita", "Sangrita", "una sangrita", null, "Naranja", "Limon", "Aji");
             Add("EspressoDoble", "Espresso doble", "un espresso doble caliente", hot, "Cafe", "Cafe");
+            Add("Tinto", "Tinto", "un tinto bien caliente", hot, "Cafe", "Agua");
+            Add("Capuchino", "Capuchino dulce", "un capuchino dulce caliente", hot, "Cafe", "Leche", "Azucar");
+            Add("CafeIrlandes", "Café irlandés", "un café irlandés caliente", hot, "Cafe", "Ron", "Leche", "Azucar");
+            Add("Canelazo", "Canelazo", "un canelazo bien caliente", hot, "Ron", "Agua", "Azucar", "Limon");
+            Add("LimonadaMenta", "Limonada de menta", "una limonada de menta", null, "Agua", "Limon", "Menta", "Hielo");
+            Add("Clara", "Clara con limón", "una clara con limón", null, "Cerveza", "Soda", "Limon");
+            Add("Chelada", "Chelada", "una chelada", null, "Cerveza", "Limon", "Hielo");
+            Add("Paloma", "Paloma", "una paloma", null, "Tequila", "Soda", "Limon", "Hielo");
+            Add("RonNaranja", "Ron con naranja", "un ron con naranja", null, "Ron", "Naranja", "Hielo");
+            Add("NaranjaEspumosa", "Naranja espumosa", "una naranja espumosa", null, "Naranja", "Soda", "Hielo");
             return list.ToArray();
         }
 
@@ -209,87 +218,14 @@ namespace QualityControlXR.EditorTools
             Add(ReactionId.Congelado, "Cerebro congelado", "Menta + frío", "B-b-brrr… s-se me congeló el ce-cerebro.", -20, false, new Color(0.66f, 0.85f, 0.97f), new Color(0.62f, 0.83f, 0.96f), 3.2f);
             Add(ReactionId.Hiper, "Sobredosis de café", "Doble cafeína", "¡PUEDO VER LOS SONIDOS! ¡¿QUÉ HORA ES?!", -20, false, Skin, new Color(0.62f, 0.42f, 0.28f), 3.2f);
             Add(ReactionId.Azucar, "Subidón de azúcar", "Triple azúcar", "¡¡WIIII!! ¡Quiero correr una maratón!", -20, false, Skin, new Color(1f, 0.7f, 0.85f), 3.2f);
+            Add(ReactionId.Bailarin, "Fiebre de baile", "Cafeína + alcohol", "¡Súbele a esa música! ¡Esta es mi canción!", 10, false, new Color(0.98f, 0.72f, 0.62f), new Color(0.75f, 0.5f, 1f), 3.8f);
+            Add(ReactionId.Hipo, "Ataque de hipo", "Doble gas", "¡Hip!… perdón… ¡HIP!… ¿tienes un vaso de… ¡hip!?", -20, false, new Color(0.98f, 0.74f, 0.66f), new Color(0.55f, 0.85f, 1f), 3.4f);
+            Add(ReactionId.Agrio, "Cara de limón", "Doble ácido", "¡Mmmgh! Se me arrugó hasta el apellido.", -20, false, new Color(0.95f, 0.88f, 0.5f), new Color(0.93f, 0.92f, 0.35f), 3.2f);
+            Add(ReactionId.Dormido, "Sueño profundo", "Leche tibia o doble leche", "Zzz… cinco minuticos más, mamá… zzz…", -20, false, new Color(0.93f, 0.78f, 0.7f), new Color(0.6f, 0.62f, 0.9f), 3.8f);
             Add(ReactionId.Llamarada, "Llamarada", "Alcohol fuerte + caliente", "… ¿Todavía tengo cejas?", -50, false, new Color(0.3f, 0.28f, 0.28f), new Color(1f, 0.6f, 0.1f), 3.4f);
             Add(ReactionId.Desmayo, "Desmayo fulminante", "Salsa del Diablo + alcohol", "… (fuera de combate)", -100, true, new Color(0.92f, 0.86f, 0.78f), new Color(1f, 0.84f, 0.29f), 4.6f);
             Add(ReactionId.SinChiste, "Sin chiste", "Nada especial", "Mmm… sabe a nada. ¿Esto era lo que pedí?", 0, false, Skin, Muted, 2.6f);
             return list.ToArray();
-        }
-
-        // =====================================================================
-        // Sala
-        // =====================================================================
-
-        static Light[] BuildRoom()
-        {
-            var env = new GameObject("--- SALA ---").transform;
-            var floor = SB.Mat("MixFloor", new Color(0.23f, 0.16f, 0.13f));
-            var wall = SB.Mat("MixWall", new Color(0.2f, 0.16f, 0.33f));
-            var dark = SB.Mat("MixCeiling", new Color(0.09f, 0.07f, 0.15f));
-            var teal = SB.Mat("NeonTeal", new Color(0.37f, 0.9f, 0.82f), emissive: true);
-            var pink = SB.Mat("NeonPink", new Color(1f, 0.35f, 0.6f), emissive: true);
-
-            SB.Prim(PrimitiveType.Cube, "Floor", env, new Vector3(0f, -0.05f, 0f), new Vector3(9f, 0.1f, 6.2f), floor);
-            SB.Prim(PrimitiveType.Cube, "Ceiling", env, new Vector3(0f, 3.45f, 0f), new Vector3(9f, 0.1f, 6.2f), dark, false);
-            SB.Prim(PrimitiveType.Cube, "Wall_N", env, new Vector3(0f, 1.7f, WallZ + 0.1f), new Vector3(9f, 3.4f, 0.2f), wall);
-            SB.Prim(PrimitiveType.Cube, "Wall_S", env, new Vector3(0f, 1.7f, -3.1f), new Vector3(9f, 3.4f, 0.2f), wall);
-            SB.Prim(PrimitiveType.Cube, "Wall_E", env, new Vector3(4.5f, 1.7f, 0f), new Vector3(0.2f, 3.4f, 6.2f), wall);
-            SB.Prim(PrimitiveType.Cube, "Wall_W", env, new Vector3(-4.5f, 1.7f, 0f), new Vector3(0.2f, 3.4f, 6.2f), wall);
-
-            // Neones
-            SB.Prim(PrimitiveType.Cube, "Neon_Top", env, new Vector3(0f, 3.3f, WallZ - 0.03f), new Vector3(8.6f, 0.05f, 0.04f), teal, false);
-            SB.Prim(PrimitiveType.Cube, "Neon_Bottom", env, new Vector3(0f, 0.12f, WallZ - 0.03f), new Vector3(8.6f, 0.05f, 0.04f), pink, false);
-            SB.Prim(PrimitiveType.Cube, "Neon_W", env, new Vector3(-4.37f, 3.3f, 0f), new Vector3(0.04f, 0.05f, 5.8f), pink, false);
-            SB.Prim(PrimitiveType.Cube, "Neon_E", env, new Vector3(4.37f, 3.3f, 0f), new Vector3(0.04f, 0.05f, 5.8f), teal, false);
-
-            // Luces
-            RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.46f, 0.42f, 0.6f);
-            RenderSettings.ambientEquatorColor = new Color(0.38f, 0.34f, 0.47f);
-            RenderSettings.ambientGroundColor = new Color(0.18f, 0.15f, 0.22f);
-            RenderSettings.fog = false;
-
-            var lights = new List<Light>();
-            var sun = new GameObject("Fill Light").AddComponent<Light>();
-            sun.type = LightType.Directional; sun.intensity = 0.4f; sun.shadows = LightShadows.None;
-            sun.color = new Color(0.9f, 0.85f, 1f);
-            sun.transform.rotation = Quaternion.Euler(50f, 20f, 0f);
-            sun.transform.SetParent(env);
-            lights.Add(sun);
-
-            foreach (float x in new[] { -1.6f, 0f, 1.6f })
-            {
-                var l = new GameObject("Bar Lamp").AddComponent<Light>();
-                l.type = LightType.Point; l.range = 6f; l.intensity = 1.25f; l.color = new Color(1f, 0.86f, 0.68f);
-                l.shadows = x == 0f ? LightShadows.Soft : LightShadows.None;
-                l.transform.position = new Vector3(x, 2.55f, 0.75f);
-                l.transform.SetParent(env);
-                lights.Add(l);
-                var lamp = SB.Fit("FurnitureKit", "lampSquareCeiling", env, new Vector3(x, 2.75f, 0.75f), 0.4f, 0f);
-                lamp.name = "CeilingLamp";
-            }
-            var accentL = new GameObject("Accent Teal").AddComponent<Light>();
-            accentL.type = LightType.Point; accentL.range = 5f; accentL.intensity = 0.9f; accentL.color = new Color(0.37f, 0.9f, 0.82f);
-            accentL.transform.position = new Vector3(-3.4f, 1.6f, 2.2f); accentL.transform.SetParent(env); lights.Add(accentL);
-            var accentR = new GameObject("Accent Pink").AddComponent<Light>();
-            accentR.type = LightType.Point; accentR.range = 5f; accentR.intensity = 0.9f; accentR.color = new Color(1f, 0.35f, 0.6f);
-            accentR.transform.position = new Vector3(3.4f, 1.6f, 2.2f); accentR.transform.SetParent(env); lights.Add(accentR);
-
-            // Decoración (Kenney Furniture Kit): zona de clientes y barra trasera
-            foreach (float x in new[] { -2.2f, -1.1f, 1.1f, 2.25f })
-                SB.Solid(SB.Fit("FurnitureKit", "stoolBar", env, new Vector3(x, 0f, SeatZ), 0.4f, 0f));
-            SB.Solid(SB.Fit("FurnitureKit", "pottedPlant", env, new Vector3(-4.0f, 0f, 2.5f), 0.6f, 0f));
-            SB.Solid(SB.Fit("FurnitureKit", "pottedPlant", env, new Vector3(4.0f, 0f, 2.5f), 0.6f, 0f));
-            SB.Solid(SB.Fit("FurnitureKit", "loungeSofa", env, new Vector3(-3.8f, 0f, 0.4f), 1.7f, 90f));
-            SB.Solid(SB.Fit("FurnitureKit", "tableCoffee", env, new Vector3(-3.0f, 0f, 0.4f), 0.8f, 90f));
-            SB.Solid(SB.Fit("FurnitureKit", "speaker", env, new Vector3(4.0f, 0f, 0.9f), 0.5f, -90f));
-            SB.Solid(SB.Fit("FurnitureKit", "kitchenFridge", env, new Vector3(-2.2f, 0f, -2.55f), 0.9f, 0f));
-            SB.Solid(SB.Fit("FurnitureKit", "kitchenCabinet", env, new Vector3(-1.2f, 0f, -2.6f), 0.9f, 0f));
-            SB.Solid(SB.Fit("FurnitureKit", "kitchenSink", env, new Vector3(-0.3f, 0f, -2.6f), 0.9f, 0f));
-            SB.Solid(SB.Fit("FurnitureKit", "kitchenCabinetDrawer", env, new Vector3(0.6f, 0f, -2.6f), 0.9f, 0f));
-            SB.Solid(SB.Fit("FurnitureKit", "kitchenStove", env, new Vector3(1.5f, 0f, -2.6f), 0.9f, 0f));
-            SB.Solid(SB.Fit("FurnitureKit", "bookcaseOpen", env, new Vector3(3.0f, 0f, -2.7f), 1.0f, 0f));
-            SB.Fit("FurnitureKit", "rugRectangle", env, new Vector3(0f, 0.001f, 2.1f), 2.6f, 0f);
-            return lights.ToArray();
         }
 
         // =====================================================================
@@ -723,60 +659,6 @@ namespace QualityControlXR.EditorTools
             return customer;
         }
 
-        // =====================================================================
-        // Clientes de fondo (Kenney Mini Characters, animaciones Legacy)
-        // =====================================================================
-
-        static void BuildPatrons()
-        {
-            var root = new GameObject("--- CLIENTES DE FONDO ---").transform;
-            // En los extremos de la barra (lejos del estante, para no tapar las etiquetas)
-            BuildPatron(root, "character-female-b", new Vector3(-2.2f, 0f, SeatZ), 165f, "sit", 0.4f);
-            BuildPatron(root, "character-male-d", new Vector3(2.25f, 0f, SeatZ), 195f, "sit", 0.4f);
-            // En la sala: una pareja conversando, alguien en el sofá y otro junto a la planta
-            BuildPatron(root, "character-male-b", new Vector3(3.2f, 0f, 2.25f), 250f, "idle", 0f);
-            BuildPatron(root, "character-female-e", new Vector3(2.45f, 0f, 2.3f), 110f, "idle", 0f);
-            BuildPatron(root, "character-female-a", new Vector3(-3.75f, 0f, 0.7f), 90f, "sit", 0.12f);
-            BuildPatron(root, "character-male-e", new Vector3(-3.3f, 0f, 2.3f), 140f, "idle", 0f);
-            // Sus bebidas sobre la barra
-            SB.Fit("FoodKit", "cocktail", root, new Vector3(-2.2f, Top, 1.0f), 0.13f, 0f, allAxes: true);
-            SB.Fit("FoodKit", "glass-wine", root, new Vector3(2.25f, Top, 1.02f), 0.14f, 0f, allAxes: true);
-        }
-
-        static void BuildPatron(Transform parent, string model, Vector3 pos, float yaw, string clip, float feetHeight)
-        {
-            string path = $"Assets/ThirdParty/Kenney/MiniCharacters/{model}.fbx";
-            var importer = AssetImporter.GetAtPath(path) as ModelImporter;
-            if (importer == null) { Debug.LogWarning("[MixSceneBuilder] Falta personaje: " + path); return; }
-            if (importer.animationType != ModelImporterAnimationType.Legacy)
-            {
-                importer.animationType = ModelImporterAnimationType.Legacy;
-                importer.SaveAndReimport();
-            }
-            var asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            var root = new GameObject("Patron_" + model);
-            root.transform.SetParent(parent);
-            root.transform.SetPositionAndRotation(pos, Quaternion.Euler(0f, yaw, 0f));
-            var go = Object.Instantiate(asset, root.transform);
-            go.name = model;
-            go.transform.localPosition = Vector3.zero; go.transform.localRotation = Quaternion.identity;
-            var b = SB.Bounds(go);
-            if (b.size.y > 0.001f) go.transform.localScale *= 1.15f / b.size.y;      // ~1.15 m de alto (estilo "mini")
-
-            // Pose inicial dentro de la escena (y para medir dónde quedan los pies al sentarse)
-            var anim = go.GetComponent<Animation>();
-            AnimationClip found = null;
-            if (anim != null) foreach (AnimationState s in anim) if (s.name == clip || s.name.EndsWith(clip)) found = s.clip;
-            if (found != null) found.SampleAnimation(go, 0f);
-            else Debug.LogWarning($"[MixSceneBuilder] {model}: sin animación '{clip}'");
-            b = SB.Bounds(go);
-            go.transform.position += Vector3.up * (feetHeight - b.min.y);
-
-            var col = root.AddComponent<CapsuleCollider>();
-            col.center = new Vector3(0f, 0.75f, 0f); col.height = 1.5f; col.radius = 0.25f;
-            root.AddComponent<Patron>().Setup(clip);
-        }
-
         static ParticleSystem Fx(string name, Transform parent, Vector3 localPos, Color a, Color b, float rate, float life, float speed,
                                  float size, float gravity, ParticleSystemShapeType shape, float radius, int burst = 0, Vector3? boxScale = null)
         {
@@ -876,7 +758,7 @@ namespace QualityControlXR.EditorTools
             for (int i = 0; i < count; i++)
             {
                 float y = 1140f - (i + 1) * step;
-                rows[i] = SB.Label(canvas.transform, "Row" + i, "", 48, TextAnchor.MiddleLeft, Ink, new Vector2(50, y), new Vector2(1120, y + step - 4f), absolute: true);
+                rows[i] = SB.Label(canvas.transform, "Row" + i, "", step < 70f ? 40 : 48, TextAnchor.MiddleLeft, Ink, new Vector2(50, y), new Vector2(1120, y + step - 4f), absolute: true);
                 rows[i].horizontalOverflow = HorizontalWrapMode.Overflow;
             }
             canvas.gameObject.AddComponent<ReactionBookBoard>().Setup(title, rows);

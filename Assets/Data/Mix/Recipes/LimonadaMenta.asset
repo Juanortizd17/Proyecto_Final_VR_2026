@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5584b02e417d5241a226b0b7b82a595, type: 3}
+  m_Name: LimonadaMenta
+  m_EditorClassIdentifier: 
+  displayName: Limonada de menta
+  requestLine: una limonada de menta
+  ingredients:
+  - {fileID: 11400000, guid: 7e843c0590539b6468bc92eb4e8fdf76, type: 2}
+  - {fileID: 11400000, guid: 90ac4ec76c026fd4bbec501cbed58040, type: 2}
+  - {fileID: 11400000, guid: 9a35b6af0ccd0c84986981cee7d3f5f4, type: 2}
+  - {fileID: 11400000, guid: 335b1f7d48602354c8a6c0f68895007d, type: 2}
+  needsTemperature: 0
+  temperature: 0

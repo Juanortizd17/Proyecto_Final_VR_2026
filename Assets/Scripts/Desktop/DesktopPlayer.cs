@@ -74,7 +74,7 @@ namespace QualityControlXR
             if (!Paused)
             {
                 var mouse = Mouse.current;
-                if (mouse != null && Cursor.lockState == CursorLockMode.Locked)
+                if (mouse != null && !simulating && Cursor.lockState == CursorLockMode.Locked)
                 {
                     Vector2 d = mouse.delta.ReadValue();
                     yaw += d.x * sensitivity;
