@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5584b02e417d5241a226b0b7b82a595, type: 3}
+  m_Name: Calimocho
+  m_EditorClassIdentifier: 
+  displayName: Calimocho
+  requestLine: un calimocho
+  ingredients:
+  - {fileID: 11400000, guid: 97473b9e4b95a614eb381f070fa82bbb, type: 2}
+  - {fileID: 11400000, guid: 988afd71e36ce8942a50c3e2ee621240, type: 2}
+  needsTemperature: 0
+  temperature: 0

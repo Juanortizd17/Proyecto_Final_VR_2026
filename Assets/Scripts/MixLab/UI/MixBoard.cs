@@ -69,14 +69,14 @@ namespace MixLab
             var o = gm.CurrentOrder;
             if (o == null) return;
             orderTitle.text = o.displayName.ToUpper();
-            string temp = o.needsTemperature ? $"   <color=#FFC21A>+ temperatura {o.TemperatureLabel}</color>" : "";
+            string temp = o.needsTemperature ? $"\n<color=#FFC21A>+ temperatura {o.TemperatureLabel}</color>" : "";
             orderDetail.text = o.IngredientList + temp;
         }
 
         void RefreshScore()
         {
-            scoreText.text = $"PUNTOS\n<size=64><b>{gm.Score}</b></size>";
-            knockoutText.text = $"DESMAYOS\n<size=64><b>{gm.Knockouts}/{gm.MaxKnockouts}</b></size>";
+            scoreText.text = $"PUNTOS\n<size=104><b>{gm.Score}</b></size>";
+            knockoutText.text = $"DESMAYOS\n<size=104><b>{gm.Knockouts}/{gm.MaxKnockouts}</b></size>";
         }
 
         void OnState(MixState s)
@@ -89,8 +89,8 @@ namespace MixLab
 
             string title = gm.Won ? "¡TURNO COMPLETADO!" : "TURNO SUSPENDIDO";
             resultsText.text =
-                $"<size=58><b>{title}</b></size>\n" +
-                $"Puntaje: <size=64><b>{gm.Score}</b></size>{(gm.NewRecord ? "  <color=#FFD54A>¡NUEVO RÉCORD!</color>" : "")}     Récord: {gm.BestScore}\n" +
+                $"<size=84><b>{title}</b></size>\n" +
+                $"Puntaje: <size=88><b>{gm.Score}</b></size>{(gm.NewRecord ? "  <color=#FFD54A>¡NUEVO RÉCORD!</color>" : "")}     Récord: {gm.BestScore}\n" +
                 $"Bebidas servidas: {gm.Served}     Pedidos perfectos: {gm.Perfects}     Desmayos: {gm.Knockouts}\n" +
                 $"Reacciones descubiertas: {gm.DiscoveredCount}/{gm.Reactions.Count}\n" +
                 $"<i>{Feedback()}</i>";

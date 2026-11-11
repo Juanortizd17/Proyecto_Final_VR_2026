@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace MixLab
 {
@@ -7,7 +6,7 @@ namespace MixLab
     /// Ambiente de discoteca sincronizado con la música: pista de baile de baldosas luminosas,
     /// focos de colores que barren la pista, bola de espejos con destellos, ecualizador en la
     /// pared y luces de relleno que cambian de tono. También reacciona al juego: destello verde
-    /// con un pedido perfecto y rojo cuando la mezcla sale mal. Tecla M: silenciar la música.
+    /// con un pedido perfecto y rojo cuando la mezcla sale mal. La música la maneja MusicPlayer (rockola).
     /// </summary>
     public class DiscoLights : MonoBehaviour
     {
@@ -57,7 +56,6 @@ namespace MixLab
             eqLevel = new float[eqBase.Length];
             for (int i = 0; i < eqBase.Length; i++) eqBase[i] = eqBars[i].localScale;
             if (ballLight) ballLight.cookie = BuildCookie();
-            if (music) { music.volume = musicVolume; if (!music.isPlaying) music.Play(); }
         }
 
         void Start()
@@ -106,11 +104,13 @@ namespace MixLab
 
         void Update()
         {
-            var kb = Keyboard.current;
-            if (kb != null && kb.mKey.wasPressedThisFrame) ToggleMusic();
-
+            // Reloj musical: exacto con las pistas incluidas; con canciones del jugador avanza al tempo del género
+            var player = MusicPlayer.Instance;
             bool playing = music && music.isPlaying;
-            Beat = (playing ? music.time : Time.time) * bpm / 60f;
+            float tempo = player != null ? player.CurrentBpm : bpm;
+            if (playing && (player == null || player.SyncedToClip)) Beat = music.time * tempo / 60f;
+            else Beat += Time.deltaTime * tempo / 60f;
+            muted = music && music.mute;
             float phase = Beat - Mathf.Floor(Beat);
             float pulse = Mathf.Exp(-phase * 3.5f);                 // golpe en cada negra
             int beatIndex = Mathf.FloorToInt(Beat);
@@ -192,12 +192,6 @@ namespace MixLab
                     mpb.SetColor(EmissionId, baseColor * (1.1f + 1.2f * pulse));
                     r.SetPropertyBlock(mpb);
                 }
-        }
-
-        public void ToggleMusic()
-        {
-            muted = !muted;
-            if (music) music.mute = muted;
         }
 
         static int Hash(int a, int b)

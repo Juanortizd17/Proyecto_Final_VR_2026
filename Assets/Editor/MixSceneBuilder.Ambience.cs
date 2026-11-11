@@ -14,12 +14,12 @@ namespace QualityControlXR.EditorTools
     /// </summary>
     public static partial class MixSceneBuilder
     {
-        const float HalfW = 5.2f;            // media anchura de la sala
+        const float HalfW = 7.0f;            // media anchura de la sala
         const float SouthZ = -3.1f;          // pared detrás del jugador (barra trasera)
-        const float BackZ = 7.2f;            // pared del fondo (cabina del DJ)
+        const float BackZ = 10.2f;            // pared del fondo (cabina del DJ)
         const float CeilY = 3.45f;
-        const int TileCols = 6, TileRows = 4;
-        static readonly Vector3 DanceCenter = new Vector3(0f, 0f, 4.8f);
+        const int TileCols = 8, TileRows = 5;
+        static readonly Vector3 DanceCenter = new Vector3(0f, 0f, 6.0f);
         static readonly Color Teal = new Color(0.37f, 0.9f, 0.82f);
         static readonly Color Pink = new Color(1f, 0.35f, 0.6f);
         static readonly Color Amber = new Color(1f, 0.72f, 0.25f);
@@ -52,7 +52,7 @@ namespace QualityControlXR.EditorTools
             var violet = SB.Mat("NeonViolet", Violet, emissive: true);
 
             float depth = BackZ - SouthZ, midZ = (BackZ + SouthZ) * 0.5f, width = HalfW * 2f;
-            const float split = 3.25f;       // donde termina el piso de madera y empieza la pista
+            const float split = 3.5f;       // donde termina el piso de madera y empieza la pista
             SB.Prim(PrimitiveType.Cube, "Floor_Bar", env, new Vector3(0f, -0.05f, (SouthZ + split) * 0.5f), new Vector3(width, 0.1f, split - SouthZ), wood);
             SB.Prim(PrimitiveType.Cube, "Floor_Dance", env, new Vector3(0f, -0.05f, (split + BackZ) * 0.5f), new Vector3(width, 0.1f, BackZ - split), danceBase);
             SB.Prim(PrimitiveType.Cube, "Ceiling", env, new Vector3(0f, CeilY, midZ), new Vector3(width + 0.2f, 0.1f, depth + 0.2f), dark, false);
@@ -101,10 +101,14 @@ namespace QualityControlXR.EditorTools
                 lights.Add(l);
                 SB.Fit("FurnitureKit", "lampSquareCeiling", env, new Vector3(x, 2.75f, 0.75f), 0.4f, 0f).name = "CeilingLamp";
             }
-            lights.Add(PointLight(env, "Lounge Lamp W", new Vector3(-4.1f, 2.3f, 0.6f), new Color(1f, 0.8f, 0.62f), 1.0f, 5.5f));
-            lights.Add(PointLight(env, "Lounge Lamp E", new Vector3(4.1f, 2.3f, 0.4f), new Color(1f, 0.8f, 0.62f), 1.0f, 5.5f));
-            lights.Add(PointLight(env, "Accent Teal", new Vector3(-4.2f, 1.6f, 2.6f), Teal, 0.8f, 4.5f));
-            lights.Add(PointLight(env, "Accent Pink", new Vector3(4.2f, 1.6f, 2.6f), Pink, 0.8f, 4.5f));
+            lights.Add(PointLight(env, "Lounge Lamp W", new Vector3(-5.6f, 2.3f, 0.4f), new Color(1f, 0.8f, 0.62f), 1.0f, 5.5f));
+            lights.Add(PointLight(env, "Lounge Lamp E", new Vector3(5.6f, 2.3f, 0.4f), new Color(1f, 0.8f, 0.62f), 1.0f, 5.5f));
+            lights.Add(PointLight(env, "Accent Teal", new Vector3(-5.8f, 1.6f, 2.8f), Teal, 0.8f, 4.5f));
+            lights.Add(PointLight(env, "Corner Lamp W", new Vector3(-5.4f, 2.4f, -2.0f), new Color(1f, 0.8f, 0.62f), 0.9f, 5.5f));
+            lights.Add(PointLight(env, "Corner Lamp E", new Vector3(5.2f, 2.4f, -1.8f), new Color(1f, 0.8f, 0.62f), 0.9f, 5.5f));
+            lights.Add(PointLight(env, "Side Lamp W", new Vector3(-5.4f, 2.6f, 6.3f), new Color(1f, 0.78f, 0.7f), 0.9f, 6f));
+            lights.Add(PointLight(env, "Side Lamp E", new Vector3(5.4f, 2.6f, 6.3f), new Color(1f, 0.78f, 0.7f), 0.9f, 6f));
+            lights.Add(PointLight(env, "Accent Pink", new Vector3(5.8f, 1.6f, 2.8f), Pink, 0.8f, 4.5f));
             lights.Add(PointLight(env, "BackBar Lamp", new Vector3(0.3f, 2.4f, -2.1f), new Color(1f, 0.82f, 0.6f), 0.9f, 4.5f));
 
             BuildBarZone(env);
@@ -136,37 +140,6 @@ namespace QualityControlXR.EditorTools
         {
             var b = SB.Bounds(support);
             return SB.Fit(kit, model, parent, new Vector3(b.center.x + dx, b.max.y, b.center.z + dz), size, yaw, allAxes: true);
-        }
-
-        // ---------------------------------------------------------------------
-        // Zona de barra, sala de estar y mesas altas
-        // ---------------------------------------------------------------------
-
-        static void BuildBarZone(Transform env)
-        {
-            foreach (float x in new[] { -2.2f, -1.1f, 1.1f, 2.25f })
-                SB.Solid(SB.Fit("FurnitureKit", "stoolBar", env, new Vector3(x, 0f, SeatZ), 0.4f, 0f));
-            SB.Fit("FurnitureKit", "rugRectangle", env, new Vector3(0f, 0.001f, 2.1f), 2.6f, 0f);
-
-            // Sala de estar (oeste)
-            SB.Solid(SB.Fit("FurnitureKit", "loungeSofa", env, new Vector3(-4.5f, 0f, 0.3f), 1.7f, 90f));
-            var coffee = SB.Solid(SB.Fit("FurnitureKit", "tableCoffee", env, new Vector3(-3.65f, 0f, 0.3f), 0.8f, 90f));
-            OnTop(coffee, "FoodKit", "cocktail", env, 0f, 0.15f, 0.13f, 0f);
-            OnTop(coffee, "FoodKit", "glass-wine", env, 0.05f, -0.15f, 0.14f, 0f);
-            SB.Fit("FurnitureKit", "rugRound", env, new Vector3(-3.7f, 0.001f, 0.3f), 1.9f, 0f);
-            SB.Solid(SB.Fit("FurnitureKit", "lampRoundFloor", env, new Vector3(-4.75f, 0f, -0.95f), 0.35f, 0f));
-            SB.Solid(SB.Fit("FurnitureKit", "pottedPlant", env, new Vector3(-4.7f, 0f, 2.75f), 0.6f, 0f));
-            SB.Solid(SB.Fit("FurnitureKit", "pottedPlant", env, new Vector3(4.7f, 0f, 2.75f), 0.6f, 0f));
-            SB.Solid(SB.Fit("FurnitureKit", "pottedPlant", env, new Vector3(4.7f, 0f, -2.55f), 0.6f, 0f));
-
-            // Mesas (este)
-            foreach (float z in new[] { 1.5f, -0.7f })
-            {
-                var table = SB.Solid(SB.Fit("FurnitureKit", "tableRound", env, new Vector3(4.1f, 0f, z), 0.85f, 0f));
-                OnTop(table, "FoodKit", "cocktail", env, -0.15f, 0.08f, 0.13f, 0f);
-                OnTop(table, "FoodKit", "glass-wine", env, 0.14f, -0.1f, 0.14f, 0f);
-                SB.Fit("FurnitureKit", "rugRound", env, new Vector3(4.1f, 0.001f, z), 1.7f, 0f);
-            }
         }
 
         // ---------------------------------------------------------------------
@@ -271,7 +244,7 @@ namespace QualityControlXR.EditorTools
                 {
                     var pos = new Vector3(sx * hx, 3.18f, DanceCenter.z + sz * hz);
                     var l = new GameObject("Disco Spot " + n).AddComponent<Light>();
-                    l.type = LightType.Spot; l.spotAngle = 44f; l.range = 7.5f; l.intensity = 3.4f; l.color = spotColors[n];
+                    l.type = LightType.Spot; l.spotAngle = 48f; l.range = 8.5f; l.intensity = 3.6f; l.color = spotColors[n];
                     l.shadows = LightShadows.None; l.renderMode = LightRenderMode.ForcePixel;
                     l.transform.SetParent(root);
                     l.transform.position = pos;
@@ -284,23 +257,23 @@ namespace QualityControlXR.EditorTools
             discoSpots = spots.ToArray();
 
             // Relleno de la pista (cambia de tono, pero siempre encendido)
-            var fillA = PointLight(root, "Dance Fill A", new Vector3(-2.4f, 2.6f, DanceCenter.z + 0.2f), Violet, 1.15f, 7f);
-            var fillB = PointLight(root, "Dance Fill B", new Vector3(2.4f, 2.6f, DanceCenter.z + 0.2f), Pink, 1.15f, 7f);
+            var fillA = PointLight(root, "Dance Fill A", new Vector3(-3.0f, 2.6f, DanceCenter.z + 0.2f), Violet, 1.2f, 7.5f);
+            var fillB = PointLight(root, "Dance Fill B", new Vector3(3.0f, 2.6f, DanceCenter.z + 0.2f), Pink, 1.2f, 7.5f);
             discoFills = new[] { fillA, fillB };
             lights.Add(fillA); lights.Add(fillB);
 
             // Cabina del DJ
             var riserMat = SB.Mat("DjRiser", new Color(0.13f, 0.1f, 0.2f));
-            SB.Prim(PrimitiveType.Cube, "DjRiser", root, new Vector3(0f, 0.125f, 6.75f), new Vector3(3.6f, 0.25f, 0.9f), riserMat);
-            Neon(root, "DjRiserNeon", new Vector3(0f, 0.2f, 6.29f), new Vector3(3.6f, 0.04f, 0.02f), pink);
-            var desk = SB.Solid(SB.Fit("FurnitureKit", "desk", root, new Vector3(0f, 0.25f, 6.55f), 1.5f, 0f));
+            SB.Prim(PrimitiveType.Cube, "DjRiser", root, new Vector3(0f, 0.125f, BackZ - 0.45f), new Vector3(4.4f, 0.25f, 0.9f), riserMat);
+            Neon(root, "DjRiserNeon", new Vector3(0f, 0.2f, BackZ - 0.91f), new Vector3(4.4f, 0.04f, 0.02f), pink);
+            var desk = SB.Solid(SB.Fit("FurnitureKit", "desk", root, new Vector3(0f, 0.25f, BackZ - 0.65f), 1.5f, 0f));
             OnTop(desk, "FurnitureKit", "laptop", root, -0.35f, 0f, 0.34f, 0f);
             OnTop(desk, "FurnitureKit", "radio", root, 0.3f, 0f, 0.34f, 0f);
             foreach (float s in new[] { -1f, 1f })
             {
-                SB.Solid(SB.Fit("FurnitureKit", "speaker", root, new Vector3(s * 2.45f, 0f, 6.75f), 0.42f, 180f));
-                SB.Solid(SB.Fit("FurnitureKit", "speakerSmall", root, new Vector3(s * 3.1f, 0f, 6.8f), 0.4f, 180f));
-                SB.Solid(SB.Fit("FurnitureKit", "speaker", root, new Vector3(s * 4.7f, 0f, 3.75f), 0.36f, s > 0 ? -90f : 90f));
+                SB.Solid(SB.Fit("FurnitureKit", "speaker", root, new Vector3(s * 2.9f, 0f, BackZ - 0.45f), 0.45f, 180f));
+                SB.Solid(SB.Fit("FurnitureKit", "speakerSmall", root, new Vector3(s * 3.6f, 0f, BackZ - 0.4f), 0.42f, 180f));
+                SB.Solid(SB.Fit("FurnitureKit", "speaker", root, new Vector3(s * (HalfW - 0.5f), 0f, 4.0f), 0.36f, s > 0 ? -90f : 90f));
             }
 
             // Ecualizador de pared (se mueve con el sonido real de la pista)
@@ -330,8 +303,8 @@ namespace QualityControlXR.EditorTools
             NeonSign(root, "Sign_Bar", new Vector3(0.3f, 2.98f, SouthZ + 0.16f), south, "★  BAR  ★", Amber, "NeonPink", 1.7f, 0.42f, 120);
             NeonSign(root, "Sign_HappyHour", new Vector3(HalfW - 0.06f, 2.25f, 0.4f), east, "HAPPY HOUR\n<size=70>2 × 1 hasta las 9</size>", Teal, "NeonAmber", 1.7f, 0.85f, 105);
             NeonSign(root, "Sign_Salud", new Vector3(-HalfW + 0.06f, 2.3f, 0.3f), west, "¡SALUD!", Pink, "NeonViolet", 1.5f, 0.6f, 150);
-            NeonSign(root, "Sign_House", new Vector3(HalfW - 0.06f, 2.3f, 5.0f), east, "HOUSE NIGHT\n<size=70>DJ en vivo</size>", Violet, "NeonPink", 1.8f, 0.85f, 105);
-            NeonSign(root, "Sign_Baila", new Vector3(-HalfW + 0.06f, 2.3f, 5.0f), west, "BAILA\n<size=70>que la barra invita</size>", Amber, "NeonTeal", 1.8f, 0.85f, 120);
+            NeonSign(root, "Sign_House", new Vector3(HalfW - 0.06f, 2.3f, 6.2f), east, "NOCHE DE RUMBA\n<size=70>DJ en vivo</size>", Violet, "NeonPink", 1.8f, 0.85f, 105);
+            NeonSign(root, "Sign_Baila", new Vector3(-HalfW + 0.06f, 2.3f, 6.2f), west, "BAILA\n<size=70>que la barra invita</size>", Amber, "NeonTeal", 1.8f, 0.85f, 120);
             NeonSign(root, "Sign_ScreenBack", new Vector3(0f, 2.52f, WallZ + 0.012f), south, "LABORATORIO\nDE MEZCLAS", Teal, "NeonPink", 2.5f, 1.1f, 150);
         }
 
@@ -369,7 +342,7 @@ namespace QualityControlXR.EditorTools
             root.SetParent(env);
             var frame = SB.Mat("ScreenFrame", new Color(0.06f, 0.05f, 0.1f));
             // (centro x, centro y, ancho, alto) de MainBoard, ReactionBook y TutorialBoard
-            var screens = new[] { new Vector4(0f, 2.52f, 2.72f, 1.312f), new Vector4(-2.4f, 2.32f, 1.61f, 1.75f), new Vector4(2.4f, 2.4f, 1.61f, 1.4f) };
+            var screens = new[] { new Vector4(0f, 2.52f, 2.72f, 1.312f), new Vector4(BookX, 2.32f, BookSize.x * BookScale, BookSize.y * BookScale), new Vector4(2.4f, 2.4f, 1.61f, 1.4f) };
             for (int i = 0; i < screens.Length; i++)
             {
                 var s = screens[i];
@@ -392,84 +365,17 @@ namespace QualityControlXR.EditorTools
             var go = new GameObject("Disco (música y luces)");
             go.transform.SetParent(managers.transform);
             var music = SB.AddAudio(go, 0f);
-            music.clip = MixMusicGenerator.EnsureClip();
-            music.loop = true; music.playOnAwake = true; music.volume = 0.3f; music.priority = 0;
+            music.loop = true; music.playOnAwake = false; music.volume = 0.3f; music.priority = 0;
+            var included = new List<MusicPlayer.BuiltIn>();
+            foreach (var style in MixMusicGenerator.Styles)
+                included.Add(new MusicPlayer.BuiltIn { genre = MixMusicGenerator.GenreName(style), title = MixMusicGenerator.Title(style), bpm = MixMusicGenerator.Tempo(style), clip = MixMusicGenerator.EnsureClip(style) });
+            var player = go.AddComponent<MusicPlayer>();
+            player.Setup(music, included.ToArray(), 0.3f);
+            EditorUtility.SetDirty(player);
             var disco = go.AddComponent<DiscoLights>();
             disco.Setup(music, MixMusicGenerator.Bpm, discoTiles, TileCols, discoSpots, discoFills, mirrorBall, ballLight, eqBars, pulseNeons.ToArray());
             EditorUtility.SetDirty(disco);
         }
 
-        // =====================================================================
-        // Clientes de fondo (Kenney Mini Characters, animaciones Legacy)
-        // =====================================================================
-
-        static readonly string[] DanceMoves = { "walk", "emote-yes", "interact-right", "interact-left", "jump" };
-        static readonly string[] DjMoves = { "interact-right", "interact-left", "emote-yes" };
-
-        static void BuildPatrons()
-        {
-            var root = new GameObject("--- CLIENTES DE FONDO ---").transform;
-            // En los extremos de la barra (lejos del estante, para no tapar las etiquetas)
-            BuildPatron(root, "character-female-b", new Vector3(-2.2f, 0f, SeatZ), 165f, "sit", 0.4f);
-            BuildPatron(root, "character-male-d", new Vector3(2.25f, 0f, SeatZ), 195f, "sit", 0.4f);
-            SB.Fit("FoodKit", "cocktail", root, new Vector3(-2.2f, Top, 1.0f), 0.13f, 0f, allAxes: true);
-            SB.Fit("FoodKit", "glass-wine", root, new Vector3(2.25f, Top, 1.02f), 0.14f, 0f, allAxes: true);
-            // Sala de estar
-            BuildPatron(root, "character-female-a", new Vector3(-4.45f, 0f, 0.65f), 90f, "sit", 0.12f);
-            BuildPatron(root, "character-male-a", new Vector3(-4.45f, 0f, -0.05f), 90f, "sit", 0.12f);
-            BuildPatron(root, "character-male-e", new Vector3(-4.2f, 0f, 2.2f), 130f, "idle", 0f);
-            // Mesas del lado este
-            BuildPatron(root, "character-male-b", new Vector3(3.45f, 0f, 1.65f), 100f, "idle", 0f);
-            BuildPatron(root, "character-female-e", new Vector3(4.7f, 0f, 1.35f), 280f, "idle", 0f);
-            BuildPatron(root, "character-female-c", new Vector3(3.5f, 0f, -0.45f), 110f, "idle", 0f);
-            BuildPatron(root, "character-male-c", new Vector3(4.7f, 0f, -0.95f), 290f, "idle", 0f);
-            // Pista de baile
-            const float f = 0.03f;
-            BuildPatron(root, "character-female-d", new Vector3(-1.45f, 0f, 4.0f), 150f, "idle", f, DanceMoves);
-            BuildPatron(root, "character-male-a", new Vector3(-0.5f, 0f, 4.45f), 215f, "idle", f, DanceMoves);
-            BuildPatron(root, "character-female-b", new Vector3(0.75f, 0f, 3.95f), 190f, "idle", f, DanceMoves);
-            BuildPatron(root, "character-male-e", new Vector3(1.65f, 0f, 4.75f), 235f, "idle", f, DanceMoves);
-            BuildPatron(root, "character-female-e", new Vector3(-1.75f, 0f, 5.35f), 120f, "idle", f, DanceMoves);
-            BuildPatron(root, "character-male-b", new Vector3(-0.2f, 0f, 5.55f), 175f, "idle", f, DanceMoves);
-            BuildPatron(root, "character-female-c", new Vector3(1.0f, 0f, 5.65f), 200f, "idle", f, DanceMoves);
-            // DJ
-            BuildPatron(root, "character-male-d", new Vector3(0f, 0f, 6.95f), 180f, "idle", 0.25f, DjMoves, 0.025f, 7f);
-        }
-
-        static void BuildPatron(Transform parent, string model, Vector3 pos, float yaw, string clip, float feetHeight,
-                                string[] dance = null, float bounce = 0.05f, float twist = 20f)
-        {
-            string path = $"Assets/ThirdParty/Kenney/MiniCharacters/{model}.fbx";
-            var importer = AssetImporter.GetAtPath(path) as ModelImporter;
-            if (importer == null) { Debug.LogWarning("[MixSceneBuilder] Falta personaje: " + path); return; }
-            if (importer.animationType != ModelImporterAnimationType.Legacy)
-            {
-                importer.animationType = ModelImporterAnimationType.Legacy;
-                importer.SaveAndReimport();
-            }
-            var asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            var root = new GameObject((dance != null ? "Dancer_" : "Patron_") + model);
-            root.transform.SetParent(parent);
-            root.transform.SetPositionAndRotation(pos, Quaternion.Euler(0f, yaw, 0f));
-            var go = Object.Instantiate(asset, root.transform);
-            go.name = model;
-            go.transform.localPosition = Vector3.zero; go.transform.localRotation = Quaternion.identity;
-            var b = SB.Bounds(go);
-            if (b.size.y > 0.001f) go.transform.localScale *= 1.15f / b.size.y;      // ~1.15 m de alto (estilo "mini")
-
-            // Pose inicial dentro de la escena (y para medir dónde quedan los pies al sentarse)
-            var anim = go.GetComponent<Animation>();
-            AnimationClip found = null;
-            if (anim != null) foreach (AnimationState s in anim) if (s.name == clip || s.name.EndsWith(clip)) found = s.clip;
-            if (found != null) found.SampleAnimation(go, 0f);
-            else Debug.LogWarning($"[MixSceneBuilder] {model}: sin animación '{clip}'");
-            b = SB.Bounds(go);
-            go.transform.position += Vector3.up * (feetHeight - b.min.y);
-
-            var col = root.AddComponent<CapsuleCollider>();
-            col.center = new Vector3(0f, 0.75f, 0f); col.height = 1.5f; col.radius = 0.25f;
-            if (dance != null) root.AddComponent<Dancer>().Setup(dance, bounce, twist);
-            else root.AddComponent<Patron>().Setup(clip);
-        }
     }
 }

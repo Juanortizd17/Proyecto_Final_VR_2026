@@ -37,6 +37,7 @@ namespace QualityControlXR.EditorTools
 
         static readonly string[] LeftShelf = { "Agua", "Hielo", "Limon", "Naranja", "Menta", "Leche", "Cafe", "Azucar" };
         static readonly string[] RightShelf = { "Soda", "Cola", "Cerveza", "Ron", "Tequila", "Aji", "SalsaDiablo", "Efervescente" };
+        static readonly string[] SideShelf = { "Coco", "Pina", "Vino" };      // brazo de la L, a la derecha del jugador
 
         static Material particleMat;
 
@@ -93,6 +94,7 @@ namespace QualityControlXR.EditorTools
                 SB.Clip("slime"), SB.Clip("confirmation"), SB.Clip("error"), SB.Clip("explosionCrunch"),
                 SB.Clip("impactBell_heavy"), SB.Clip("glitch"), SB.Clip("maximize"));
 
+            BuildJukebox();
             BuildDisco(managers);
 
             var board = BuildMainBoard();
@@ -148,6 +150,9 @@ namespace QualityControlXR.EditorTools
             Add("Aji", "Ají", "picante", new Color(1f, 0.42f, 0.24f), new MixProps { spicy = 1 });
             Add("SalsaDiablo", "Salsa del Diablo", "picante ×3", new Color(0.7f, 0.07f, 0.11f), new MixProps { spicy = 3 });
             Add("Efervescente", "Efervescente", "reactiva", new Color(1f, 1f, 1f), new MixProps { fizz = 1 });
+            Add("Coco", "Crema de coco", "frutal + dulce", new Color(0.97f, 0.95f, 0.88f), new MixProps { fruit = 1, sweet = 1 });
+            Add("Pina", "Piña", "frutal", new Color(1f, 0.85f, 0.25f), new MixProps { fruit = 1 });
+            Add("Vino", "Vino tinto", "alcohol + frutal", new Color(0.5f, 0.08f, 0.2f), new MixProps { alcohol = 1, fruit = 1 });
             return d;
         }
 
@@ -194,6 +199,14 @@ namespace QualityControlXR.EditorTools
             Add("Paloma", "Paloma", "una paloma", null, "Tequila", "Soda", "Limon", "Hielo");
             Add("RonNaranja", "Ron con naranja", "un ron con naranja", null, "Ron", "Naranja", "Hielo");
             Add("NaranjaEspumosa", "Naranja espumosa", "una naranja espumosa", null, "Naranja", "Soda", "Hielo");
+            Add("PinaColada", "Piña colada", "una piña colada", null, "Ron", "Coco", "Pina", "Hielo");
+            Add("LimonadaCoco", "Limonada de coco", "una limonada de coco", null, "Coco", "Limon", "Agua", "Hielo");
+            Add("CocoLoco", "Coco loco", "un coco loco", null, "Tequila", "Coco", "Hielo");
+            Add("JugoPina", "Jugo de piña", "un jugo de piña", null, "Pina", "Agua", "Azucar");
+            Add("TintoVerano", "Tinto de verano", "un tinto de verano", null, "Vino", "Soda", "Limon", "Hielo");
+            Add("Sangria", "Sangría", "una sangría", null, "Vino", "Naranja", "Pina", "Azucar");
+            Add("Calimocho", "Calimocho", "un calimocho", null, "Vino", "Cola");
+            Add("VinoCaliente", "Vino caliente", "un vino caliente", hot, "Vino", "Naranja", "Azucar");
             return list.ToArray();
         }
 
@@ -285,6 +298,12 @@ namespace QualityControlXR.EditorTools
             SB.Prim(PrimitiveType.Cube, "Riser_R", root, new Vector3(1.09f, Top + 0.02f, 0.92f), new Vector3(1.38f, 0.04f, 0.2f), riser);
 
             SB.Fit("FurnitureKit", "kitchenBlender", root, new Vector3(-2.2f, Top, 0.8f), 0.3f, 0f, allAxes: true);
+
+            // Brazo de la L: sale de la esquina derecha hacia el jugador y lleva tres ingredientes más
+            SB.Prim(PrimitiveType.Cube, "CounterArmBody", root, new Vector3(2.2f, 0.5f, -0.3f), new Vector3(0.5f, 1.0f, 1.7f), body);
+            SB.Prim(PrimitiveType.Cube, "CounterArmTop", root, new Vector3(2.2f, 1.0f, -0.32f), new Vector3(0.64f, 0.05f, 1.84f), top);
+            SB.Prim(PrimitiveType.Cube, "CounterArmNeon", root, new Vector3(2.455f, 0.93f, -0.3f), new Vector3(0.02f, 0.03f, 1.7f), teal, false);
+            SB.Prim(PrimitiveType.Cube, "Riser_Arm", root, new Vector3(2.3f, Top + 0.02f, -0.3f), new Vector3(0.2f, 0.04f, 1.1f), riser);
         }
 
         static MixGlass BuildStation(out TemperatureLever lever)
@@ -392,6 +411,8 @@ namespace QualityControlXR.EditorTools
                 BuildBottle(root, ing[LeftShelf[i]], LeftShelf[i], i, new Vector3(-0.48f - 0.17f * i, Top + 0.04f, 0.92f), glass);
                 BuildBottle(root, ing[RightShelf[i]], RightShelf[i], i, new Vector3(0.48f + 0.17f * i, Top + 0.04f, 0.92f), glass);
             }
+            for (int i = 0; i < SideShelf.Length; i++)
+                BuildBottle(root, ing[SideShelf[i]], SideShelf[i], i, new Vector3(2.3f, Top + 0.04f, 0.1f - 0.4f * i), glass, 0.0009f);
         }
 
         /// <summary>Botella modelada por piezas: cuerpo, hombro, cuello, tapa y etiqueta.</summary>
@@ -408,7 +429,7 @@ namespace QualityControlXR.EditorTools
             L(PrimitiveType.Cylinder, "Label", root, new Vector3(0f, bodyH * 0.52f, 0f), new Vector3(d * 1.04f, bodyH * 0.2f, d * 1.04f), labelMat);
         }
 
-        static void BuildBottle(Transform parent, IngredientData data, string id, int slot, Vector3 pos, MixGlass glass)
+        static void BuildBottle(Transform parent, IngredientData data, string id, int slot, Vector3 pos, MixGlass glass, float labelScale = 0.00048f)
         {
             var go = new GameObject("Bottle_" + id);
             go.transform.SetParent(parent);
@@ -422,6 +443,11 @@ namespace QualityControlXR.EditorTools
                 case "Menta": ProcBottle(t, id, new Color(0.16f, 0.62f, 0.38f), new Color(0.9f, 1f, 0.92f), new Color(0.1f, 0.3f, 0.2f), 0.034f, 0.23f); break;
                 case "Cola": ProcBottle(t, id, new Color(0.2f, 0.1f, 0.07f), new Color(0.85f, 0.1f, 0.1f), new Color(0.85f, 0.1f, 0.1f), 0.04f, 0.21f); break;
                 case "Cerveza": ProcBottle(t, id, new Color(0.38f, 0.2f, 0.07f), new Color(0.98f, 0.8f, 0.2f), new Color(0.95f, 0.75f, 0.2f), 0.032f, 0.25f); break;
+                case "Vino": ProcBottle(t, id, new Color(0.16f, 0.2f, 0.12f), new Color(0.93f, 0.9f, 0.8f), new Color(0.55f, 0.08f, 0.2f), 0.036f, 0.28f); break;
+                case "Coco": SB.Fit("FoodKit", "coconut-half", t, pos, 0.14f, 0f, allAxes: true); break;
+                case "Pina":
+                    SB.Fit("FoodKit", "pineapple", t, pos, 0.24f, 0f, allAxes: true);
+                    pieces = PieceShape.Disc; verb = "Agregar"; break;
                 case "Leche": SB.Fit("FoodKit", "carton", t, pos, 0.2f, 0f, allAxes: true); break;
                 case "Cafe": SB.Fit("FoodKit", "cup-coffee", t, pos, 0.12f, 0f, allAxes: true); break;
                 case "Soda": SB.Fit("FoodKit", "soda-bottle", t, pos, 0.24f, 0f, allAxes: true); break;
@@ -470,7 +496,7 @@ namespace QualityControlXR.EditorTools
             // Etiqueta flotante orientada hacia el puesto del jugador (alturas alternadas para que no se monten)
             Vector3 labelPos = new Vector3(pos.x, Top + 0.37f + (slot % 2) * 0.085f, pos.z);
             Vector3 eye = PlayerStart + Vector3.up * 1.65f;
-            var canvas = SB.MakeCanvas("Label_" + id, labelPos, Quaternion.LookRotation(labelPos - eye), new Vector2(330, 130), 0.00048f);
+            var canvas = SB.MakeCanvas("Label_" + id, labelPos, Quaternion.LookRotation(labelPos - eye), new Vector2(330, 130), labelScale);
             Object.DestroyImmediate(canvas.GetComponent<GraphicRaycaster>());
             canvas.transform.SetParent(parent, true);
             SB.Panel(canvas.transform, "Bg", PanelBg);
@@ -691,93 +717,5 @@ namespace QualityControlXR.EditorTools
             return ps;
         }
 
-        // =====================================================================
-        // Tableros
-        // =====================================================================
-
-        static RectTransform Box(Transform parent, string name, Vector2 min, Vector2 max)
-        {
-            var rt = SB.Child(parent, name);
-            rt.anchorMin = rt.anchorMax = Vector2.zero; rt.pivot = Vector2.zero;
-            rt.anchoredPosition = min; rt.sizeDelta = max - min;
-            return rt;
-        }
-
-        static MixBoard BuildMainBoard()
-        {
-            var canvas = SB.MakeCanvas("MainBoard", new Vector3(0f, 2.52f, WallZ - 0.06f), Quaternion.identity, new Vector2(1700, 820), 0.0016f);
-            SB.Panel(canvas.transform, "Bg", PanelBg);
-            SB.Label(canvas.transform, "Header", "<b>LABORATORIO DE MEZCLAS</b>  ·  UAO Immersive Solutions", 34, TextAnchor.MiddleCenter, Muted,
-                new Vector2(40, 745), new Vector2(1660, 805), absolute: true);
-
-            var waiting = SB.Child(canvas.transform, "WaitingPanel");
-            SB.Label(waiting, "Text", "Completa el <b>entrenamiento</b> del tablero de la derecha\npara iniciar el turno", 58, TextAnchor.MiddleCenter, Ink,
-                new Vector2(80, 150), new Vector2(1620, 700), absolute: true);
-
-            var game = SB.Child(canvas.transform, "GamePanel");
-            SB.Label(game, "OrderCaption", "PEDIDO DEL CLIENTE", 30, TextAnchor.MiddleLeft, Muted, new Vector2(60, 660), new Vector2(1000, 705), absolute: true);
-            var title = SB.Label(game, "OrderTitle", "LIMONADA HELADA", 88, TextAnchor.MiddleLeft, Copper, new Vector2(60, 545), new Vector2(1090, 665), absolute: true);
-            title.fontStyle = FontStyle.Bold; title.resizeTextForBestFit = true; title.resizeTextMinSize = 40; title.resizeTextMaxSize = 88;
-            title.horizontalOverflow = HorizontalWrapMode.Wrap;
-            var detail = SB.Label(game, "OrderDetail", "agua · limón · hielo", 48, TextAnchor.UpperLeft, Ink, new Vector2(60, 415), new Vector2(1090, 535), absolute: true);
-            SB.Label(game, "PatienceCaption", "PACIENCIA", 30, TextAnchor.MiddleLeft, Muted, new Vector2(60, 370), new Vector2(400, 410), absolute: true);
-            var barBg = Box(game, "PatienceBar", new Vector2(60, 325), new Vector2(1060, 365));
-            barBg.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.12f);
-            var fill = SB.Child(barBg, "Fill");
-            fill.pivot = new Vector2(0f, 0.5f);
-            var fillImg = fill.gameObject.AddComponent<Image>(); fillImg.color = new Color(0.45f, 0.9f, 0.5f); fillImg.raycastTarget = false;
-            var timer = SB.Label(game, "Timer", "TIEMPO\n<b>4:00</b>", 66, TextAnchor.MiddleCenter, Color.white, new Vector2(1130, 520), new Vector2(1640, 705), absolute: true);
-            var score = SB.Label(game, "Score", "PUNTOS\n<b>0</b>", 40, TextAnchor.MiddleCenter, new Color(0.45f, 0.95f, 0.55f), new Vector2(1130, 325), new Vector2(1385, 500), absolute: true);
-            var kos = SB.Label(game, "Knockouts", "DESMAYOS\n<b>0/3</b>", 40, TextAnchor.MiddleCenter, new Color(1f, 0.5f, 0.45f), new Vector2(1385, 325), new Vector2(1640, 500), absolute: true);
-            var alert = SB.Label(game, "Alert", "", 54, TextAnchor.MiddleCenter, new Color(1f, 0.78f, 0.2f), new Vector2(60, 160), new Vector2(1640, 300), absolute: true);
-            SB.Label(game, "Footer", "Vierte · Agita · Sirve      El lavaplatos vacía el vaso      3 desmayos suspenden el turno", 34, TextAnchor.MiddleCenter, Muted,
-                new Vector2(60, 50), new Vector2(1640, 120), absolute: true);
-
-            var results = SB.Child(canvas.transform, "ResultsPanel");
-            var resultsText = SB.Label(results, "Text", "", 42, TextAnchor.UpperCenter, Ink, new Vector2(80, 215), new Vector2(1620, 725), absolute: true);
-            resultsText.lineSpacing = 1.2f;
-
-            var board = canvas.gameObject.AddComponent<MixBoard>();
-            SB.MakeButton(results, "RestartButton", "REINICIAR", new Vector2(480, 60), new Vector2(830, 170), new Color(0.12f, 0.55f, 0.3f), board.OnRestartPressed);
-            SB.MakeButton(results, "QuitButton", "SALIR", new Vector2(870, 60), new Vector2(1220, 170), new Color(0.55f, 0.15f, 0.15f), board.OnQuitPressed);
-            board.Setup(waiting.gameObject, game.gameObject, results.gameObject, title, detail, timer, score, kos, alert, resultsText, fill, fillImg);
-            game.gameObject.SetActive(false);
-            results.gameObject.SetActive(false);
-            return board;
-        }
-
-        static void BuildBook(int count)
-        {
-            var canvas = SB.MakeCanvas("ReactionBook", new Vector3(-2.4f, 2.32f, WallZ - 0.06f), Quaternion.identity, new Vector2(1150, 1250), 0.0014f);
-            Object.DestroyImmediate(canvas.GetComponent<GraphicRaycaster>());
-            SB.Panel(canvas.transform, "Bg", PanelBg);
-            var title = SB.Label(canvas.transform, "Title", "<b>LIBRO DE REACCIONES</b>", 56, TextAnchor.MiddleCenter, Copper,
-                new Vector2(30, 1150), new Vector2(1120, 1235), absolute: true);
-            var rows = new Text[count];
-            float step = Mathf.Min(88f, 1110f / count);
-            for (int i = 0; i < count; i++)
-            {
-                float y = 1140f - (i + 1) * step;
-                rows[i] = SB.Label(canvas.transform, "Row" + i, "", step < 70f ? 40 : 48, TextAnchor.MiddleLeft, Ink, new Vector2(50, y), new Vector2(1120, y + step - 4f), absolute: true);
-                rows[i].horizontalOverflow = HorizontalWrapMode.Overflow;
-            }
-            canvas.gameObject.AddComponent<ReactionBookBoard>().Setup(title, rows);
-        }
-
-        static void BuildTutorial(MixGlass glass, AudioSource uiAudio)
-        {
-            var canvas = SB.MakeCanvas("TutorialBoard", new Vector3(2.4f, 2.4f, WallZ - 0.06f), Quaternion.identity, new Vector2(1150, 1000), 0.0014f);
-            SB.Panel(canvas.transform, "Bg", PanelBg);
-            SB.Label(canvas.transform, "Title", "<b>ENTRENAMIENTO</b>", 48, TextAnchor.MiddleCenter, Copper, new Vector2(30, 900), new Vector2(1120, 980), absolute: true);
-            var instr = SB.Label(canvas.transform, "Instruction", "", 50, TextAnchor.MiddleCenter, Ink, new Vector2(50, 290), new Vector2(1100, 880), absolute: true);
-            instr.lineSpacing = 1.15f;
-            var progress = SB.Label(canvas.transform, "Progress", "0/4", 32, TextAnchor.LowerRight, Muted, new Vector2(880, 30), new Vector2(1110, 85), absolute: true);
-
-            var tutorial = canvas.gameObject.AddComponent<MixTutorial>();
-            var start = SB.MakeButton(canvas.transform, "StartButton", "INICIAR TURNO", new Vector2(275, 120), new Vector2(875, 260), new Color(0.1f, 0.6f, 0.3f), tutorial.StartShift, 48);
-            var skip = SB.MakeButton(canvas.transform, "SkipButton", "Saltar tutorial", new Vector2(40, 30), new Vector2(360, 100), new Color(0.25f, 0.22f, 0.36f), tutorial.Skip, 30);
-            tutorial.Setup(instr, progress, start.gameObject, skip.gameObject, glass, uiAudio, SB.Clip("select"), SceneBuilder.DesktopMode);
-            EditorUtility.SetDirty(tutorial);
-        }
     }
 }

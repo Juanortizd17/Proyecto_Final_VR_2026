@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5584b02e417d5241a226b0b7b82a595, type: 3}
+  m_Name: JugoPina
+  m_EditorClassIdentifier: 
+  displayName: "Jugo de pi\xF1a"
+  requestLine: "un jugo de pi\xF1a"
+  ingredients:
+  - {fileID: 11400000, guid: 181518738594f25428aecfa266b57964, type: 2}
+  - {fileID: 11400000, guid: 7e843c0590539b6468bc92eb4e8fdf76, type: 2}
+  - {fileID: 11400000, guid: 661ff8ee75259a64ab0c81f542e9a815, type: 2}
+  needsTemperature: 0
+  temperature: 0

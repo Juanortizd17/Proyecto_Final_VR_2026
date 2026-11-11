@@ -30,10 +30,13 @@ namespace QualityControlXR.EditorTools
             Shot("03_estante_izquierdo", new Vector3(-0.35f, 1.6f, 0.05f), new Vector3(-1.0f, 1.12f, 0.92f), 62f);
             Shot("04_estante_derecho", new Vector3(0.35f, 1.6f, 0.05f), new Vector3(1.05f, 1.12f, 0.92f), 62f);
             Shot("05_estacion", new Vector3(0f, 1.55f, 0.15f), new Vector3(0f, 1.05f, 0.8f), 60f);
-            Shot("06_pista", new Vector3(-3.7f, 1.9f, 2.7f), new Vector3(0.6f, 0.9f, 5.4f), 68f);
+            Shot("06_pista", new Vector3(-4.8f, 2.0f, 3.0f), new Vector3(0.6f, 0.9f, 6.4f), 68f);
             Shot("07_barra_trasera", new Vector3(0.2f, 1.65f, -0.2f), new Vector3(0.3f, 1.7f, -3f), 72f);
-            Shot("08_vista_bar", new Vector3(4.7f, 2.3f, -2.5f), new Vector3(-0.4f, 1.0f, 2.6f), 72f);
-            Shot("09_desde_pista", new Vector3(0.4f, 1.7f, 6.1f), new Vector3(0f, 1.3f, 1.5f), 72f);
+            Shot("08_vista_bar", new Vector3(6.4f, 2.5f, -2.7f), new Vector3(-0.6f, 1.0f, 2.8f), 72f);
+            Shot("09_desde_pista", new Vector3(0.4f, 1.8f, 8.7f), new Vector3(0f, 1.3f, 1.5f), 72f);
+            Shot("10_meson_L", new Vector3(0.2f, 1.65f, -0.15f), new Vector3(2.3f, 1.15f, -0.3f), 62f);
+            Shot("11_rockola", new Vector3(-0.3f, 1.65f, -0.1f), new Vector3(-2.85f, 1.4f, -0.75f), 62f);
+            Shot("12_sofas", new Vector3(-3.4f, 1.7f, -0.9f), new Vector3(-6.3f, 0.6f, -0.7f), 68f);
 
             foreach (var id in new[] { ReactionId.Infierno, ReactionId.Nausea, ReactionId.Desmayo, ReactionId.Bailarin, ReactionId.Dormido, ReactionId.Perfecto })
             {

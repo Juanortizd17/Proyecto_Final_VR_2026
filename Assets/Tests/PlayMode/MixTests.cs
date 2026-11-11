@@ -39,7 +39,7 @@ namespace QualityControlXR.Tests
             shake = Object.FindFirstObjectByType<ShakeLever>();
             lever = Object.FindFirstObjectByType<TemperatureLever>();
             bottles = Object.FindObjectsByType<Bottle>(FindObjectsSortMode.None).ToDictionary(b => b.Ingredient.name);
-            Assert.AreEqual(16, bottles.Count, "16 ingredientes en el estante");
+            Assert.AreEqual(19, bottles.Count, "19 ingredientes en la barra");
             Time.timeScale = 4f;
         }
 
@@ -71,7 +71,7 @@ namespace QualityControlXR.Tests
             Assert.AreEqual(ReactionId.Hiper, Eval(none, null, "Cafe", "Cola"));
             Assert.AreEqual(ReactionId.Azucar, Eval(none, null, "Azucar", "Azucar", "Azucar"));
             Assert.AreEqual(ReactionId.Explosion, Eval(none, null, "Cerveza", "Efervescente"));
-            Assert.AreEqual(30, gm.Recipes.Count, "30 bebidas en la carta");
+            Assert.AreEqual(38, gm.Recipes.Count, "38 bebidas en la carta");
             Assert.AreEqual(17, gm.Reactions.Count, "17 reacciones en el libro");
             Assert.AreEqual(ReactionId.Bailarin, Eval(none, null, "Cafe", "Ron"));
             Assert.AreEqual(ReactionId.Hipo, Eval(none, null, "Soda", "Soda"));

@@ -6,7 +6,7 @@ hecho con **Unity 6 (6000.0.58f2)** para la empresa ficticia *UAO Immersive Solu
 Eres el encargado de un laboratorio-bar. Ramiro, el cliente de prueba, pide bebidas; tú combinas ingredientes
 con propiedades químicas (ácido, gas, alcohol, picante, lácteo, cafeína…), ajustas la temperatura, agitas y sirves.
 Si aciertas, suma puntos. Si te equivocas, **su cuerpo reacciona**: se pone rojo y suda con el picante, se marea,
-se pone verde, le explota la mezcla en la cara o cae desmayado. Hay **17 reacciones por descubrir** en el libro y **30 bebidas** en la carta. El bar es una discoteca viva: pista de baile con baldosas luminosas, DJ, bola de espejos, focos y ecualizador sincronizados con una pista house original (generada por código, tecla M para silenciarla).
+se pone verde, le explota la mezcla en la cara o cae desmayado. Hay **17 reacciones por descubrir** en el libro y **38 bebidas** en la carta. El bar es una discoteca viva: pista de baile con baldosas luminosas, DJ, bola de espejos, focos y ecualizador sincronizados con la música. Hay una **rockola** con géneros (house, electrónica, guaracha, rock): cada uno trae una pista original generada por código y suma las canciones que copies en `Assets/StreamingAssets/Musica/<Género>` (o en `Builds/Windows/ControlCalidadXR_Data/StreamingAssets/Musica` del juego compilado). Teclas: G género, N canción, M silencio.
 
 ![Vista del jugador](docs/screenshots/mix/01_jugador.png)
 
@@ -57,7 +57,7 @@ Por ahora es un **juego de PC en primera persona** (mouse y teclado). La convers
 
 ## Manejo de datos
 
-- **ScriptableObjects** en `Assets/Data/Mix`: 16 ingredientes (color y propiedades), 30 recetas y 17 reacciones
+- **ScriptableObjects** en `Assets/Data/Mix`: 19 ingredientes (color y propiedades), 38 recetas y 17 reacciones
   (texto, puntaje, color). Se agregan o cambian sin tocar código.
 - **JSON** en `Application.persistentDataPath/mix_save.json`: libro de reacciones descubiertas, récord e
   historial de turnos. El libro se conserva entre partidas.

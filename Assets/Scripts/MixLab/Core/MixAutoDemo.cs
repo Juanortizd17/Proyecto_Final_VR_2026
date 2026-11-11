@@ -92,6 +92,7 @@ namespace MixLab
                     yield return new WaitForSeconds(1.5f);
                 }
                 if (n == 0) yield return Shot("vaso_por_capas");
+                if (n % 2 == 1 && MusicPlayer.Instance != null) MusicPlayer.Instance.NextGenre(1);   // prueba la rockola
                 shake.Pull();
                 yield return new WaitForSeconds(1.1f);
                 hand.TakeGlass();
