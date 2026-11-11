@@ -1,0 +1,411 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace MixLab
+{
+    /// <summary>
+    /// Cliente de prueba. Está "vivo": respira, parpadea, sigue al jugador con la mirada, mueve
+    /// los brazos (hombro-codo-mano resueltos por cinemática inversa) y se impacienta.
+    /// Reacciona a cada mezcla con síntomas visibles: color de piel, ojos, boca, cejas, gestos
+    /// de los brazos, partículas (sudor, humo, vapor) y movimiento del cuerpo (tambaleo, desmayo).
+    /// Sus piezas se buscan por nombre en la jerarquía que genera MixSceneBuilder.
+    /// </summary>
+    public class Customer : MonoBehaviour
+    {
+        enum Eyes { Normal, Wide, Closed, Happy, X, Dizzy, Half, Flat }
+        enum Mouth { Smile, Big, O, Wavy, Puffed, Fire, Chatter, Tongue, Flat }
+        enum Body { Idle, Wobble, Shake, Shiver, Faint, Hyper, Sway }
+        enum Gesture { Rest, Fan, Belly, HoldHead, OneHandHead, Cheer, Face, Limp, Tap }
+
+        [SerializeField] string customerName = "Ramiro";
+        [SerializeField] Color normalSkin = new Color(0.95f, 0.76f, 0.61f);
+        [SerializeField] Transform mouthPoint;
+        [SerializeField] Transform coasterPoint;
+        [SerializeField] GameObject bubble;
+        [SerializeField] Text bubbleText;
+
+        static readonly Color Blush = new Color(1f, 0.45f, 0.55f);
+        static readonly Vector3 ShoulderL = new Vector3(-0.2f, 0.46f, 0.02f);
+        static readonly Vector3 ShoulderR = new Vector3(0.2f, 0.46f, 0.02f);
+        static readonly Vector3 RestL = new Vector3(-0.2f, 0.245f, 0.4f);
+        static readonly Vector3 RestR = new Vector3(0.2f, 0.245f, 0.4f);
+        const float UpperLen = 0.25f, ForeLen = 0.25f;
+
+        Transform pivot, head, pupilL, pupilR, whiteL, whiteR, mouthOpen, teeth, flame, stars, browL, browR;
+        Transform upperL, foreL, handL, upperR, foreR, handR;
+        GameObject eyesOpen, lids, eyesClosed, eyesHappy, eyesX, eyesFlat, brows;
+        GameObject mouthSmile, mouthWavy, mouthFlat, tongue, cheeks, hairNormal, hairUp, splash, icicles;
+        ParticleSystem fxSteam, fxSweat, fxSmoke, fxHearts;
+        readonly List<Renderer> skin = new List<Renderer>();
+        Renderer[] cheekRenderers;
+        MaterialPropertyBlock mpb;
+        bool cached;
+
+        Vector3 pivotPos, headPos, pupilLBase, pupilRBase, whiteScale, pupilScale, teethBase, flameScale, cheekScale, browLBase, browRBase;
+        Vector3 handLPos, handRPos;
+        Quaternion pivotRot;
+        Color currentSkin, targetSkin;
+        Eyes eyes;
+        Mouth mouth;
+        Body body;
+        Gesture gesture;
+        Transform heldGlass;
+        float animTime, blinkAt, blinkUntil;
+
+        public string Name => customerName;
+        public Transform MouthPoint => mouthPoint;
+        public Transform CoasterPoint => coasterPoint;
+        public ReactionId? CurrentReaction { get; private set; }
+        /// <summary>Lo activa el director del juego cuando queda poca paciencia.</summary>
+        public bool Impatient { get; set; }
+
+        public void Setup(string displayName, Color skinColor, Transform mouthTarget, Transform coaster, GameObject bubbleRoot, Text bubbleLabel)
+        {
+            customerName = displayName; normalSkin = skinColor; mouthPoint = mouthTarget; coasterPoint = coaster;
+            bubble = bubbleRoot; bubbleText = bubbleLabel;
+        }
+
+        void Awake() { Cache(); ResetPose(); }
+
+        void Cache()
+        {
+            if (cached) return;
+            cached = true;
+            mpb = new MaterialPropertyBlock();
+            pivot = transform.Find("Pivot");
+            head = pivot.Find("Head");
+            pivotPos = pivot.localPosition; pivotRot = pivot.localRotation; headPos = head.localPosition;
+
+            upperL = pivot.Find("ArmL_Upper"); foreL = pivot.Find("ArmL_Fore"); handL = pivot.Find("Skin_HandL");
+            upperR = pivot.Find("ArmR_Upper"); foreR = pivot.Find("ArmR_Fore"); handR = pivot.Find("Skin_HandR");
+            handLPos = RestL; handRPos = RestR;
+
+            eyesOpen = G("EyesOpen"); lids = G("Lids"); eyesClosed = G("EyesClosed"); eyesHappy = G("EyesHappy");
+            eyesX = G("EyesX"); eyesFlat = G("EyesFlat"); brows = G("Brows");
+            whiteL = head.Find("EyesOpen/WhiteL"); whiteR = head.Find("EyesOpen/WhiteR");
+            pupilL = head.Find("EyesOpen/PupilL"); pupilR = head.Find("EyesOpen/PupilR");
+            browL = head.Find("Brows/BrowL"); browR = head.Find("Brows/BrowR");
+            browLBase = browL.localPosition; browRBase = browR.localPosition;
+            whiteScale = whiteL.localScale; pupilScale = pupilL.localScale;
+            pupilLBase = pupilL.localPosition; pupilRBase = pupilR.localPosition;
+
+            mouthSmile = G("MouthSmile"); mouthWavy = G("MouthWavy"); mouthFlat = G("MouthFlat");
+            mouthOpen = head.Find("MouthOpen"); tongue = G("Tongue");
+            teeth = head.Find("Teeth"); teethBase = teeth.localPosition;
+            flame = head.Find("Flame"); flameScale = flame.localScale;
+            cheeks = G("Cheeks"); cheekRenderers = cheeks.GetComponentsInChildren<Renderer>(true);
+            cheekScale = cheeks.transform.GetChild(0).localScale;
+            hairNormal = G("HairNormal"); hairUp = G("HairUp"); splash = G("Splash"); icicles = G("Icicles");
+            stars = head.Find("Stars");
+
+            fxSteam = P("FX_Steam"); fxSweat = P("FX_Sweat"); fxSmoke = P("FX_Smoke"); fxHearts = P("FX_Hearts");
+
+            foreach (var r in GetComponentsInChildren<Renderer>(true))
+                if (r.name.StartsWith("Skin_")) skin.Add(r);
+            currentSkin = targetSkin = normalSkin;
+            blinkAt = 2f;
+        }
+
+        GameObject G(string name) => head.Find(name).gameObject;
+        ParticleSystem P(string name) { var t = head.Find(name); return t ? t.GetComponent<ParticleSystem>() : null; }
+
+        // =====================================================================
+        // API
+        // =====================================================================
+
+        public void Say(string text)
+        {
+            if (bubbleText) bubbleText.text = text;
+            if (bubble) bubble.SetActive(!string.IsNullOrEmpty(text));
+        }
+
+        /// <summary>La mano derecha sigue al vaso (para tomarlo y beber).</summary>
+        public void HoldGlass(Transform glass) => heldGlass = glass;
+        public void ReleaseGlass() => heldGlass = null;
+
+        public void ShowReaction(ReactionData data)
+        {
+            Cache();
+            ClearExtras();
+            CurrentReaction = data.id;
+            targetSkin = data.skinColor;
+            Say(data.customerLine);
+
+            switch (data.id)
+            {
+                case ReactionId.Perfecto: Pose(Eyes.Happy, Mouth.Big, Body.Idle, Gesture.Cheer); Cheeks(Blush, 1f); Play(fxHearts); break;
+                case ReactionId.Picante: Pose(Eyes.Closed, Mouth.O, Body.Sway, Gesture.Fan); Play(fxSweat); break;
+                case ReactionId.Infierno: Pose(Eyes.Wide, Mouth.Fire, Body.Shake, Gesture.Fan); Play(fxSteam); Play(fxSweat); break;
+                case ReactionId.Explosion: Pose(Eyes.Closed, Mouth.O, Body.Shake, Gesture.Face); splash.SetActive(true); Hair(true); break;
+                case ReactionId.Borracho: Pose(Eyes.Dizzy, Mouth.Wavy, Body.Wobble, Gesture.OneHandHead); Cheeks(Blush, 1f); break;
+                case ReactionId.Alegre: Pose(Eyes.Happy, Mouth.Smile, Body.Sway, Gesture.Rest); Cheeks(Blush, 1f); break;
+                case ReactionId.Nausea: Pose(Eyes.Half, Mouth.Puffed, Body.Sway, Gesture.Belly); Cheeks(data.skinColor * 0.92f, 1.6f); Play(fxSweat); break;
+                case ReactionId.Congelado: Pose(Eyes.Closed, Mouth.Chatter, Body.Shiver, Gesture.HoldHead); icicles.SetActive(true); break;
+                case ReactionId.Hiper: Pose(Eyes.Wide, Mouth.Big, Body.Hyper, Gesture.Cheer); break;
+                case ReactionId.Azucar: Pose(Eyes.Wide, Mouth.Big, Body.Hyper, Gesture.Cheer); Cheeks(Blush, 1.2f); Play(fxHearts); break;
+                case ReactionId.Llamarada: Pose(Eyes.Wide, Mouth.O, Body.Idle, Gesture.Face); Hair(true); Play(fxSmoke); break;
+                case ReactionId.Desmayo: Pose(Eyes.X, Mouth.Tongue, Body.Faint, Gesture.Limp); stars.gameObject.SetActive(true); break;
+                default: Pose(Eyes.Flat, Mouth.Flat, Body.Idle, Gesture.Rest); break;
+            }
+            if (!Application.isPlaying) SnapForPreview();
+        }
+
+        public void ResetPose()
+        {
+            Cache();
+            ClearExtras();
+            CurrentReaction = null;
+            targetSkin = normalSkin;
+            Pose(Eyes.Normal, Mouth.Smile, Body.Idle, Gesture.Rest);
+            if (!Application.isPlaying) SnapForPreview();
+        }
+
+        /// <summary>En el Editor (capturas) no corre Update: se aplica la pose final de una vez.</summary>
+        void SnapForPreview()
+        {
+            ApplySkin(currentSkin = targetSkin);
+            GestureTargets(0.4f, out handLPos, out handRPos);
+            SolveArms();
+            ApplyBrows();
+        }
+
+        // =====================================================================
+        // Pose
+        // =====================================================================
+
+        void Pose(Eyes e, Mouth m, Body b, Gesture g)
+        {
+            eyes = e; mouth = m; body = b; gesture = g; animTime = 0f;
+            pivot.localPosition = pivotPos; pivot.localRotation = pivotRot;
+            ApplyEyes(e);
+            ApplyMouth(m);
+            ApplyBrows();
+        }
+
+        void ApplyEyes(Eyes e)
+        {
+            bool open = e == Eyes.Normal || e == Eyes.Wide || e == Eyes.Dizzy || e == Eyes.Half;
+            eyesOpen.SetActive(open);
+            lids.SetActive(e == Eyes.Half);
+            eyesClosed.SetActive(e == Eyes.Closed);
+            eyesHappy.SetActive(e == Eyes.Happy);
+            eyesX.SetActive(e == Eyes.X);
+            eyesFlat.SetActive(e == Eyes.Flat);
+            float w = e == Eyes.Wide ? 1.22f : 1f, p = e == Eyes.Wide ? 0.6f : 1f;
+            whiteL.localScale = whiteR.localScale = whiteScale * w;
+            pupilL.localScale = pupilR.localScale = pupilScale * p;
+            Vector3 push = e == Eyes.Wide ? new Vector3(0f, 0f, 0.008f) : Vector3.zero;
+            pupilL.localPosition = pupilLBase + push; pupilR.localPosition = pupilRBase + push;
+        }
+
+        void ApplyMouth(Mouth m)
+        {
+            mouthSmile.SetActive(m == Mouth.Smile);
+            mouthWavy.SetActive(m == Mouth.Wavy);
+            mouthFlat.SetActive(m == Mouth.Flat || m == Mouth.Tongue);
+            tongue.SetActive(m == Mouth.Tongue);
+            teeth.gameObject.SetActive(m == Mouth.Chatter);
+            flame.gameObject.SetActive(m == Mouth.Fire);
+            bool round = m == Mouth.Big || m == Mouth.O || m == Mouth.Puffed || m == Mouth.Fire;
+            mouthOpen.gameObject.SetActive(round);
+            mouthOpen.localScale =
+                m == Mouth.Big ? new Vector3(0.13f, 0.085f, 0.03f) :
+                m == Mouth.Puffed ? new Vector3(0.035f, 0.02f, 0.03f) :
+                m == Mouth.Fire ? new Vector3(0.085f, 0.095f, 0.03f) :
+                new Vector3(0.055f, 0.07f, 0.03f);
+        }
+
+        /// <summary>Cejas: ángulo positivo = enojo/dolor (punta interna abajo); negativo = tristeza.</summary>
+        void ApplyBrows()
+        {
+            float angle = 0f, lift = 0f;
+            bool show = true;
+            switch (eyes)
+            {
+                case Eyes.Wide: lift = 0.024f; break;
+                case Eyes.Closed: angle = 20f; break;
+                case Eyes.Happy: lift = 0.012f; break;
+                case Eyes.Dizzy: angle = -15f; break;
+                case Eyes.Half: angle = -18f; break;
+                case Eyes.X: show = false; break;
+                case Eyes.Normal: if (Impatient && CurrentReaction == null) angle = 16f; break;
+            }
+            brows.SetActive(show);
+            browL.localPosition = browLBase + Vector3.up * lift; browR.localPosition = browRBase + Vector3.up * lift;
+            browL.localRotation = Quaternion.Euler(0f, 0f, -angle);
+            browR.localRotation = Quaternion.Euler(0f, 0f, angle);
+        }
+
+        void ClearExtras()
+        {
+            cheeks.SetActive(false); splash.SetActive(false); icicles.SetActive(false);
+            stars.gameObject.SetActive(false);
+            Hair(false);
+            Stop(fxSteam); Stop(fxSweat); Stop(fxSmoke); Stop(fxHearts);
+        }
+
+        void Hair(bool up) { hairNormal.SetActive(!up); hairUp.SetActive(up); }
+
+        void Cheeks(Color color, float scale)
+        {
+            cheeks.SetActive(true);
+            foreach (var r in cheekRenderers)
+            {
+                r.transform.localScale = cheekScale * scale;
+                r.GetPropertyBlock(mpb); mpb.SetColor("_Color", color); r.SetPropertyBlock(mpb);
+            }
+        }
+
+        void ApplySkin(Color c)
+        {
+            foreach (var r in skin)
+            {
+                if (r == null) continue;
+                r.GetPropertyBlock(mpb); mpb.SetColor("_Color", c); r.SetPropertyBlock(mpb);
+            }
+        }
+
+        static void Play(ParticleSystem ps) { if (ps && Application.isPlaying) ps.Play(); }
+        static void Stop(ParticleSystem ps) { if (ps) ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); }
+
+        // =====================================================================
+        // Brazos (cinemática inversa de dos huesos, en el espacio local del torso)
+        // =====================================================================
+
+        void GestureTargets(float t, out Vector3 l, out Vector3 r)
+        {
+            l = RestL; r = RestR;
+            var g = gesture;
+            if (CurrentReaction == null && Impatient && g == Gesture.Rest) g = Gesture.Tap;
+            switch (g)
+            {
+                case Gesture.Fan: r = new Vector3(0.1f + Mathf.Sin(t * 18f) * 0.06f, 0.68f, 0.3f); break;
+                case Gesture.Belly: l = new Vector3(-0.07f, 0.2f, 0.2f); r = new Vector3(0.07f, 0.17f, 0.2f); break;
+                case Gesture.HoldHead: l = new Vector3(-0.2f, 0.78f, 0.1f); r = new Vector3(0.2f, 0.78f, 0.1f); break;
+                case Gesture.OneHandHead: r = new Vector3(0.19f, 0.83f, 0.08f); break;
+                case Gesture.Cheer:
+                    float w = Mathf.Sin(t * 10f) * 0.04f;
+                    l = new Vector3(-0.3f, 0.93f + w, 0.1f); r = new Vector3(0.3f, 0.93f - w, 0.1f); break;
+                case Gesture.Face: l = new Vector3(-0.17f, 0.66f, 0.25f); r = new Vector3(0.17f, 0.66f, 0.25f); break;
+                case Gesture.Limp: l = new Vector3(-0.27f, -0.02f, 0.05f); r = new Vector3(0.27f, -0.02f, 0.05f); break;
+                case Gesture.Tap: r = RestR + Vector3.up * (Mathf.Max(0f, Mathf.Sin(t * 11f)) * 0.05f); break;
+            }
+            if (heldGlass != null)
+                r = pivot.InverseTransformPoint(heldGlass.position + Vector3.up * 0.07f) + new Vector3(0.05f, 0f, -0.02f);
+        }
+
+        void SolveArms()
+        {
+            SolveArm(upperL, foreL, handL, ShoulderL, handLPos, -1f);
+            SolveArm(upperR, foreR, handR, ShoulderR, handRPos, 1f);
+        }
+
+        static void SolveArm(Transform upper, Transform fore, Transform hand, Vector3 shoulder, Vector3 target, float side)
+        {
+            Vector3 d = target - shoulder;
+            float dist = Mathf.Clamp(d.magnitude, 0.06f, UpperLen + ForeLen - 0.004f);
+            Vector3 dir = d.sqrMagnitude < 1e-6f ? Vector3.down : d.normalized;
+            Vector3 wrist = shoulder + dir * dist;
+            float a = (UpperLen * UpperLen - ForeLen * ForeLen + dist * dist) / (2f * dist);
+            float h = Mathf.Sqrt(Mathf.Max(0f, UpperLen * UpperLen - a * a));
+            Vector3 hint = Vector3.ProjectOnPlane(new Vector3(side * 0.8f, -0.6f, -0.3f), dir);
+            if (hint.sqrMagnitude < 1e-5f) hint = Vector3.ProjectOnPlane(new Vector3(side, 0f, 0f), dir);
+            Vector3 elbow = shoulder + dir * a + hint.normalized * h;
+            Segment(upper, shoulder, elbow);
+            Segment(fore, elbow, wrist);
+            hand.localPosition = wrist;
+        }
+
+        static void Segment(Transform seg, Vector3 a, Vector3 b)
+        {
+            seg.localPosition = (a + b) * 0.5f;
+            seg.localRotation = Quaternion.FromToRotation(Vector3.up, b - a);
+            var s = seg.localScale; s.y = (b - a).magnitude * 0.5f + 0.03f; seg.localScale = s;
+        }
+
+        // =====================================================================
+        // Animación
+        // =====================================================================
+
+        void Update()
+        {
+            if (!cached) return;
+            float dt = Time.deltaTime;
+            currentSkin = Color.Lerp(currentSkin, targetSkin, 1f - Mathf.Exp(-6f * dt));
+            ApplySkin(currentSkin);
+
+            animTime += dt;
+            float t = animTime;
+            Vector3 pos = pivotPos; Quaternion rot = pivotRot;
+            switch (body)
+            {
+                case Body.Idle:      // respiración + leve balanceo
+                    pos += Vector3.up * (Mathf.Sin(t * 1.7f) * 0.005f);
+                    rot = pivotRot * Quaternion.Euler(Mathf.Sin(t * 0.9f) * 1.2f, 0f, Mathf.Sin(t * 0.6f) * 1.5f); break;
+                case Body.Wobble:
+                    rot = pivotRot * Quaternion.Euler(Mathf.Sin(t * 2.2f) * 6f, 0f, Mathf.Sin(t * 3f) * 13f);
+                    pos += Vector3.right * (Mathf.Sin(t * 3f) * 0.03f); break;
+                case Body.Shake: pos += Random.insideUnitSphere * 0.012f; break;
+                case Body.Shiver: pos += Vector3.right * (Mathf.Sin(t * 60f) * 0.006f); break;
+                case Body.Hyper: pos += Vector3.up * (Mathf.Abs(Mathf.Sin(t * 14f)) * 0.035f); break;
+                case Body.Sway: rot = pivotRot * Quaternion.Euler(0f, 0f, Mathf.Sin(t * 1.8f) * 5f); break;
+                case Body.Faint:
+                    float k = Mathf.Clamp01(t / 0.7f); k = k * k * (3f - 2f * k);
+                    rot = pivotRot * Quaternion.Euler(0f, 0f, 80f * k);
+                    pos += Vector3.down * (0.04f * k); break;
+            }
+            if (heldGlass != null) rot *= Quaternion.Euler(9f, 0f, 0f);   // se inclina hacia el vaso
+            pivot.localPosition = pos; pivot.localRotation = rot;
+
+            UpdateHead(dt, t);
+            UpdateBlink();
+
+            // Brazos
+            GestureTargets(t, out var tl, out var tr);
+            float follow = 1f - Mathf.Exp(-(heldGlass != null ? 22f : 9f) * dt);
+            handLPos = Vector3.Lerp(handLPos, tl, follow);
+            handRPos = Vector3.Lerp(handRPos, tr, follow);
+            SolveArms();
+            if (CurrentReaction == null) ApplyBrows();
+
+            if (eyes == Eyes.Dizzy)
+            {
+                var o = new Vector3(Mathf.Cos(t * 9f), Mathf.Sin(t * 9f), 0f) * 0.016f;
+                pupilL.localPosition = pupilLBase + o; pupilR.localPosition = pupilRBase - o;
+            }
+            if (stars.gameObject.activeSelf) stars.Rotate(0f, 220f * dt, 0f, Space.Self);
+            if (teeth.gameObject.activeSelf) teeth.localPosition = teethBase + Vector3.up * (Mathf.Sin(t * 50f) * 0.006f);
+            if (flame.gameObject.activeSelf) flame.localScale = flameScale * (1f + Mathf.Sin(t * 25f) * 0.18f);
+        }
+
+        /// <summary>La cabeza sigue al jugador (con límites) salvo que esté desmayado.</summary>
+        void UpdateHead(float dt, float t)
+        {
+            Quaternion want = Quaternion.identity;
+            var cam = Camera.main;
+            if (cam != null && body != Body.Faint && eyes != Eyes.Dizzy)
+            {
+                Vector3 local = pivot.InverseTransformPoint(cam.transform.position) - headPos;
+                float yaw = Mathf.Clamp(Mathf.Atan2(local.x, local.z) * Mathf.Rad2Deg, -32f, 32f);
+                float pitch = Mathf.Clamp(-Mathf.Atan2(local.y, new Vector2(local.x, local.z).magnitude) * Mathf.Rad2Deg, -16f, 16f);
+                want = Quaternion.Euler(pitch, yaw, 0f);
+            }
+            if (body == Body.Wobble) want *= Quaternion.Euler(0f, 0f, Mathf.Sin(t * 2.5f) * 10f);
+            if (body == Body.Faint) want = Quaternion.Euler(0f, 0f, 12f);
+            head.localRotation = Quaternion.Slerp(head.localRotation, want, 1f - Mathf.Exp(-5f * dt));
+        }
+
+        void UpdateBlink()
+        {
+            if (eyes != Eyes.Normal) return;
+            float now = Time.time;
+            if (now >= blinkAt && blinkUntil <= 0f) { blinkUntil = now + 0.11f; eyesOpen.SetActive(false); eyesFlat.SetActive(true); }
+            if (blinkUntil > 0f && now >= blinkUntil)
+            {
+                blinkUntil = 0f; blinkAt = now + Random.Range(2.2f, 5f);
+                eyesOpen.SetActive(true); eyesFlat.SetActive(false);
+            }
+        }
+    }
+}
