@@ -35,7 +35,7 @@ namespace MixLab
 
         public string StatusText =>
             $"<b>Vaso:</b> <color=#FFC21A>{(glass ? glass.Describe() : "-")}</color>\n" +
-            $"<size=17><b>Temperatura:</b> {(lever ? lever.CurrentName : "-")}   ·   máximo 4 ingredientes</size>";
+            $"<size=17><b>Temperatura:</b> {(lever ? lever.CurrentName : "-")}   ·   <b>Análisis:</b> {(MixAnalyzer.Instance ? MixAnalyzer.Instance.Summary : "-")}</size>";
 
         public string HelpText =>
             "<b><color=#FFC21A>CONTROLES</color></b>\n" +

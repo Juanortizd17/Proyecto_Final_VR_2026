@@ -108,6 +108,23 @@ namespace QualityControlXR.EditorTools
             L(PrimitiveType.Capsule, "SnotIcicle", head, new Vector3(-0.012f, -0.074f, 0.186f), new Vector3(0.015f, 0.034f, 0.015f), ice);
             L(PrimitiveType.Sphere, "SnotBubble", head, new Vector3(0.016f, -0.052f, 0.213f), Vector3.one * 0.06f, snot);
 
+            // Pelo en llamas (llamarada) y sangrado de nariz
+            var flameM = SB.Mat("HeadFlame", new Color(0.95f, 0.26f, 0.04f), emissive: true);
+            var coreM = SB.Mat("FlameCore", new Color(1f, 0.62f, 0.12f), emissive: true);
+            var flames = Group("HeadFlames", head, new Vector3(0f, 0.19f, -0.02f));
+            L(PrimitiveType.Sphere, "Mid", flames, new Vector3(0f, 0.1f, 0f), new Vector3(0.17f, 0.32f, 0.15f), flameM);
+            L(PrimitiveType.Sphere, "Left", flames, new Vector3(-0.1f, 0.05f, 0f), new Vector3(0.11f, 0.21f, 0.1f), flameM, 14f);
+            L(PrimitiveType.Sphere, "Right", flames, new Vector3(0.1f, 0.06f, 0.02f), new Vector3(0.1f, 0.23f, 0.1f), flameM, -12f);
+            L(PrimitiveType.Sphere, "Back", flames, new Vector3(0.02f, 0.06f, -0.09f), new Vector3(0.12f, 0.2f, 0.1f), flameM);
+            L(PrimitiveType.Sphere, "Core", flames, new Vector3(0f, 0.06f, 0.02f), new Vector3(0.09f, 0.19f, 0.08f), coreM);
+            Fx("FX_HeadFire", head, new Vector3(0f, 0.2f, 0f), new Color(1f, 0.55f, 0.1f), new Color(1f, 0.9f, 0.3f), 42f, 0.6f, 0.9f, 0.12f, -0.2f, ParticleSystemShapeType.Cone, 0.1f);
+            var blood = SB.Mat("SymptomBlood", new Color(0.6f, 0.02f, 0.05f));
+            var bleed = Group("NoseBleed", head, Vector3.zero);
+            L(PrimitiveType.Capsule, "L", bleed, new Vector3(-0.012f, -0.062f, 0.186f), new Vector3(0.012f, 0.022f, 0.012f), blood);
+            L(PrimitiveType.Capsule, "R", bleed, new Vector3(0.014f, -0.07f, 0.185f), new Vector3(0.012f, 0.03f, 0.012f), blood);
+            Fx("FX_Blood", head, new Vector3(0.005f, -0.085f, 0.19f), new Color(0.6f, 0.02f, 0.05f), new Color(0.75f, 0.05f, 0.08f), 3f, 0.7f, 0.02f, 0.02f, 0.8f, ParticleSystemShapeType.Sphere, 0.006f)
+                .transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+
             // Partículas (las que salen "hacia adelante" se orientan a mano; por defecto Fx emite hacia arriba)
             var green = new Color(0.52f, 0.7f, 0.14f); var yellow = new Color(0.8f, 0.76f, 0.28f);
             Fx("FX_Vomit", head, new Vector3(0f, -0.095f, 0.19f), green, yellow, 0f, 0.75f, 1.9f, 0.06f, 1.6f, ParticleSystemShapeType.Cone, 0.02f)

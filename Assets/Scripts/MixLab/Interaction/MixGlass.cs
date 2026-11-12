@@ -173,8 +173,107 @@ namespace MixLab
         {
             EnsureHome();
             yield return FlyTo(HomePosition, HomeRotation, seconds);
+            Restore();
             SetHeld(false);
             AtHome = true;
+        }
+
+        // ---------- Mezcla inestable: tiembla y, si nadie la estabiliza, el vaso estalla ----------
+
+        [SerializeField] ParticleSystem burstFx;
+        [SerializeField] Material shardMaterial;
+        Renderer[] visuals;
+        bool rattling, shattered;
+
+        /// <summary>Lo activa el analizador mientras la mezcla esté a punto de explotar.</summary>
+        public bool Unstable { get; set; }
+        public bool Shattered => shattered;
+
+        public void SetBurst(ParticleSystem fx, Material shards) { burstFx = fx; shardMaterial = shards; }
+
+        void Update()
+        {
+            bool rattle = Unstable && AtHome && !Busy && !shattered;
+            if (rattle)
+            {
+                float t = Time.time;
+                transform.position = HomePosition + new Vector3(Mathf.Sin(t * 47f) * 0.004f, Mathf.Abs(Mathf.Sin(t * 31f)) * 0.006f, Mathf.Cos(t * 53f) * 0.004f);
+                transform.rotation = HomeRotation * Quaternion.Euler(Mathf.Sin(t * 39f) * 4f, 0f, Mathf.Cos(t * 43f) * 4f);
+            }
+            else if (rattling && AtHome && !Busy) transform.SetPositionAndRotation(HomePosition, HomeRotation);
+            rattling = rattle;
+        }
+
+        /// <summary>Rompe el vaso donde esté: salpica el líquido, vuelan los vidrios y el vaso desaparece hasta Restore().</summary>
+        public void Burst()
+        {
+            if (shattered) return;
+            shattered = true;
+            Color liquid = contents.Count > 0 ? BlendColor() : new Color(0.8f, 0.95f, 1f);
+            Vector3 center = transform.position + Vector3.up * 0.07f;
+            if (burstFx)
+            {
+                burstFx.transform.position = center;
+                var main = burstFx.main;
+                main.startColor = new ParticleSystem.MinMaxGradient(liquid, Color.Lerp(liquid, Color.white, 0.5f));
+                burstFx.Play();
+            }
+            if (Application.isPlaying)
+                for (int i = 0; i < 12; i++)
+                {
+                    var shard = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    shard.name = "GlassShard";
+                    shard.layer = 2;      // no estorba a la mira
+                    shard.transform.position = center + UnityEngine.Random.insideUnitSphere * 0.04f;
+                    shard.transform.rotation = UnityEngine.Random.rotation;
+                    shard.transform.localScale = new Vector3(UnityEngine.Random.Range(0.015f, 0.04f), 0.004f, UnityEngine.Random.Range(0.015f, 0.035f));
+                    if (shardMaterial) shard.GetComponent<Renderer>().sharedMaterial = shardMaterial;
+                    var rb = shard.AddComponent<Rigidbody>();
+                    rb.mass = 0.02f;
+                    Vector3 dir = UnityEngine.Random.onUnitSphere; dir.y = Mathf.Abs(dir.y) * 0.8f + 0.3f;
+                    rb.linearVelocity = dir * UnityEngine.Random.Range(1.4f, 3.2f);
+                    rb.angularVelocity = UnityEngine.Random.insideUnitSphere * 25f;
+                    Destroy(shard, 2.5f);
+                }
+            if (visuals == null) visuals = GetComponentsInChildren<Renderer>(true);
+            foreach (var r in visuals) if (r) r.enabled = false;
+        }
+
+        /// <summary>Un vaso nuevo en la estación.</summary>
+        public void Restore()
+        {
+            if (!shattered) return;
+            shattered = false;
+            if (visuals != null) foreach (var r in visuals) if (r) r.enabled = true;
+        }
+
+        /// <summary>La mezcla inestable estalla en la estación (o en la mano) y luego aparece un vaso limpio.</summary>
+        public IEnumerator ExplodeAtStation()
+        {
+            EnsureHome();
+            Busy = true;
+            Unstable = false;
+            if (colliders == null) colliders = GetComponentsInChildren<Collider>();
+            foreach (var c in colliders) if (c) c.enabled = false;
+            Burst();
+            contents.Clear();
+            Shaken = false;
+            Refresh();
+            OnChanged?.Invoke();
+            yield return new WaitForSeconds(1.3f);
+            transform.SetPositionAndRotation(HomePosition, HomeRotation);
+            Restore();
+            foreach (var c in colliders) if (c) c.enabled = true;
+            AtHome = true;
+            // El vaso nuevo "aparece" creciendo
+            Vector3 full = transform.localScale;
+            for (float t = 0f; t < 1f; t += Time.deltaTime / 0.25f)
+            {
+                transform.localScale = full * Mathf.SmoothStep(0.2f, 1f, t);
+                yield return null;
+            }
+            transform.localScale = full;
+            Busy = false;
         }
 
         void Play(AudioClip clip) { if (sfx && clip) sfx.PlayOneShot(clip, 0.8f); }

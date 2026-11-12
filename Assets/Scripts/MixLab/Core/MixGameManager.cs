@@ -52,6 +52,7 @@ namespace MixLab
         public bool NewRecord { get; private set; }
         public bool Won { get; private set; }
         public bool Busy { get; private set; }
+        const int stabilizeBonus = 20, explodePenalty = 30;
         public bool Blackout { get; private set; }
         public RecipeData CurrentOrder { get; private set; }
         public string CustomerName => customer ? customer.Name : "el cliente";
@@ -213,6 +214,7 @@ namespace MixLab
             Busy = true;
             glass.SetHeld(true);
             var id = ReactionRules.Evaluate(glass.Contents, lever.Current, CurrentOrder);
+            bool stabilized = ReactionRules.IsStabilized(glass.Contents, lever.Current);
             var data = Get(id);
             LastReaction = data;
 
@@ -222,6 +224,7 @@ namespace MixLab
             {
                 if (explosionFx) { explosionFx.transform.position = customer.CoasterPoint.position + Vector3.up * 0.1f; explosionFx.Play(); }
                 Play(explosionClip, 1f);
+                glass.Burst();              // el vaso estalla frente al cliente
                 glass.Empty();
             }
             else
@@ -257,6 +260,7 @@ namespace MixLab
                     gained = perfectPoints + Mathf.RoundToInt(PatienceRatio * 50f);
                 }
                 if (data.knockout) Knockouts++;
+                if (stabilized) { gained += stabilizeBonus; Alert("¡Mezcla estabilizada con frío! +" + stabilizeBonus); }
                 Score = Mathf.Max(0, Score + gained);
                 OnScoreChanged?.Invoke();
             }
@@ -280,6 +284,22 @@ namespace MixLab
             {
                 customer.Say("Ya me siento mejor. ¡Sigue practicando o inicia el turno!");
             }
+        }
+
+        /// <summary>Aviso en el tablero principal (lo usa el analizador de mezclas).</summary>
+        public void Announce(string message) { if (State == MixState.Playing) Alert(message); }
+
+        /// <summary>Una mezcla inestable estalló en la estación porque nadie la estabilizó a tiempo.</summary>
+        public void GlassExploded()
+        {
+            Play(explosionClip, 1f);
+            if (State == MixState.Playing)
+            {
+                Score = Mathf.Max(0, Score - explodePenalty);
+                OnScoreChanged?.Invoke();
+                Alert("¡EL VASO EXPLOTÓ! (-" + explodePenalty + ")  Lo inestable se estabiliza con FRÍO");
+            }
+            if (customer && !Busy) customer.Say("¡Cuidado! ¡Casi me sacas un ojo!");
         }
 
         // =====================================================================

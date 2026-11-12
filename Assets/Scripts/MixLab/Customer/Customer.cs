@@ -41,7 +41,11 @@ namespace MixLab
         Transform foreheadVein, lips, tongueLong, snotBubble;
         GameObject eyesOpen, lids, eyesClosed, eyesHappy, eyesX, eyesFlat, brows;
         GameObject mouthSmile, mouthWavy, mouthFlat, tongue, cheeks, hairNormal, hairUp, splash, icicles;
-        GameObject bloodshot, eyeBags, hives, soot, bile, foam, snotIcicle, lidL, lidR;
+        GameObject bloodshot, eyeBags, hives, soot, bile, foam, snotIcicle, lidL, lidR, noseBleed;
+        Transform headFlames;
+        Vector3 headFlamesScale;
+        ParticleSystem fxFire, fxBlood;
+        bool onFire;
         ParticleSystem fxSteam, fxSweat, fxSmoke, fxHearts, fxVomit, fxTearsL, fxTearsR, fxDrool, fxEarL, fxEarR, fxBurp, fxCough;
         readonly List<Renderer> skin = new List<Renderer>();
         Renderer[] cheekRenderers, lipRenderers;
@@ -110,7 +114,8 @@ namespace MixLab
 
             // Síntomas crudos (opcionales: si la escena es antigua simplemente no aparecen)
             bloodshot = O("Bloodshot"); eyeBags = O("EyeBags"); hives = O("Hives"); soot = O("Soot");
-            bile = O("Bile"); foam = O("Foam"); snotIcicle = O("SnotIcicle");
+            bile = O("Bile"); foam = O("Foam"); snotIcicle = O("SnotIcicle"); noseBleed = O("NoseBleed");
+            headFlames = head.Find("HeadFlames"); if (headFlames) headFlamesScale = headFlames.localScale;
             foreheadVein = head.Find("ForeheadVein"); if (foreheadVein) veinScale = foreheadVein.localScale;
             lips = head.Find("Lips"); if (lips) { lipsScale = lips.localScale; lipRenderers = lips.GetComponentsInChildren<Renderer>(true); }
             tongueLong = head.Find("TongueLong"); if (tongueLong) tongueLongPos = tongueLong.localPosition;
@@ -119,6 +124,7 @@ namespace MixLab
             fxSteam = P("FX_Steam"); fxSweat = P("FX_Sweat"); fxSmoke = P("FX_Smoke"); fxHearts = P("FX_Hearts");
             fxVomit = P("FX_Vomit"); fxTearsL = P("FX_TearsL"); fxTearsR = P("FX_TearsR"); fxDrool = P("FX_Drool");
             fxEarL = P("FX_EarSteamL"); fxEarR = P("FX_EarSteamR"); fxBurp = P("FX_Burp"); fxCough = P("FX_Cough");
+            fxFire = P("FX_HeadFire"); fxBlood = P("FX_Blood");
 
             foreach (var r in GetComponentsInChildren<Renderer>(true))
             {
@@ -193,18 +199,20 @@ namespace MixLab
                     Pose(Eyes.Pinpoint, Mouth.Chatter, Body.Hyper, Gesture.Cheer);
                     Show(bloodshot); Show(eyeBags); throbbing = true; bulging = true;
                     if (foreheadVein) foreheadVein.gameObject.SetActive(true);
-                    Play(fxSweat); break;
+                    Show(noseBleed); Play(fxBlood); Play(fxSweat); break;
 
                 case ReactionId.Azucar:
                     Pose(Eyes.Pinpoint, Mouth.Big, Body.Hyper, Gesture.Cheer); Cheeks(Blush, 1.2f); Show(bloodshot); Play(fxDrool); break;
 
-                case ReactionId.Llamarada:      // hollín, cejas chamuscadas, tos con humo
-                    Pose(Eyes.Wide, Mouth.O, Body.Cough, Gesture.Throat);
-                    Hair(true); Show(soot); Show(bloodshot); browsBurnt = true; Play(fxSmoke); Play(fxTearsL); Play(fxTearsR); break;
+                case ReactionId.Llamarada:      // se le prende el pelo: pánico, y al apagarse queda con hollín, sin cejas y tosiendo humo
+                    Pose(Eyes.Wide, Mouth.Big, Body.Shake, Gesture.HoldHead);
+                    Hair(true); Show(bloodshot); onFire = true;
+                    if (headFlames) headFlames.gameObject.SetActive(true);
+                    Play(fxFire); Play(fxTearsL); Play(fxTearsR); break;
 
                 case ReactionId.Desmayo:        // ojos en blanco, espuma en la boca y espasmos
                     Pose(Eyes.Rolled, Mouth.Tongue, Body.Faint, Gesture.Limp);
-                    stars.gameObject.SetActive(true); Show(foam); Show(eyeBags); Play(fxDrool); break;
+                    stars.gameObject.SetActive(true); Show(foam); Show(eyeBags); Show(noseBleed); Play(fxBlood); Play(fxDrool); break;
 
                 case ReactionId.Hipo:
                     Pose(Eyes.Wide, Mouth.O, Body.Hiccup, Gesture.Belly); Cheeks(Blush, 1.3f); burpAt = 1.6f; break;
@@ -244,6 +252,7 @@ namespace MixLab
             SolveArms();
             ApplyBrows();
             if (body == Body.Retch) { ApplyMouth(Mouth.Big); Show(bile); }
+            if (CurrentReaction == ReactionId.Llamarada) { Show(soot); browsBurnt = true; ApplyBrows(); }
             head.localScale = HeadScale(0f);
         }
 
@@ -324,7 +333,9 @@ namespace MixLab
             cheeks.SetActive(false); splash.SetActive(false); icicles.SetActive(false);
             stars.gameObject.SetActive(false);
             Hair(false);
-            Hide(bloodshot); Hide(eyeBags); Hide(hives); Hide(soot); Hide(bile); Hide(foam); Hide(snotIcicle);
+            Hide(bloodshot); Hide(eyeBags); Hide(hives); Hide(soot); Hide(bile); Hide(foam); Hide(snotIcicle); Hide(noseBleed);
+            if (headFlames) headFlames.gameObject.SetActive(false);
+            onFire = false;
             if (foreheadVein) foreheadVein.gameObject.SetActive(false);
             if (lips) lips.gameObject.SetActive(false);
             if (tongueLong) tongueLong.gameObject.SetActive(false);
@@ -333,7 +344,7 @@ namespace MixLab
             headPuff = 0f; noseRedness = 0f; burpAt = 0f;
             if (head) head.localScale = Vector3.one;
             Stop(fxSteam); Stop(fxSweat); Stop(fxSmoke); Stop(fxHearts); Stop(fxVomit); Stop(fxTearsL); Stop(fxTearsR);
-            Stop(fxDrool); Stop(fxEarL); Stop(fxEarR); Stop(fxBurp); Stop(fxCough);
+            Stop(fxDrool); Stop(fxEarL); Stop(fxEarR); Stop(fxBurp); Stop(fxCough); Stop(fxFire); Stop(fxBlood);
         }
 
         static void Show(GameObject go) { if (go) go.SetActive(true); }
@@ -611,6 +622,20 @@ namespace MixLab
                 // Se infla despacio y revienta
                 float ph = Mathf.Repeat(t, 2.4f) / 2.4f;
                 snotBubble.localScale = snotScale * (ph < 0.92f ? 0.25f + ph * 1.5f : 0.05f);
+            }
+            if (onFire)
+            {
+                // Llamas en la cabeza; a los dos segundos se apagan y queda el desastre
+                if (headFlames) headFlames.localScale = headFlamesScale * (1f + 0.22f * Mathf.Sin(t * 27f) + 0.1f * Mathf.Sin(t * 41f));
+                if (t > 2f)
+                {
+                    onFire = false;
+                    if (headFlames) headFlames.gameObject.SetActive(false);
+                    if (fxFire) fxFire.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+                    Show(soot); browsBurnt = true; ApplyBrows();
+                    body = Body.Cough; gesture = Gesture.Throat; ApplyMouth(Mouth.O);
+                    Play(fxSmoke);
+                }
             }
             if (burpAt > 0f && t >= burpAt)
             {

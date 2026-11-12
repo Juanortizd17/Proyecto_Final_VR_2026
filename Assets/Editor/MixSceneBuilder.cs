@@ -226,7 +226,7 @@ namespace QualityControlXR.EditorTools
             Add(ReactionId.Perfecto, "Pedido perfecto", "Exactamente lo que pidió", "¡Exactamente lo que pedí! Diez de diez.", 100, false, Skin, new Color(0.5f, 0.88f, 0.54f), 2.6f);
             Add(ReactionId.Picante, "Picante", "Un toque de ají", "¡Fff… fff…! Me arde la lengua… ¡se me duermen los labios!", -20, false, new Color(1f, 0.56f, 0.45f), new Color(1f, 0.54f, 0.36f), 3.2f);
             Add(ReactionId.Infierno, "Picante infernal", "Salsa del Diablo", "¡¡AAAGH!! ¡ME QUEMA LA GARGANTA! ¡¡AGUA, AGUA!!", -50, false, new Color(1f, 0.3f, 0.25f), new Color(1f, 0.23f, 0.19f), 3.6f);
-            Add(ReactionId.Explosion, "Explosión efervescente", "Gas + efervescente", "¡*Cof, cof*! ¡Se me metió por la nariz! ¡Arde!", -50, false, new Color(0.96f, 0.72f, 0.56f), new Color(0.85f, 0.95f, 0.77f), 3.4f);
+            Add(ReactionId.Explosion, "Explosión efervescente", "Gas + efervescente sin enfriar", "¡*Cof, cof*! ¡Se me metió por la nariz! ¡Arde!", -50, false, new Color(0.96f, 0.72f, 0.56f), new Color(0.85f, 0.95f, 0.77f), 3.4f);
             Add(ReactionId.Borracho, "Mareo total", "Demasiado alcohol", "Hip… todo da vueltas… creo que voy a… *buurp*", -50, false, new Color(0.97f, 0.69f, 0.63f), new Color(1f, 0.62f, 0.69f), 3.8f);
             Add(ReactionId.Alegre, "Alegrito", "Un poco de alcohol", "Ooh, esto está bueno… hic.", 10, false, new Color(0.97f, 0.72f, 0.64f), new Color(1f, 0.75f, 0.8f), 3f);
             Add(ReactionId.Nausea, "Náusea verde", "Leche + limón", "Ay no… ay no… la leche cortada… ¡BUAAAGH!", -50, false, new Color(0.66f, 0.85f, 0.42f), new Color(0.66f, 0.85f, 0.42f), 3.6f);
@@ -237,7 +237,7 @@ namespace QualityControlXR.EditorTools
             Add(ReactionId.Hipo, "Ataque de hipo", "Doble gas", "¡Hip!… perdón… ¡HIP!… ¿tienes un vaso de… ¡hip!?", -20, false, new Color(0.98f, 0.74f, 0.66f), new Color(0.55f, 0.85f, 1f), 3.4f);
             Add(ReactionId.Agrio, "Cara de limón", "Doble ácido", "¡Mmmgh! Se me arrugó hasta el apellido.", -20, false, new Color(0.95f, 0.88f, 0.5f), new Color(0.93f, 0.92f, 0.35f), 3.2f);
             Add(ReactionId.Dormido, "Sueño profundo", "Leche tibia o doble leche", "Zzz… cinco minuticos más, mamá… zzz…", -20, false, new Color(0.93f, 0.78f, 0.7f), new Color(0.6f, 0.62f, 0.9f), 3.8f);
-            Add(ReactionId.Llamarada, "Llamarada", "Alcohol fuerte + caliente", "*Cof… cof…* ¿Huele a pelo quemado? …¿Y mis cejas?", -50, false, new Color(0.8f, 0.71f, 0.67f), new Color(1f, 0.6f, 0.1f), 3.4f);
+            Add(ReactionId.Llamarada, "Llamarada", "Alcohol fuerte + caliente, sin hielo", "¡¡ME QUEMO, ME QUEMO!! … *cof, cof* … ¿y mis cejas?", -50, false, new Color(0.8f, 0.71f, 0.67f), new Color(1f, 0.6f, 0.1f), 4.6f);
             Add(ReactionId.Desmayo, "Desmayo fulminante", "Salsa del Diablo + alcohol", "Ghhk… ghh… (ojos en blanco)", -100, true, new Color(0.92f, 0.86f, 0.78f), new Color(1f, 0.84f, 0.29f), 4.6f);
             Add(ReactionId.SinChiste, "Sin chiste", "Nada especial", "Mmm… sabe a nada. ¿Esto era lo que pedí?", 0, false, Skin, Muted, 2.6f);
             return list.ToArray();
@@ -347,6 +347,17 @@ namespace QualityControlXR.EditorTools
             var glass = glassGo.AddComponent<MixGlass>();
             glass.Setup(layers, SB.AddAudio(glassGo, 1f), SB.Clip("drop"), SB.Clip("glass"), SB.Clip("impactSoft_medium"));
             glass.SetIceVisual(ice);
+            var burst = Fx("FX_GlassBurst", null, GlassHome, Color.white, Color.white, 0f, 0.7f, 2.8f, 0.06f, 1.4f, ParticleSystemShapeType.Sphere, 0.04f, 40);
+            glass.SetBurst(burst, glassMat);
+
+            // Analizador: clasifica la mezcla (estable, inestable, tóxica) y avisa antes de servir
+            var anaText = SmallSign("AnalyzerLabel", new Vector3(0f, Top + 0.03f, 0.545f), "ANALIZADOR", new Vector2(560, 130), 36);
+            var anaLamp = SB.Prim(PrimitiveType.Sphere, "AnalyzerLamp", root, new Vector3(0f, Top + 0.02f, 0.615f), Vector3.one * 0.035f,
+                SB.Mat("AnalyzerLamp", new Color(0.5f, 0.5f, 0.55f), emissive: true), false);
+            var analyzer = anaText.transform.parent.gameObject.AddComponent<MixAnalyzer>();
+            anaText.transform.parent.SetParent(root, true);
+            analyzer.Setup(glass, null, anaText, anaText.transform.parent.Find("Bg").GetComponent<Image>(), anaLamp.GetComponent<Renderer>(),
+                SB.AddAudio(anaLamp, 1f), SB.Clip("switch"));
 
             // Palanca de temperatura (izquierda)
             var leverGo = new GameObject("TemperatureLever");
@@ -362,6 +373,9 @@ namespace QualityControlXR.EditorTools
             tempLabel.transform.parent.SetParent(leverGo.transform, true);
             lever = leverGo.AddComponent<TemperatureLever>();
             lever.Setup(handle, knob.GetComponent<Renderer>(), tempLabel, SB.AddAudio(leverGo, 1f), SB.Clip("switch"));
+            analyzer.Setup(glass, lever, anaText, anaText.transform.parent.Find("Bg").GetComponent<Image>(), anaLamp.GetComponent<Renderer>(),
+                anaLamp.GetComponent<AudioSource>(), SB.Clip("switch"));
+            EditorUtility.SetDirty(analyzer);
 
             // Palanca de agitar (derecha)
             var shakeGo = new GameObject("ShakeLever");

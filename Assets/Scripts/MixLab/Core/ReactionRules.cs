@@ -7,6 +7,9 @@ namespace MixLab
     /// "Química" del juego: decide la reacción a partir de las propiedades sumadas de la mezcla,
     /// la temperatura de la estación y el pedido actual. Lógica pura, fácil de probar.
     /// Las reglas se evalúan en orden de prioridad: las peligrosas primero.
+    ///
+    /// Clasificar: el analizador marca cada mezcla como estable, inestable o tóxica.
+    /// Estabilizar: el frío (hielo o palanca en FRÍO) neutraliza las mezclas inestables.
     /// </summary>
     public static class ReactionRules
     {
@@ -26,15 +29,51 @@ namespace MixLab
             return a.SequenceEqual(b);
         }
 
+        // ---------- Mezclas inestables y cómo se estabilizan ----------
+
+        /// <summary>Gas + efervescente: explota (en el vaso si se deja esperar, o en la cara del cliente).</summary>
+        public static bool IsExplosive(MixProps p) => p.gas > 0 && p.fizz > 0;
+
+        /// <summary>Alcohol fuerte calentado: se prende.</summary>
+        public static bool IsFlammable(MixProps p, Temperature temp) => temp == Temperature.Caliente && p.alcohol >= 2;
+
+        static bool Chilled(MixProps p, Temperature temp) => p.cold > 0 || temp == Temperature.Frio;
+
+        /// <summary>La mezcla explotará si no se enfría.</summary>
+        public static bool WillExplode(IReadOnlyList<IngredientData> mix, Temperature temp)
+        {
+            var p = Sum(mix);
+            return IsExplosive(p) && !Chilled(p, temp);
+        }
+
+        /// <summary>Era una mezcla peligrosa y el frío la neutralizó (da un bono al servirla).</summary>
+        public static bool IsStabilized(IReadOnlyList<IngredientData> mix, Temperature temp)
+        {
+            var p = Sum(mix);
+            return (IsExplosive(p) && Chilled(p, temp)) || (IsFlammable(p, temp) && p.cold > 0);
+        }
+
+        public static MixClass Classify(IReadOnlyList<IngredientData> mix, Temperature temp)
+        {
+            if (mix == null || mix.Count == 0) return MixClass.Vacia;
+            var p = Sum(mix);
+            if (IsExplosive(p) && !Chilled(p, temp)) return MixClass.Inestable;
+            if (IsFlammable(p, temp) && p.cold == 0) return MixClass.Inestable;
+            if ((p.spicy >= 3 && p.alcohol > 0) || (p.dairy > 0 && p.acid > 0) || p.alcohol >= 3) return MixClass.Toxica;
+            return MixClass.Estable;
+        }
+
+        // ---------- Reacción del cliente ----------
+
         public static ReactionId Evaluate(IReadOnlyList<IngredientData> mix, Temperature temp, RecipeData order)
         {
             var p = Sum(mix);
-            bool cold = p.cold > 0 || temp == Temperature.Frio;
+            bool cold = Chilled(p, temp);
             bool hot = temp == Temperature.Caliente;
 
-            if (p.gas > 0 && p.fizz > 0) return ReactionId.Explosion;       // gas + efervescente
+            if (IsExplosive(p) && !cold) return ReactionId.Explosion;       // gas + efervescente sin enfriar
             if (p.spicy >= 3 && p.alcohol > 0) return ReactionId.Desmayo;   // combinación fulminante
-            if (hot && p.alcohol >= 2) return ReactionId.Llamarada;         // alcohol fuerte al fuego
+            if (IsFlammable(p, temp) && p.cold == 0) return ReactionId.Llamarada;   // alcohol fuerte al fuego, sin hielo
             if (p.alcohol >= 3) return ReactionId.Borracho;
             if (p.dairy > 0 && p.acid > 0) return ReactionId.Nausea;        // leche cortada
             if (MatchesRecipe(mix, temp, order)) return ReactionId.Perfecto;

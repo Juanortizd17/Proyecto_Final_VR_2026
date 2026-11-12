@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 9
   displayName: Llamarada
-  hint: Alcohol fuerte + caliente
-  customerLine: "*Cof\u2026 cof\u2026* \xBFHuele a pelo quemado? \u2026\xBFY mis
+  hint: Alcohol fuerte + caliente, sin hielo
+  customerLine: "\xA1\xA1ME QUEMO, ME QUEMO!! \u2026 *cof, cof* \u2026 \xBFy mis
     cejas?"
   points: -50
   knockout: 0
   skinColor: {r: 0.8, g: 0.71, b: 0.67, a: 1}
   bookColor: {r: 1, g: 0.6, b: 0.1, a: 1}
-  duration: 3.4
+  duration: 4.6

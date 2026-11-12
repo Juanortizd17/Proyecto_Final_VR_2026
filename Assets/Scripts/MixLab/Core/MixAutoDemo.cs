@@ -18,6 +18,7 @@ namespace MixLab
         static readonly string[][] FunMixes =
         {
             new[] { "Leche", "Limon" },
+            new[] { "Soda", "Efervescente", "Hielo" },
             new[] { "SalsaDiablo", "Agua" },
             new[] { "Tequila", "Ron" },
             new[] { "Soda", "Efervescente" },

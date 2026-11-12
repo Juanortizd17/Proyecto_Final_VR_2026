@@ -85,6 +85,43 @@ namespace QualityControlXR.Tests
         }
 
         [Test]
+        public void Rules_ClassifyAndStabilize()
+        {
+            var none = Temperature.Ambiente;
+            MixClass Class(Temperature t, params string[] ids) => ReactionRules.Classify(ids.Select(I).ToList(), t);
+            Assert.AreEqual(MixClass.Vacia, Class(none));
+            Assert.AreEqual(MixClass.Estable, Class(none, "Agua", "Limon"));
+            Assert.AreEqual(MixClass.Inestable, Class(none, "Soda", "Efervescente"), "Explosiva");
+            Assert.AreEqual(MixClass.Inestable, Class(Temperature.Caliente, "Tequila"), "Inflamable");
+            Assert.AreEqual(MixClass.Toxica, Class(none, "Leche", "Limon"));
+            Assert.AreEqual(MixClass.Toxica, Class(none, "SalsaDiablo", "Ron"));
+            // Estabilizar: el frío neutraliza la mezcla explosiva y el hielo apaga la inflamable
+            Assert.AreEqual(MixClass.Estable, Class(Temperature.Frio, "Soda", "Efervescente"));
+            Assert.AreEqual(MixClass.Estable, Class(none, "Soda", "Efervescente", "Hielo"));
+            Assert.AreNotEqual(ReactionId.Explosion, Eval(none, null, "Soda", "Efervescente", "Hielo"));
+            Assert.AreNotEqual(ReactionId.Llamarada, Eval(Temperature.Caliente, null, "Tequila", "Hielo"));
+            Assert.IsTrue(ReactionRules.IsStabilized(new[] { "Soda", "Efervescente", "Hielo" }.Select(I).ToList(), none));
+            Assert.IsFalse(ReactionRules.IsStabilized(new[] { "Agua", "Hielo" }.Select(I).ToList(), none));
+        }
+
+        [UnityTest]
+        public IEnumerator Hazard_UnstableGlassExplodesUnlessStabilized()
+        {
+            gm.StartShift();
+            int before = gm.Score;
+            glass.Add(I("Soda")); glass.Add(I("Efervescente")); glass.Add(I("Hielo"));
+            yield return new WaitForSeconds(11f);
+            Assert.AreEqual(3, glass.Count, "Estabilizada con hielo: no explota");
+            glass.Empty();
+            glass.Add(I("Soda")); glass.Add(I("Efervescente"));
+            yield return new WaitForSeconds(11f);
+            yield return WaitWhileGlassBusy();
+            Assert.AreEqual(0, glass.Count, "Sin estabilizar: el vaso estalla y queda vacío");
+            Assert.IsTrue(glass.AtHome && !glass.Shattered, "Aparece un vaso nuevo en la estación");
+            Assert.LessOrEqual(gm.Score, before, "Estallar resta puntos");
+        }
+
+        [Test]
         public void Rules_RecipesNeedExactIngredientsAndTemperature()
         {
             Assert.AreEqual(ReactionId.Perfecto, Eval(Temperature.Ambiente, Recipe("LimonadaHelada"), "Hielo", "Agua", "Limon"));
@@ -194,6 +231,13 @@ namespace QualityControlXR.Tests
             player.StopSimulation();
             Assert.Less(player.transform.position.z, 0.5f, "La barra detiene al jugador");
             Assert.Less(player.transform.position.y, 0.15f, "Sigue en el piso");
+        }
+
+        IEnumerator WaitWhileGlassBusy()
+        {
+            float limit = Time.realtimeSinceStartup + 10f;
+            yield return null;
+            while (glass.Busy && Time.realtimeSinceStartup < limit) yield return null;
         }
 
         IEnumerator WaitWhileBusy()
