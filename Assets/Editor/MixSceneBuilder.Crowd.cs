@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using MixLab;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using SB = QualityControlXR.EditorTools.SceneBuilder;
 
 namespace QualityControlXR.EditorTools
@@ -26,6 +28,9 @@ namespace QualityControlXR.EditorTools
         static readonly float[] Sofas = { 0.3f, -2.0f };
 
         static float SofaX => -HalfW + 0.7f;
+
+        /// <summary>Público prescindible, ordenado por importancia (lo usa QualityGovernor para recortar).</summary>
+        static readonly List<GameObject> optionalCrowd = new List<GameObject>();
 
         // ---------------------------------------------------------------------
         // Zona de barra, salas de estar y mesas
@@ -70,30 +75,34 @@ namespace QualityControlXR.EditorTools
         static void BuildPatrons()
         {
             var root = new GameObject("--- CLIENTES DE FONDO ---").transform;
+            optionalCrowd.Clear();
             int m = 0;
             string Next() => Models[m++ % Models.Length];
 
-            // En los extremos de la barra (lejos del estante, para no tapar las etiquetas)
+            // Imprescindibles: los dos de la barra y el DJ
             BuildPatron(root, "character-female-b", new Vector3(-2.2f, 0f, SeatZ), 165f, "sit", 0.4f);
             BuildPatron(root, "character-male-d", new Vector3(2.25f, 0f, SeatZ), 195f, "sit", 0.4f);
             SB.Fit("FoodKit", "cocktail", root, new Vector3(-2.2f, Top, 1.0f), 0.13f, 0f, allAxes: true);
             SB.Fit("FoodKit", "glass-wine", root, new Vector3(2.25f, Top, 1.02f), 0.14f, 0f, allAxes: true);
+            BuildPatron(root, "character-male-d", new Vector3(0f, 0f, BackZ - 0.25f), 180f, "idle", 0.25f, DjMoves, 0.025f, 7f);
 
             // Sentados en los sofás, mirando hacia el bar
+            var sofa = new List<GameObject>();
             foreach (float z in Sofas)
             {
-                BuildPatron(root, Next(), new Vector3(SofaX + 0.12f, 0f, z + 0.38f), 90f, "sit", 0.12f);
-                BuildPatron(root, Next(), new Vector3(SofaX + 0.12f, 0f, z - 0.38f), 90f, "sit", 0.12f);
+                sofa.Add(BuildPatron(root, Next(), new Vector3(SofaX + 0.12f, 0f, z + 0.38f), 90f, "sit", 0.12f));
+                sofa.Add(BuildPatron(root, Next(), new Vector3(SofaX + 0.12f, 0f, z - 0.38f), 90f, "sit", 0.12f));
             }
-            BuildPatron(root, Next(), new Vector3(-HalfW + 1.3f, 0f, 1.85f), 150f, "idle", 0f);
+            var loner = BuildPatron(root, Next(), new Vector3(-HalfW + 1.3f, 0f, 1.85f), 150f, "idle", 0f);
 
             // De pie alrededor de las mesas, conversando
             var rng = new System.Random(5);
+            var tables = new List<GameObject>();
             foreach (var t in Tables)
             {
                 float tilt = (float)rng.NextDouble() * 50f - 25f;
-                BuildPatron(root, Next(), new Vector3(t.x - 0.64f, 0f, t.y + 0.12f), 95f + tilt, "idle", 0f);
-                BuildPatron(root, Next(), new Vector3(t.x + 0.64f, 0f, t.y - 0.12f), 275f + tilt, "idle", 0f);
+                tables.Add(BuildPatron(root, Next(), new Vector3(t.x - 0.64f, 0f, t.y + 0.12f), 95f + tilt, "idle", 0f));
+                tables.Add(BuildPatron(root, Next(), new Vector3(t.x + 0.64f, 0f, t.y - 0.12f), 275f + tilt, "idle", 0f));
             }
 
             // Pista de baile
@@ -104,22 +113,35 @@ namespace QualityControlXR.EditorTools
                 new Vector2(-1.8f, -0.1f), new Vector2(-0.6f, 0.2f), new Vector2(0.8f, -0.2f), new Vector2(2.0f, 0.3f),
                 new Vector2(-2.3f, 1.1f), new Vector2(-0.9f, 1.3f), new Vector2(0.5f, 1.0f), new Vector2(1.7f, 1.4f),
             };
+            var dancers = new List<GameObject>();
             foreach (var s in spots)
-                BuildPatron(root, Next(), new Vector3(s.x, 0f, DanceCenter.z + s.y), 180f + (float)rng.NextDouble() * 120f - 60f, "idle", f, DanceMoves);
+                dancers.Add(BuildPatron(root, Next(), new Vector3(s.x, 0f, DanceCenter.z + s.y), 180f + (float)rng.NextDouble() * 120f - 60f, "idle", f, DanceMoves));
             // Un par bailando fuera de la pista
-            BuildPatron(root, Next(), new Vector3(-3.9f, 0f, DanceCenter.z + 0.4f), 100f, "idle", 0f, DanceMoves);
-            BuildPatron(root, Next(), new Vector3(3.9f, 0f, DanceCenter.z - 0.3f), 260f, "idle", 0f, DanceMoves);
+            var side = new List<GameObject>
+            {
+                BuildPatron(root, Next(), new Vector3(-3.9f, 0f, DanceCenter.z + 0.4f), 100f, "idle", 0f, DanceMoves),
+                BuildPatron(root, Next(), new Vector3(3.9f, 0f, DanceCenter.z - 0.3f), 260f, "idle", 0f, DanceMoves),
+            };
 
-            // DJ
-            BuildPatron(root, "character-male-d", new Vector3(0f, 0f, BackZ - 0.25f), 180f, "idle", 0.25f, DjMoves, 0.025f, 7f);
+            // Orden de importancia: lo primero es lo último que se quita.
+            // Nivel VR (8): seis bailarines repartidos y la pareja del sofá. Nivel Medio (16): más pista y dos mesas.
+            foreach (int i in new[] { 1, 3, 6, 8, 10, 12 }) optionalCrowd.Add(dancers[i]);
+            optionalCrowd.Add(sofa[0]); optionalCrowd.Add(sofa[1]);
+            optionalCrowd.Add(tables[0]); optionalCrowd.Add(tables[1]); optionalCrowd.Add(tables[6]); optionalCrowd.Add(tables[7]);
+            foreach (int i in new[] { 0, 5, 7, 11 }) optionalCrowd.Add(dancers[i]);
+            foreach (int i in new[] { 2, 4, 9 }) optionalCrowd.Add(dancers[i]);
+            optionalCrowd.Add(sofa[2]); optionalCrowd.Add(sofa[3]); optionalCrowd.Add(loner);
+            optionalCrowd.AddRange(side);
+            for (int i = 2; i < tables.Count; i++) if (i != 6 && i != 7) optionalCrowd.Add(tables[i]);
+            optionalCrowd.RemoveAll(g => g == null);
         }
 
-        static void BuildPatron(Transform parent, string model, Vector3 pos, float yaw, string clip, float feetHeight,
-                                string[] dance = null, float bounce = 0.05f, float twist = 20f)
+        static GameObject BuildPatron(Transform parent, string model, Vector3 pos, float yaw, string clip, float feetHeight,
+                                      string[] dance = null, float bounce = 0.05f, float twist = 20f)
         {
             string path = $"Assets/ThirdParty/Kenney/MiniCharacters/{model}.fbx";
             var importer = AssetImporter.GetAtPath(path) as ModelImporter;
-            if (importer == null) { Debug.LogWarning("[MixSceneBuilder] Falta personaje: " + path); return; }
+            if (importer == null) { Debug.LogWarning("[MixSceneBuilder] Falta personaje: " + path); return null; }
             if (importer.animationType != ModelImporterAnimationType.Legacy)
             {
                 importer.animationType = ModelImporterAnimationType.Legacy;
@@ -144,10 +166,15 @@ namespace QualityControlXR.EditorTools
             b = SB.Bounds(go);
             go.transform.position += Vector3.up * (feetHeight - b.min.y);
 
+            // Rendimiento: no se animan fuera de cámara y no proyectan sombras
+            if (anim != null) anim.cullingType = AnimationCullingType.BasedOnRenderers;
+            foreach (var r in go.GetComponentsInChildren<Renderer>()) r.shadowCastingMode = ShadowCastingMode.Off;
+
             var col = root.AddComponent<CapsuleCollider>();
             col.center = new Vector3(0f, 0.75f, 0f); col.height = 1.5f; col.radius = 0.25f;
             if (dance != null) root.AddComponent<Dancer>().Setup(dance, bounce, twist);
             else root.AddComponent<Patron>().Setup(clip);
+            return root;
         }
     }
 }

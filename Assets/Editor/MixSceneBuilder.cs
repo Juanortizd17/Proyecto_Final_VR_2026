@@ -96,6 +96,8 @@ namespace QualityControlXR.EditorTools
 
             BuildJukebox();
             BuildDisco(managers);
+            BuildPerformance(managers);
+            MarkStaticDecor();
 
             var board = BuildMainBoard();
             BuildBook(reactions.Length);
@@ -222,21 +224,21 @@ namespace QualityControlXR.EditorTools
                 list.Add(a);
             }
             Add(ReactionId.Perfecto, "Pedido perfecto", "Exactamente lo que pidió", "¡Exactamente lo que pedí! Diez de diez.", 100, false, Skin, new Color(0.5f, 0.88f, 0.54f), 2.6f);
-            Add(ReactionId.Picante, "Picante", "Un toque de ají", "Uff… pica rico… pero ya estoy sudando.", -20, false, new Color(1f, 0.56f, 0.45f), new Color(1f, 0.54f, 0.36f), 3.2f);
-            Add(ReactionId.Infierno, "Picante infernal", "Salsa del Diablo", "¡¡AGUAAA!! ¡Me arde hasta el alma!", -50, false, new Color(1f, 0.3f, 0.25f), new Color(1f, 0.23f, 0.19f), 3.6f);
-            Add(ReactionId.Explosion, "Explosión efervescente", "Gas + efervescente", "¡¿Qué fue eso?! ¡Me explotó en la cara!", -50, false, new Color(0.96f, 0.72f, 0.56f), new Color(0.85f, 0.95f, 0.77f), 3.4f);
-            Add(ReactionId.Borracho, "Mareo total", "Demasiado alcohol", "Hip… ¿por qué hay dos barras? ¿Y dos tú?", -50, false, new Color(0.97f, 0.69f, 0.63f), new Color(1f, 0.62f, 0.69f), 3.8f);
+            Add(ReactionId.Picante, "Picante", "Un toque de ají", "¡Fff… fff…! Me arde la lengua… ¡se me duermen los labios!", -20, false, new Color(1f, 0.56f, 0.45f), new Color(1f, 0.54f, 0.36f), 3.2f);
+            Add(ReactionId.Infierno, "Picante infernal", "Salsa del Diablo", "¡¡AAAGH!! ¡ME QUEMA LA GARGANTA! ¡¡AGUA, AGUA!!", -50, false, new Color(1f, 0.3f, 0.25f), new Color(1f, 0.23f, 0.19f), 3.6f);
+            Add(ReactionId.Explosion, "Explosión efervescente", "Gas + efervescente", "¡*Cof, cof*! ¡Se me metió por la nariz! ¡Arde!", -50, false, new Color(0.96f, 0.72f, 0.56f), new Color(0.85f, 0.95f, 0.77f), 3.4f);
+            Add(ReactionId.Borracho, "Mareo total", "Demasiado alcohol", "Hip… todo da vueltas… creo que voy a… *buurp*", -50, false, new Color(0.97f, 0.69f, 0.63f), new Color(1f, 0.62f, 0.69f), 3.8f);
             Add(ReactionId.Alegre, "Alegrito", "Un poco de alcohol", "Ooh, esto está bueno… hic.", 10, false, new Color(0.97f, 0.72f, 0.64f), new Color(1f, 0.75f, 0.8f), 3f);
-            Add(ReactionId.Nausea, "Náusea verde", "Leche + limón", "Creo que… la leche y el limón… no se llevan…", -50, false, new Color(0.66f, 0.85f, 0.42f), new Color(0.66f, 0.85f, 0.42f), 3.6f);
+            Add(ReactionId.Nausea, "Náusea verde", "Leche + limón", "Ay no… ay no… la leche cortada… ¡BUAAAGH!", -50, false, new Color(0.66f, 0.85f, 0.42f), new Color(0.66f, 0.85f, 0.42f), 3.6f);
             Add(ReactionId.Congelado, "Cerebro congelado", "Menta + frío", "B-b-brrr… s-se me congeló el ce-cerebro.", -20, false, new Color(0.66f, 0.85f, 0.97f), new Color(0.62f, 0.83f, 0.96f), 3.2f);
-            Add(ReactionId.Hiper, "Sobredosis de café", "Doble cafeína", "¡PUEDO VER LOS SONIDOS! ¡¿QUÉ HORA ES?!", -20, false, Skin, new Color(0.62f, 0.42f, 0.28f), 3.2f);
+            Add(ReactionId.Hiper, "Sobredosis de café", "Doble cafeína", "¡¡EL CORAZÓN SE ME VA A SALIR!! ¡¿LO OYES?! ¡¿LO OYES?!", -20, false, Skin, new Color(0.62f, 0.42f, 0.28f), 3.2f);
             Add(ReactionId.Azucar, "Subidón de azúcar", "Triple azúcar", "¡¡WIIII!! ¡Quiero correr una maratón!", -20, false, Skin, new Color(1f, 0.7f, 0.85f), 3.2f);
             Add(ReactionId.Bailarin, "Fiebre de baile", "Cafeína + alcohol", "¡Súbele a esa música! ¡Esta es mi canción!", 10, false, new Color(0.98f, 0.72f, 0.62f), new Color(0.75f, 0.5f, 1f), 3.8f);
             Add(ReactionId.Hipo, "Ataque de hipo", "Doble gas", "¡Hip!… perdón… ¡HIP!… ¿tienes un vaso de… ¡hip!?", -20, false, new Color(0.98f, 0.74f, 0.66f), new Color(0.55f, 0.85f, 1f), 3.4f);
             Add(ReactionId.Agrio, "Cara de limón", "Doble ácido", "¡Mmmgh! Se me arrugó hasta el apellido.", -20, false, new Color(0.95f, 0.88f, 0.5f), new Color(0.93f, 0.92f, 0.35f), 3.2f);
             Add(ReactionId.Dormido, "Sueño profundo", "Leche tibia o doble leche", "Zzz… cinco minuticos más, mamá… zzz…", -20, false, new Color(0.93f, 0.78f, 0.7f), new Color(0.6f, 0.62f, 0.9f), 3.8f);
-            Add(ReactionId.Llamarada, "Llamarada", "Alcohol fuerte + caliente", "… ¿Todavía tengo cejas?", -50, false, new Color(0.3f, 0.28f, 0.28f), new Color(1f, 0.6f, 0.1f), 3.4f);
-            Add(ReactionId.Desmayo, "Desmayo fulminante", "Salsa del Diablo + alcohol", "… (fuera de combate)", -100, true, new Color(0.92f, 0.86f, 0.78f), new Color(1f, 0.84f, 0.29f), 4.6f);
+            Add(ReactionId.Llamarada, "Llamarada", "Alcohol fuerte + caliente", "*Cof… cof…* ¿Huele a pelo quemado? …¿Y mis cejas?", -50, false, new Color(0.8f, 0.71f, 0.67f), new Color(1f, 0.6f, 0.1f), 3.4f);
+            Add(ReactionId.Desmayo, "Desmayo fulminante", "Salsa del Diablo + alcohol", "Ghhk… ghh… (ojos en blanco)", -100, true, new Color(0.92f, 0.86f, 0.78f), new Color(1f, 0.84f, 0.29f), 4.6f);
             Add(ReactionId.SinChiste, "Sin chiste", "Nada especial", "Mmm… sabe a nada. ¿Esto era lo que pedí?", 0, false, Skin, Muted, 2.6f);
             return list.ToArray();
         }
@@ -657,6 +659,8 @@ namespace QualityControlXR.EditorTools
             Fx("FX_Sweat", head, new Vector3(0f, 0.05f, 0.05f), new Color(0.55f, 0.84f, 1f), new Color(0.7f, 0.9f, 1f), 14f, 0.8f, 0.25f, 0.035f, 0.9f, ParticleSystemShapeType.Sphere, 0.19f);
             Fx("FX_Smoke", head, new Vector3(0f, 0.2f, 0f), new Color(0.2f, 0.2f, 0.22f), new Color(0.4f, 0.4f, 0.42f), 16f, 1.3f, 0.5f, 0.16f, -0.05f, ParticleSystemShapeType.Cone, 0.1f);
             Fx("FX_Hearts", head, new Vector3(0f, 0.22f, 0f), new Color(1f, 0.35f, 0.5f), new Color(1f, 0.75f, 0.3f), 12f, 1.2f, 0.6f, 0.06f, -0.02f, ParticleSystemShapeType.Cone, 0.16f);
+
+            BuildSymptoms(head);
 
             var mouthPoint = Group("MouthPoint", root.transform, new Vector3(0f, 1.47f, 0.27f));
 

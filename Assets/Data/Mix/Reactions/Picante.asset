@@ -15,7 +15,8 @@ MonoBehaviour:
   id: 1
   displayName: Picante
   hint: "Un toque de aj\xED"
-  customerLine: "Uff\u2026 pica rico\u2026 pero ya estoy sudando."
+  customerLine: "\xA1Fff\u2026 fff\u2026! Me arde la lengua\u2026 \xA1se me duermen
+    los labios!"
   points: -20
   knockout: 0
   skinColor: {r: 1, g: 0.56, b: 0.45, a: 1}

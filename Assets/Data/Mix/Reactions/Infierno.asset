@@ -15,7 +15,7 @@ MonoBehaviour:
   id: 2
   displayName: Picante infernal
   hint: Salsa del Diablo
-  customerLine: "\xA1\xA1AGUAAA!! \xA1Me arde hasta el alma!"
+  customerLine: "\xA1\xA1AAAGH!! \xA1ME QUEMA LA GARGANTA! \xA1\xA1AGUA, AGUA!!"
   points: -50
   knockout: 0
   skinColor: {r: 1, g: 0.3, b: 0.25, a: 1}

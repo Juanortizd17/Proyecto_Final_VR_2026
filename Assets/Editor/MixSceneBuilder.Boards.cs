@@ -21,15 +21,17 @@ namespace QualityControlXR.EditorTools
             return rt;
         }
 
-        static Text Fit(Text t, int min, int max)
+        static Text Fit(Text t, int min, int max)   // min se conserva solo como referencia de diseño
         {
-            t.resizeTextForBestFit = true; t.resizeTextMinSize = min; t.resizeTextMaxSize = max;
+            // Tamaño fijo: el ajuste automático de Unity rasteriza cada tamaño que prueba y desborda la textura de la fuente
+            t.fontSize = max;
             return t;
         }
 
         static MixBoard BuildMainBoard()
         {
             var canvas = SB.MakeCanvas("MainBoard", new Vector3(0f, 2.52f, WallZ - 0.06f), Quaternion.identity, new Vector2(1700, 820), 0.0016f);
+            canvas.GetComponent<CanvasScaler>().dynamicPixelsPerUnit = 2f;   // letras grandes: menos resolución por glifo para no llenar la textura de la fuente
             SB.Panel(canvas.transform, "Bg", PanelBg);
             SB.Label(canvas.transform, "Header", "<b>LABORATORIO DE MEZCLAS</b>", 30, TextAnchor.MiddleCenter, Muted,
                 new Vector2(40, 770), new Vector2(1660, 812), absolute: true);
@@ -41,8 +43,8 @@ namespace QualityControlXR.EditorTools
             var game = SB.Child(canvas.transform, "GamePanel");
             SB.Label(game, "OrderCaption", "PEDIDO DEL CLIENTE", 38, TextAnchor.MiddleLeft, Muted, new Vector2(50, 715), new Vector2(1000, 765), absolute: true);
             var title = SB.Label(game, "OrderTitle", "LIMONADA HELADA", 124, TextAnchor.MiddleLeft, Copper, new Vector2(50, 575), new Vector2(1110, 715), absolute: true);
-            title.fontStyle = FontStyle.Bold; Fit(title, 56, 124);
-            var detail = Fit(SB.Label(game, "OrderDetail", "agua · limón · hielo", 70, TextAnchor.UpperLeft, Ink, new Vector2(50, 385), new Vector2(1110, 565), absolute: true), 44, 70);
+            title.fontStyle = FontStyle.Bold; Fit(title, 56, 104);
+            var detail = Fit(SB.Label(game, "OrderDetail", "agua · limón · hielo", 60, TextAnchor.UpperLeft, Ink, new Vector2(50, 385), new Vector2(1110, 565), absolute: true), 44, 60);
             SB.Label(game, "PatienceCaption", "PACIENCIA", 38, TextAnchor.MiddleLeft, Muted, new Vector2(50, 325), new Vector2(400, 375), absolute: true);
             var barBg = Box(game, "PatienceBar", new Vector2(50, 255), new Vector2(1110, 320));
             barBg.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.12f);
@@ -54,12 +56,12 @@ namespace QualityControlXR.EditorTools
             var score = SB.Label(game, "Score", "PUNTOS\n<b>0</b>", 44, TextAnchor.MiddleCenter, new Color(0.45f, 0.95f, 0.55f), new Vector2(1140, 255), new Vector2(1400, 490), absolute: true);
             var kos = SB.Label(game, "Knockouts", "DESMAYOS\n<b>0/3</b>", 44, TextAnchor.MiddleCenter, new Color(1f, 0.5f, 0.45f), new Vector2(1400, 255), new Vector2(1660, 490), absolute: true);
             score.lineSpacing = kos.lineSpacing = 0.85f;
-            var alert = Fit(SB.Label(game, "Alert", "", 80, TextAnchor.MiddleCenter, new Color(1f, 0.78f, 0.2f), new Vector2(40, 85), new Vector2(1660, 240), absolute: true), 48, 80);
+            var alert = Fit(SB.Label(game, "Alert", "", 64, TextAnchor.MiddleCenter, new Color(1f, 0.78f, 0.2f), new Vector2(40, 85), new Vector2(1660, 240), absolute: true), 48, 64);
             SB.Label(game, "Footer", "Vierte · Agita · Sirve     ·     El lavaplatos vacía el vaso     ·     3 desmayos suspenden el turno", 36, TextAnchor.MiddleCenter, Muted,
                 new Vector2(40, 20), new Vector2(1660, 75), absolute: true);
 
             var results = SB.Child(canvas.transform, "ResultsPanel");
-            var resultsText = Fit(SB.Label(results, "Text", "", 64, TextAnchor.MiddleCenter, Ink, new Vector2(50, 200), new Vector2(1650, 765), absolute: true), 40, 64);
+            var resultsText = Fit(SB.Label(results, "Text", "", 52, TextAnchor.MiddleCenter, Ink, new Vector2(50, 200), new Vector2(1650, 765), absolute: true), 40, 52);
             resultsText.lineSpacing = 1.1f;
 
             var board = canvas.gameObject.AddComponent<MixBoard>();
@@ -75,6 +77,7 @@ namespace QualityControlXR.EditorTools
         static void BuildBook(int count)
         {
             var canvas = SB.MakeCanvas("ReactionBook", new Vector3(BookX, 2.32f, WallZ - 0.06f), Quaternion.identity, BookSize, BookScale);
+            canvas.GetComponent<CanvasScaler>().dynamicPixelsPerUnit = 2f;   // letras grandes: menos resolución por glifo para no llenar la textura de la fuente
             Object.DestroyImmediate(canvas.GetComponent<GraphicRaycaster>());
             SB.Panel(canvas.transform, "Bg", PanelBg);
             float w = BookSize.x;
@@ -96,9 +99,10 @@ namespace QualityControlXR.EditorTools
         static void BuildTutorial(MixGlass glass, AudioSource uiAudio)
         {
             var canvas = SB.MakeCanvas("TutorialBoard", new Vector3(2.4f, 2.4f, WallZ - 0.06f), Quaternion.identity, new Vector2(1150, 1000), 0.0014f);
+            canvas.GetComponent<CanvasScaler>().dynamicPixelsPerUnit = 2f;   // letras grandes: menos resolución por glifo para no llenar la textura de la fuente
             SB.Panel(canvas.transform, "Bg", PanelBg);
             SB.Label(canvas.transform, "Title", "<b>ENTRENAMIENTO</b>", 62, TextAnchor.MiddleCenter, Copper, new Vector2(30, 895), new Vector2(1120, 985), absolute: true);
-            var instr = Fit(SB.Label(canvas.transform, "Instruction", "", 64, TextAnchor.MiddleCenter, Ink, new Vector2(40, 280), new Vector2(1110, 885), absolute: true), 44, 64);
+            var instr = Fit(SB.Label(canvas.transform, "Instruction", "", 54, TextAnchor.MiddleCenter, Ink, new Vector2(40, 280), new Vector2(1110, 885), absolute: true), 44, 54);
             instr.lineSpacing = 1.1f;
             var progress = SB.Label(canvas.transform, "Progress", "0/4", 44, TextAnchor.LowerRight, Muted, new Vector2(880, 25), new Vector2(1110, 95), absolute: true);
 
@@ -135,15 +139,16 @@ namespace QualityControlXR.EditorTools
 
             var size = new Vector2(1100, 720);
             var canvas = SB.MakeCanvas("JukeboxScreen", root.TransformPoint(new Vector3(0f, 1.68f, 0.08f)), root.rotation * Quaternion.Euler(10f, 0f, 0f), size, 0.0012f);
+            canvas.GetComponent<CanvasScaler>().dynamicPixelsPerUnit = 2f;   // letras grandes: menos resolución por glifo para no llenar la textura de la fuente
             canvas.transform.SetParent(root, true);
             SB.Panel(canvas.transform, "Bg", PanelBg);
             SB.Label(canvas.transform, "Title", "<b>ROCKOLA</b>  <size=34>elige la música del bar</size>", 54, TextAnchor.MiddleCenter, Copper,
                 new Vector2(20, 630), new Vector2(1080, 710), absolute: true);
-            var genre = Fit(SB.Label(canvas.transform, "Genre", "HOUSE", 96, TextAnchor.MiddleCenter, Ink, new Vector2(190, 480), new Vector2(910, 620), absolute: true), 50, 96);
+            var genre = Fit(SB.Label(canvas.transform, "Genre", "HOUSE", 88, TextAnchor.MiddleCenter, Ink, new Vector2(190, 480), new Vector2(910, 620), absolute: true), 50, 88);
             genre.fontStyle = FontStyle.Bold;
-            var track = Fit(SB.Label(canvas.transform, "Track", "", 56, TextAnchor.MiddleCenter, new Color(0.6f, 0.95f, 0.88f), new Vector2(190, 320), new Vector2(910, 465), absolute: true), 34, 56);
+            var track = Fit(SB.Label(canvas.transform, "Track", "", 44, TextAnchor.MiddleCenter, new Color(0.6f, 0.95f, 0.88f), new Vector2(190, 320), new Vector2(910, 465), absolute: true), 34, 44);
             var volume = SB.Label(canvas.transform, "Volume", "VOL 30%", 52, TextAnchor.MiddleCenter, Ink, new Vector2(330, 165), new Vector2(620, 300), absolute: true);
-            var info = Fit(SB.Label(canvas.transform, "Info", "", 34, TextAnchor.MiddleCenter, Muted, new Vector2(20, 20), new Vector2(1080, 150), absolute: true), 26, 34);
+            var info = Fit(SB.Label(canvas.transform, "Info", "", 30, TextAnchor.MiddleCenter, Muted, new Vector2(20, 20), new Vector2(1080, 150), absolute: true), 26, 30);
 
             var board = canvas.gameObject.AddComponent<JukeboxBoard>();
             board.Setup(genre, track, volume, info);

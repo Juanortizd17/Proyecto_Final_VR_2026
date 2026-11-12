@@ -15,7 +15,8 @@ MonoBehaviour:
   id: 8
   displayName: "Sobredosis de caf\xE9"
   hint: "Doble cafe\xEDna"
-  customerLine: "\xA1PUEDO VER LOS SONIDOS! \xA1\xBFQU\xC9 HORA ES?!"
+  customerLine: "\xA1\xA1EL CORAZ\xD3N SE ME VA A SALIR!! \xA1\xBFLO OYES?! \xA1\xBFLO
+    OYES?!"
   points: -20
   knockout: 0
   skinColor: {r: 0.95, g: 0.76, b: 0.61, a: 1}

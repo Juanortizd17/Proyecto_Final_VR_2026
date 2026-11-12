@@ -7,16 +7,17 @@ namespace MixLab
     /// <summary>
     /// Cliente de prueba. Está "vivo": respira, parpadea, sigue al jugador con la mirada, mueve
     /// los brazos (hombro-codo-mano resueltos por cinemática inversa) y se impacienta.
-    /// Reacciona a cada mezcla con síntomas visibles: color de piel, ojos, boca, cejas, gestos
-    /// de los brazos, partículas (sudor, humo, vapor) y movimiento del cuerpo (tambaleo, desmayo).
+    /// Reacciona a cada mezcla con síntomas crudos y visibles: color de piel, ojos inyectados,
+    /// venas, labios hinchados, ronchas, lágrimas, babas, mocos, arcadas con vómito, tos con humo,
+    /// espuma y espasmos al desmayarse. Sin sangre: es desagradable, no violento.
     /// Sus piezas se buscan por nombre en la jerarquía que genera MixSceneBuilder.
     /// </summary>
     public class Customer : MonoBehaviour
     {
-        enum Eyes { Normal, Wide, Closed, Happy, X, Dizzy, Half, Flat }
+        enum Eyes { Normal, Wide, Closed, Happy, X, Dizzy, Half, Flat, Rolled, Pinpoint }
         enum Mouth { Smile, Big, O, Wavy, Puffed, Fire, Chatter, Tongue, Flat }
-        enum Body { Idle, Wobble, Shake, Shiver, Faint, Hyper, Sway, Hiccup, Dance, Sleep }
-        enum Gesture { Rest, Fan, Belly, HoldHead, OneHandHead, Cheer, Face, Limp, Tap, Dance }
+        enum Body { Idle, Wobble, Shake, Shiver, Faint, Hyper, Sway, Hiccup, Dance, Sleep, Retch, Cough, Pant }
+        enum Gesture { Rest, Fan, Belly, HoldHead, OneHandHead, Cheer, Face, Limp, Tap, Dance, CoverMouth, Throat }
 
         [SerializeField] string customerName = "Ramiro";
         [SerializeField] Color normalSkin = new Color(0.95f, 0.76f, 0.61f);
@@ -26,6 +27,9 @@ namespace MixLab
         [SerializeField] Text bubbleText;
 
         static readonly Color Blush = new Color(1f, 0.45f, 0.55f);
+        static readonly Color LipRed = new Color(0.86f, 0.1f, 0.14f);
+        static readonly Color LipBlue = new Color(0.35f, 0.42f, 0.8f);
+        static readonly Color NoseRed = new Color(0.9f, 0.16f, 0.2f);
         static readonly Vector3 ShoulderL = new Vector3(-0.2f, 0.46f, 0.02f);
         static readonly Vector3 ShoulderR = new Vector3(0.2f, 0.46f, 0.02f);
         static readonly Vector3 RestL = new Vector3(-0.2f, 0.245f, 0.4f);
@@ -34,16 +38,19 @@ namespace MixLab
 
         Transform pivot, head, pupilL, pupilR, whiteL, whiteR, mouthOpen, teeth, flame, stars, browL, browR;
         Transform upperL, foreL, handL, upperR, foreR, handR;
+        Transform foreheadVein, lips, tongueLong, snotBubble;
         GameObject eyesOpen, lids, eyesClosed, eyesHappy, eyesX, eyesFlat, brows;
         GameObject mouthSmile, mouthWavy, mouthFlat, tongue, cheeks, hairNormal, hairUp, splash, icicles;
-        ParticleSystem fxSteam, fxSweat, fxSmoke, fxHearts;
+        GameObject bloodshot, eyeBags, hives, soot, bile, foam, snotIcicle, lidL, lidR;
+        ParticleSystem fxSteam, fxSweat, fxSmoke, fxHearts, fxVomit, fxTearsL, fxTearsR, fxDrool, fxEarL, fxEarR, fxBurp, fxCough;
         readonly List<Renderer> skin = new List<Renderer>();
-        Renderer[] cheekRenderers;
+        Renderer[] cheekRenderers, lipRenderers;
+        Renderer nose;
         MaterialPropertyBlock mpb;
         bool cached;
 
         Vector3 pivotPos, headPos, pupilLBase, pupilRBase, whiteScale, pupilScale, teethBase, flameScale, cheekScale, browLBase, browRBase;
-        Vector3 handLPos, handRPos;
+        Vector3 handLPos, handRPos, lipsScale, veinScale, tongueLongPos, snotScale;
         Quaternion pivotRot;
         Color currentSkin, targetSkin;
         Eyes eyes;
@@ -51,7 +58,8 @@ namespace MixLab
         Body body;
         Gesture gesture;
         Transform heldGlass;
-        float animTime, blinkAt, blinkUntil;
+        float animTime, blinkAt, blinkUntil, emitAcc, headPuff, noseRedness, burpAt;
+        bool heaving, bulging, throbbing, browsBurnt;
 
         public string Name => customerName;
         public Transform MouthPoint => mouthPoint;
@@ -83,6 +91,7 @@ namespace MixLab
 
             eyesOpen = G("EyesOpen"); lids = G("Lids"); eyesClosed = G("EyesClosed"); eyesHappy = G("EyesHappy");
             eyesX = G("EyesX"); eyesFlat = G("EyesFlat"); brows = G("Brows");
+            lidL = O("Lids/Skin_LidL"); lidR = O("Lids/Skin_LidR");
             whiteL = head.Find("EyesOpen/WhiteL"); whiteR = head.Find("EyesOpen/WhiteR");
             pupilL = head.Find("EyesOpen/PupilL"); pupilR = head.Find("EyesOpen/PupilR");
             browL = head.Find("Brows/BrowL"); browR = head.Find("Brows/BrowR");
@@ -99,15 +108,29 @@ namespace MixLab
             hairNormal = G("HairNormal"); hairUp = G("HairUp"); splash = G("Splash"); icicles = G("Icicles");
             stars = head.Find("Stars");
 
+            // Síntomas crudos (opcionales: si la escena es antigua simplemente no aparecen)
+            bloodshot = O("Bloodshot"); eyeBags = O("EyeBags"); hives = O("Hives"); soot = O("Soot");
+            bile = O("Bile"); foam = O("Foam"); snotIcicle = O("SnotIcicle");
+            foreheadVein = head.Find("ForeheadVein"); if (foreheadVein) veinScale = foreheadVein.localScale;
+            lips = head.Find("Lips"); if (lips) { lipsScale = lips.localScale; lipRenderers = lips.GetComponentsInChildren<Renderer>(true); }
+            tongueLong = head.Find("TongueLong"); if (tongueLong) tongueLongPos = tongueLong.localPosition;
+            snotBubble = head.Find("SnotBubble"); if (snotBubble) snotScale = snotBubble.localScale;
+
             fxSteam = P("FX_Steam"); fxSweat = P("FX_Sweat"); fxSmoke = P("FX_Smoke"); fxHearts = P("FX_Hearts");
+            fxVomit = P("FX_Vomit"); fxTearsL = P("FX_TearsL"); fxTearsR = P("FX_TearsR"); fxDrool = P("FX_Drool");
+            fxEarL = P("FX_EarSteamL"); fxEarR = P("FX_EarSteamR"); fxBurp = P("FX_Burp"); fxCough = P("FX_Cough");
 
             foreach (var r in GetComponentsInChildren<Renderer>(true))
-                if (r.name.StartsWith("Skin_")) skin.Add(r);
+            {
+                if (!r.name.StartsWith("Skin_")) continue;
+                if (r.name == "Skin_Nose") nose = r; else skin.Add(r);
+            }
             currentSkin = targetSkin = normalSkin;
             blinkAt = 2f;
         }
 
         GameObject G(string name) => head.Find(name).gameObject;
+        GameObject O(string name) { var t = head.Find(name); return t ? t.gameObject : null; }
         ParticleSystem P(string name) { var t = head.Find(name); return t ? t.GetComponent<ParticleSystem>() : null; }
 
         // =====================================================================
@@ -134,24 +157,72 @@ namespace MixLab
 
             switch (data.id)
             {
-                case ReactionId.Perfecto: Pose(Eyes.Happy, Mouth.Big, Body.Idle, Gesture.Cheer); Cheeks(Blush, 1f); Play(fxHearts); break;
-                case ReactionId.Picante: Pose(Eyes.Closed, Mouth.O, Body.Sway, Gesture.Fan); Play(fxSweat); break;
-                case ReactionId.Infierno: Pose(Eyes.Wide, Mouth.Fire, Body.Shake, Gesture.Fan); Play(fxSteam); Play(fxSweat); break;
-                case ReactionId.Explosion: Pose(Eyes.Closed, Mouth.O, Body.Shake, Gesture.Face); splash.SetActive(true); Hair(true); break;
-                case ReactionId.Borracho: Pose(Eyes.Dizzy, Mouth.Wavy, Body.Wobble, Gesture.OneHandHead); Cheeks(Blush, 1f); break;
-                case ReactionId.Alegre: Pose(Eyes.Happy, Mouth.Smile, Body.Sway, Gesture.Rest); Cheeks(Blush, 1f); break;
-                case ReactionId.Nausea: Pose(Eyes.Half, Mouth.Puffed, Body.Sway, Gesture.Belly); Cheeks(data.skinColor * 0.92f, 1.6f); Play(fxSweat); break;
-                case ReactionId.Congelado: Pose(Eyes.Closed, Mouth.Chatter, Body.Shiver, Gesture.HoldHead); icicles.SetActive(true); break;
-                case ReactionId.Hiper: Pose(Eyes.Wide, Mouth.Big, Body.Hyper, Gesture.Cheer); break;
-                case ReactionId.Azucar: Pose(Eyes.Wide, Mouth.Big, Body.Hyper, Gesture.Cheer); Cheeks(Blush, 1.2f); Play(fxHearts); break;
-                case ReactionId.Llamarada: Pose(Eyes.Wide, Mouth.O, Body.Idle, Gesture.Face); Hair(true); Play(fxSmoke); break;
-                case ReactionId.Hipo: Pose(Eyes.Wide, Mouth.O, Body.Hiccup, Gesture.Belly); Cheeks(Blush, 1f); break;
-                case ReactionId.Agrio: Pose(Eyes.Closed, Mouth.Puffed, Body.Shiver, Gesture.Rest); Cheeks(data.skinColor * 0.9f, 1.3f); break;
-                case ReactionId.Dormido: Pose(Eyes.Closed, Mouth.O, Body.Sleep, Gesture.Rest); break;
-                case ReactionId.Bailarin: Pose(Eyes.Happy, Mouth.Big, Body.Dance, Gesture.Dance); Cheeks(Blush, 1.1f); Play(fxHearts); break;
-                case ReactionId.Desmayo: Pose(Eyes.X, Mouth.Tongue, Body.Faint, Gesture.Limp); stars.gameObject.SetActive(true); break;
+                case ReactionId.Perfecto:
+                    Pose(Eyes.Happy, Mouth.Big, Body.Idle, Gesture.Cheer); Cheeks(Blush, 1f); Play(fxHearts); break;
+
+                case ReactionId.Picante:        // lengua afuera, jadeo, lágrimas, labios hinchados y ronchas
+                    Pose(Eyes.Half, Mouth.O, Body.Pant, Gesture.Fan);
+                    Show(bloodshot); Show(hives); Lips(LipRed, 1f); TongueOut(); Play(fxSweat); Play(fxTearsL); Play(fxTearsR); break;
+
+                case ReactionId.Infierno:       // ojos desorbitados, vena en la frente, vapor por las orejas, cabeza hinchada
+                    Pose(Eyes.Wide, Mouth.Fire, Body.Shake, Gesture.Throat);
+                    Show(bloodshot); Show(hives); Lips(LipRed, 1.35f); bulging = true; throbbing = true; headPuff = 0.09f;
+                    if (foreheadVein) foreheadVein.gameObject.SetActive(true);
+                    Play(fxSteam); Play(fxSweat); Play(fxEarL); Play(fxEarR); Play(fxTearsL); Play(fxTearsR); break;
+
+                case ReactionId.Explosion:      // cara embarrada, tos y un eructo de gas
+                    Pose(Eyes.Wide, Mouth.O, Body.Cough, Gesture.Face);
+                    splash.SetActive(true); Hair(true); Show(bloodshot); Play(fxTearsL); Play(fxTearsR); burpAt = 1.4f; break;
+
+                case ReactionId.Borracho:       // párpado caído, ojeras, nariz roja, babas
+                    Pose(Eyes.Dizzy, Mouth.Wavy, Body.Wobble, Gesture.OneHandHead);
+                    Cheeks(Blush, 1.1f); Show(eyeBags); Droop(); noseRedness = 1f; Play(fxDrool); burpAt = 1.8f; break;
+
+                case ReactionId.Alegre:
+                    Pose(Eyes.Happy, Mouth.Smile, Body.Sway, Gesture.Rest); Cheeks(Blush, 1f); noseRedness = 0.6f; break;
+
+                case ReactionId.Nausea:         // arcadas: se tapa la boca, se infla y vomita sobre la barra
+                    Pose(Eyes.Half, Mouth.Puffed, Body.Retch, Gesture.CoverMouth);
+                    Cheeks(data.skinColor * 0.92f, 1.7f); Show(eyeBags); Play(fxSweat); break;
+
+                case ReactionId.Congelado:      // labios azules, moco congelado, tiritona
+                    Pose(Eyes.Closed, Mouth.Chatter, Body.Shiver, Gesture.HoldHead);
+                    icicles.SetActive(true); Show(snotIcicle); Lips(LipBlue, 0.9f); noseRedness = 0.8f; break;
+
+                case ReactionId.Hiper:          // pupilas diminutas, ojos inyectados, tic en el ojo, rechina los dientes
+                    Pose(Eyes.Pinpoint, Mouth.Chatter, Body.Hyper, Gesture.Cheer);
+                    Show(bloodshot); Show(eyeBags); throbbing = true; bulging = true;
+                    if (foreheadVein) foreheadVein.gameObject.SetActive(true);
+                    Play(fxSweat); break;
+
+                case ReactionId.Azucar:
+                    Pose(Eyes.Pinpoint, Mouth.Big, Body.Hyper, Gesture.Cheer); Cheeks(Blush, 1.2f); Show(bloodshot); Play(fxDrool); break;
+
+                case ReactionId.Llamarada:      // hollín, cejas chamuscadas, tos con humo
+                    Pose(Eyes.Wide, Mouth.O, Body.Cough, Gesture.Throat);
+                    Hair(true); Show(soot); Show(bloodshot); browsBurnt = true; Play(fxSmoke); Play(fxTearsL); Play(fxTearsR); break;
+
+                case ReactionId.Desmayo:        // ojos en blanco, espuma en la boca y espasmos
+                    Pose(Eyes.Rolled, Mouth.Tongue, Body.Faint, Gesture.Limp);
+                    stars.gameObject.SetActive(true); Show(foam); Show(eyeBags); Play(fxDrool); break;
+
+                case ReactionId.Hipo:
+                    Pose(Eyes.Wide, Mouth.O, Body.Hiccup, Gesture.Belly); Cheeks(Blush, 1.3f); burpAt = 1.6f; break;
+
+                case ReactionId.Agrio:          // la cara se le arruga entera
+                    Pose(Eyes.Closed, Mouth.Puffed, Body.Shiver, Gesture.Face);
+                    Cheeks(data.skinColor * 0.9f, 1.4f); headPuff = -0.08f; Play(fxTearsL); Play(fxTearsR); break;
+
+                case ReactionId.Dormido:        // burbuja de moco y babas
+                    Pose(Eyes.Closed, Mouth.O, Body.Sleep, Gesture.Rest);
+                    Show(eyeBags); if (snotBubble) snotBubble.gameObject.SetActive(true); Play(fxDrool); break;
+
+                case ReactionId.Bailarin:
+                    Pose(Eyes.Happy, Mouth.Big, Body.Dance, Gesture.Dance); Cheeks(Blush, 1.1f); Play(fxHearts); break;
+
                 default: Pose(Eyes.Flat, Mouth.Flat, Body.Idle, Gesture.Rest); break;
             }
+            ApplyBrows();
             if (!Application.isPlaying) SnapForPreview();
         }
 
@@ -172,6 +243,8 @@ namespace MixLab
             GestureTargets(0.4f, out handLPos, out handRPos);
             SolveArms();
             ApplyBrows();
+            if (body == Body.Retch) { ApplyMouth(Mouth.Big); Show(bile); }
+            head.localScale = HeadScale(0f);
         }
 
         // =====================================================================
@@ -180,7 +253,7 @@ namespace MixLab
 
         void Pose(Eyes e, Mouth m, Body b, Gesture g)
         {
-            eyes = e; mouth = m; body = b; gesture = g; animTime = 0f;
+            eyes = e; mouth = m; body = b; gesture = g; animTime = 0f; emitAcc = 0f; heaving = false;
             pivot.localPosition = pivotPos; pivot.localRotation = pivotRot;
             ApplyEyes(e);
             ApplyMouth(m);
@@ -189,17 +262,20 @@ namespace MixLab
 
         void ApplyEyes(Eyes e)
         {
-            bool open = e == Eyes.Normal || e == Eyes.Wide || e == Eyes.Dizzy || e == Eyes.Half;
+            bool open = e == Eyes.Normal || e == Eyes.Wide || e == Eyes.Dizzy || e == Eyes.Half || e == Eyes.Rolled || e == Eyes.Pinpoint;
             eyesOpen.SetActive(open);
-            lids.SetActive(e == Eyes.Half);
+            lids.SetActive(e == Eyes.Half || e == Eyes.Rolled);
+            if (lidL) lidL.SetActive(true);
+            if (lidR) lidR.SetActive(true);
             eyesClosed.SetActive(e == Eyes.Closed);
             eyesHappy.SetActive(e == Eyes.Happy);
             eyesX.SetActive(e == Eyes.X);
             eyesFlat.SetActive(e == Eyes.Flat);
-            float w = e == Eyes.Wide ? 1.22f : 1f, p = e == Eyes.Wide ? 0.6f : 1f;
+            bool big = e == Eyes.Wide || e == Eyes.Pinpoint;
+            float w = big ? 1.22f : 1f, p = e == Eyes.Wide ? 0.6f : e == Eyes.Pinpoint ? 0.32f : e == Eyes.Rolled ? 0.8f : 1f;
             whiteL.localScale = whiteR.localScale = whiteScale * w;
             pupilL.localScale = pupilR.localScale = pupilScale * p;
-            Vector3 push = e == Eyes.Wide ? new Vector3(0f, 0f, 0.008f) : Vector3.zero;
+            Vector3 push = big ? new Vector3(0f, 0f, 0.008f) : e == Eyes.Rolled ? new Vector3(0f, 0.036f, -0.014f) : Vector3.zero;
             pupilL.localPosition = pupilLBase + push; pupilR.localPosition = pupilRBase + push;
         }
 
@@ -224,14 +300,16 @@ namespace MixLab
         void ApplyBrows()
         {
             float angle = 0f, lift = 0f;
-            bool show = true;
+            bool show = !browsBurnt;
             switch (eyes)
             {
                 case Eyes.Wide: lift = 0.024f; break;
-                case Eyes.Closed: angle = 20f; break;
+                case Eyes.Pinpoint: lift = 0.03f; angle = 8f; break;
+                case Eyes.Closed: angle = 24f; break;
                 case Eyes.Happy: lift = 0.012f; break;
                 case Eyes.Dizzy: angle = -15f; break;
-                case Eyes.Half: angle = -18f; break;
+                case Eyes.Half: angle = -20f; break;
+                case Eyes.Rolled: angle = -12f; lift = 0.01f; break;
                 case Eyes.X: show = false; break;
                 case Eyes.Normal: if (Impatient && CurrentReaction == null) angle = 16f; break;
             }
@@ -246,10 +324,39 @@ namespace MixLab
             cheeks.SetActive(false); splash.SetActive(false); icicles.SetActive(false);
             stars.gameObject.SetActive(false);
             Hair(false);
-            Stop(fxSteam); Stop(fxSweat); Stop(fxSmoke); Stop(fxHearts);
+            Hide(bloodshot); Hide(eyeBags); Hide(hives); Hide(soot); Hide(bile); Hide(foam); Hide(snotIcicle);
+            if (foreheadVein) foreheadVein.gameObject.SetActive(false);
+            if (lips) lips.gameObject.SetActive(false);
+            if (tongueLong) tongueLong.gameObject.SetActive(false);
+            if (snotBubble) snotBubble.gameObject.SetActive(false);
+            bulging = throbbing = browsBurnt = false;
+            headPuff = 0f; noseRedness = 0f; burpAt = 0f;
+            if (head) head.localScale = Vector3.one;
+            Stop(fxSteam); Stop(fxSweat); Stop(fxSmoke); Stop(fxHearts); Stop(fxVomit); Stop(fxTearsL); Stop(fxTearsR);
+            Stop(fxDrool); Stop(fxEarL); Stop(fxEarR); Stop(fxBurp); Stop(fxCough);
         }
 
+        static void Show(GameObject go) { if (go) go.SetActive(true); }
+        static void Hide(GameObject go) { if (go) go.SetActive(false); }
+
         void Hair(bool up) { hairNormal.SetActive(!up); hairUp.SetActive(up); }
+
+        /// <summary>Un párpado caído (borrachera): solo se ve el izquierdo.</summary>
+        void Droop()
+        {
+            lids.SetActive(true);
+            if (lidR) lidR.SetActive(false);
+        }
+
+        void TongueOut() { if (tongueLong) tongueLong.gameObject.SetActive(true); }
+
+        void Lips(Color color, float scale)
+        {
+            if (!lips) return;
+            lips.gameObject.SetActive(true);
+            lips.localScale = lipsScale * scale;
+            foreach (var r in lipRenderers) { r.GetPropertyBlock(mpb); mpb.SetColor("_Color", color); r.SetPropertyBlock(mpb); }
+        }
 
         void Cheeks(Color color, float scale)
         {
@@ -268,10 +375,33 @@ namespace MixLab
                 if (r == null) continue;
                 r.GetPropertyBlock(mpb); mpb.SetColor("_Color", c); r.SetPropertyBlock(mpb);
             }
+            if (nose)
+            {
+                nose.GetPropertyBlock(mpb); mpb.SetColor("_Color", Color.Lerp(c, NoseRed, noseRedness)); nose.SetPropertyBlock(mpb);
+            }
+        }
+
+        Vector3 HeadScale(float t)
+        {
+            if (headPuff > 0f) return Vector3.one * (1f + headPuff * (0.75f + 0.25f * Mathf.Sin(t * 9f)));      // hinchada y latiendo
+            if (headPuff < 0f) return new Vector3(1f - headPuff * 0.6f, 1f + headPuff, 1f);                       // arrugada
+            return Vector3.one;
         }
 
         static void Play(ParticleSystem ps) { if (ps && Application.isPlaying) ps.Play(); }
         static void Stop(ParticleSystem ps) { if (ps) ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); }
+
+        /// <summary>Emite a chorros controlados por código (vómito, tos).</summary>
+        void Spray(ParticleSystem ps, float perSecond, float dt)
+        {
+            if (!ps || !Application.isPlaying) return;
+            if (!ps.isPlaying) ps.Play();
+            emitAcc += perSecond * dt;
+            int n = Mathf.FloorToInt(emitAcc);
+            if (n <= 0) return;
+            emitAcc -= n;
+            ps.Emit(n);
+        }
 
         // =====================================================================
         // Brazos (cinemática inversa de dos huesos, en el espacio local del torso)
@@ -293,10 +423,15 @@ namespace MixLab
                     l = new Vector3(-0.3f, 0.93f + w, 0.1f); r = new Vector3(0.3f, 0.93f - w, 0.1f); break;
                 case Gesture.Face: l = new Vector3(-0.17f, 0.66f, 0.25f); r = new Vector3(0.17f, 0.66f, 0.25f); break;
                 case Gesture.Limp: l = new Vector3(-0.27f, -0.02f, 0.05f); r = new Vector3(0.27f, -0.02f, 0.05f); break;
+                case Gesture.Tap: r = RestR + Vector3.up * (Mathf.Max(0f, Mathf.Sin(t * 11f)) * 0.05f); break;
                 case Gesture.Dance:
                     float beatSwing = Mathf.Sin(DiscoLights.Beat * Mathf.PI) * 0.2f;
                     l = new Vector3(-0.3f, 0.7f + beatSwing, 0.15f); r = new Vector3(0.3f, 0.7f - beatSwing, 0.15f); break;
-                case Gesture.Tap: r = RestR + Vector3.up * (Mathf.Max(0f, Mathf.Sin(t * 11f)) * 0.05f); break;
+                case Gesture.CoverMouth:      // una mano a la boca y otra al estómago; al vomitar se agarra de la barra
+                    if (heaving) { l = RestL + new Vector3(-0.05f, 0f, 0.02f); r = RestR + new Vector3(0.05f, 0f, 0.02f); }
+                    else { l = new Vector3(-0.06f, 0.2f, 0.2f); r = new Vector3(0.03f, 0.64f, 0.27f); }
+                    break;
+                case Gesture.Throat: l = new Vector3(-0.07f, 0.57f, 0.19f); r = new Vector3(0.07f, 0.55f, 0.2f); break;
             }
             if (heldGlass != null)
                 r = pivot.InverseTransformPoint(heldGlass.position + Vector3.up * 0.07f) + new Vector3(0.05f, 0f, -0.02f);
@@ -353,10 +488,13 @@ namespace MixLab
                 case Body.Wobble:
                     rot = pivotRot * Quaternion.Euler(Mathf.Sin(t * 2.2f) * 6f, 0f, Mathf.Sin(t * 3f) * 13f);
                     pos += Vector3.right * (Mathf.Sin(t * 3f) * 0.03f); break;
-                case Body.Shake: pos += Random.insideUnitSphere * 0.012f; break;
-                case Body.Shiver: pos += Vector3.right * (Mathf.Sin(t * 60f) * 0.006f); break;
-                case Body.Hyper: pos += Vector3.up * (Mathf.Abs(Mathf.Sin(t * 14f)) * 0.035f); break;
+                case Body.Shake: pos += Random.insideUnitSphere * 0.014f; break;
+                case Body.Shiver: pos += Vector3.right * (Mathf.Sin(t * 60f) * 0.007f); break;
+                case Body.Hyper: pos += Vector3.up * (Mathf.Abs(Mathf.Sin(t * 14f)) * 0.035f) + Random.insideUnitSphere * 0.004f; break;
                 case Body.Sway: rot = pivotRot * Quaternion.Euler(0f, 0f, Mathf.Sin(t * 1.8f) * 5f); break;
+                case Body.Pant:       // jadeo rápido con el pecho
+                    pos += Vector3.up * (Mathf.Sin(t * 13f) * 0.008f);
+                    rot = pivotRot * Quaternion.Euler(4f + Mathf.Sin(t * 13f) * 2f, 0f, Mathf.Sin(t * 1.8f) * 4f); break;
                 case Body.Hiccup:     // saltito seco cada cierto tiempo
                     float hp = Mathf.Repeat(t, 0.9f);
                     if (hp < 0.12f) pos += Vector3.up * (Mathf.Sin(hp / 0.12f * Mathf.PI) * 0.05f);
@@ -368,16 +506,62 @@ namespace MixLab
                 case Body.Sleep:      // cabecea y respira hondo
                     float sk = Mathf.Clamp01(t / 1.2f);
                     rot = pivotRot * Quaternion.Euler(9f * sk + Mathf.Sin(t * 1.2f) * 1.5f, 0f, 4f * sk); break;
-                case Body.Faint:
-                    float k = Mathf.Clamp01(t / 0.7f); k = k * k * (3f - 2f * k);
-                    rot = pivotRot * Quaternion.Euler(0f, 0f, 80f * k);
-                    pos += Vector3.down * (0.04f * k); break;
+                case Body.Retch:      // arcadas: aguanta, se dobla sobre la barra y vomita
+                    {
+                        float ph = Mathf.Repeat(t, 1.5f);
+                        bool now = ph > 0.85f;
+                        if (now != heaving)
+                        {
+                            heaving = now;
+                            ApplyMouth(now ? Mouth.Big : Mouth.Puffed);
+                            cheeks.SetActive(!now);
+                            if (now) Show(bile);
+                        }
+                        if (now)
+                        {
+                            float k = Mathf.Sin((ph - 0.85f) / 0.65f * Mathf.PI);
+                            rot = pivotRot * Quaternion.Euler(30f * k, 0f, 0f);
+                            pos += Vector3.down * (0.02f * k);
+                            if (k > 0.35f) Spray(fxVomit, 110f, dt);
+                        }
+                        else
+                        {
+                            rot = pivotRot * Quaternion.Euler(-5f + Mathf.Sin(t * 22f) * 1.2f, 0f, Mathf.Sin(t * 2f) * 4f);
+                            pos += Vector3.up * (Mathf.Max(0f, Mathf.Sin(ph * 9f)) * 0.012f);          // espasmos del estómago
+                        }
+                    }
+                    break;
+                case Body.Cough:      // tos seca: sacudidas hacia adelante con humo
+                    {
+                        float ph = Mathf.Repeat(t, 0.95f);
+                        if (ph < 0.22f)
+                        {
+                            float k = Mathf.Sin(ph / 0.22f * Mathf.PI);
+                            rot = pivotRot * Quaternion.Euler(16f * k, 0f, 0f);
+                            Spray(fxCough, 70f, dt);
+                        }
+                        else pos += Random.insideUnitSphere * 0.004f;
+                    }
+                    break;
+                case Body.Faint:      // se desploma y luego le dan espasmos
+                    {
+                        float k = Mathf.Clamp01(t / 0.7f); k = k * k * (3f - 2f * k);
+                        rot = pivotRot * Quaternion.Euler(0f, 0f, 80f * k);
+                        pos += Vector3.down * (0.04f * k);
+                        if (t > 1f && Mathf.Repeat(t, 1.1f) < 0.3f)
+                        {
+                            pos += Random.insideUnitSphere * 0.012f;
+                            rot *= Quaternion.Euler(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f));
+                        }
+                    }
+                    break;
             }
             if (heldGlass != null) rot *= Quaternion.Euler(9f, 0f, 0f);   // se inclina hacia el vaso
             pivot.localPosition = pos; pivot.localRotation = rot;
 
             UpdateHead(dt, t);
             UpdateBlink();
+            UpdateSymptoms(dt, t);
 
             // Brazos
             GestureTargets(t, out var tl, out var tr);
@@ -397,12 +581,50 @@ namespace MixLab
             if (flame.gameObject.activeSelf) flame.localScale = flameScale * (1f + Mathf.Sin(t * 25f) * 0.18f);
         }
 
+        /// <summary>Detalles que laten, tiemblan o gotean mientras dura la reacción.</summary>
+        void UpdateSymptoms(float dt, float t)
+        {
+            head.localScale = Vector3.Lerp(head.localScale, HeadScale(t), 1f - Mathf.Exp(-8f * dt));
+
+            if (bulging)
+            {
+                // Ojos que se salen y laten; uno con tic
+                float beat = 1.22f + 0.1f * Mathf.Abs(Mathf.Sin(t * 8f));
+                float tic = Mathf.PerlinNoise(t * 7f, 0.3f) > 0.68f ? 0.82f : 1f;
+                whiteL.localScale = whiteScale * beat;
+                whiteR.localScale = whiteScale * (beat * tic);
+            }
+            if (throbbing && foreheadVein)
+                foreheadVein.localScale = veinScale * (1f + 0.35f * Mathf.Abs(Mathf.Sin(t * 8f)));
+            if (lips && lips.gameObject.activeSelf && CurrentReaction != ReactionId.Congelado)
+            {
+                float baseScale = CurrentReaction == ReactionId.Infierno ? 1.35f : 1f;
+                lips.localScale = lipsScale * (baseScale * (1f + 0.07f * Mathf.Sin(t * 9f)));
+            }
+            if (tongueLong && tongueLong.gameObject.activeSelf)
+            {
+                tongueLong.localPosition = tongueLongPos + Vector3.up * (Mathf.Sin(t * 13f) * 0.006f);
+                tongueLong.localRotation = Quaternion.Euler(18f + Mathf.Sin(t * 13f) * 10f, 0f, Mathf.Sin(t * 6f) * 8f);
+            }
+            if (snotBubble && snotBubble.gameObject.activeSelf)
+            {
+                // Se infla despacio y revienta
+                float ph = Mathf.Repeat(t, 2.4f) / 2.4f;
+                snotBubble.localScale = snotScale * (ph < 0.92f ? 0.25f + ph * 1.5f : 0.05f);
+            }
+            if (burpAt > 0f && t >= burpAt)
+            {
+                burpAt = 0f;
+                Play(fxBurp);
+            }
+        }
+
         /// <summary>La cabeza sigue al jugador (con límites) salvo que esté desmayado.</summary>
         void UpdateHead(float dt, float t)
         {
             Quaternion want = Quaternion.identity;
             var cam = Camera.main;
-            if (cam != null && body != Body.Faint && body != Body.Sleep && eyes != Eyes.Dizzy)
+            if (cam != null && body != Body.Faint && body != Body.Sleep && eyes != Eyes.Dizzy && !heaving)
             {
                 Vector3 local = pivot.InverseTransformPoint(cam.transform.position) - headPos;
                 float yaw = Mathf.Clamp(Mathf.Atan2(local.x, local.z) * Mathf.Rad2Deg, -32f, 32f);
@@ -412,7 +634,8 @@ namespace MixLab
             if (body == Body.Wobble) want *= Quaternion.Euler(0f, 0f, Mathf.Sin(t * 2.5f) * 10f);
             if (body == Body.Faint) want = Quaternion.Euler(0f, 0f, 12f);
             if (body == Body.Sleep) want = Quaternion.Euler(20f + Mathf.Sin(t * 1.2f) * 4f, 0f, 9f);
-            head.localRotation = Quaternion.Slerp(head.localRotation, want, 1f - Mathf.Exp(-5f * dt));
+            if (heaving) want = Quaternion.Euler(22f, 0f, 0f);
+            head.localRotation = Quaternion.Slerp(head.localRotation, want, 1f - Mathf.Exp(-(heaving ? 14f : 5f) * dt));
         }
 
         void UpdateBlink()

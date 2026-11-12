@@ -15,7 +15,7 @@ MonoBehaviour:
   id: 4
   displayName: Mareo total
   hint: Demasiado alcohol
-  customerLine: "Hip\u2026 \xBFpor qu\xE9 hay dos barras? \xBFY dos t\xFA?"
+  customerLine: "Hip\u2026 todo da vueltas\u2026 creo que voy a\u2026 *buurp*"
   points: -50
   knockout: 0
   skinColor: {r: 0.97, g: 0.69, b: 0.63, a: 1}

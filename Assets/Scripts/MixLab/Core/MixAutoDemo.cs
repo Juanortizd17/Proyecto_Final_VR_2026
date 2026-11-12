@@ -17,14 +17,14 @@ namespace MixLab
         // Mezclas "equivocadas" para mostrar reacciones (nombres de assets de ingredientes).
         static readonly string[][] FunMixes =
         {
-            new[] { "Cafe", "Ron" },
-            new[] { "Soda", "Efervescente" },
-            new[] { "Leche", "Leche" },
-            new[] { "Soda", "Cola" },
-            new[] { "Limon", "Limon" },
+            new[] { "Leche", "Limon" },
             new[] { "SalsaDiablo", "Agua" },
             new[] { "Tequila", "Ron" },
-            new[] { "Leche", "Limon" },
+            new[] { "Soda", "Efervescente" },
+            new[] { "Leche", "Leche" },
+            new[] { "Cafe", "Ron" },
+            new[] { "Soda", "Cola" },
+            new[] { "Limon", "Limon" },
             new[] { "SalsaDiablo", "Ron" },
             new[] { "Hielo", "Menta" },
             new[] { "Cafe", "Cafe" },
@@ -107,6 +107,7 @@ namespace MixLab
             yield return new WaitForSeconds(1.5f);
             yield return Shot("panel_final");
             Debug.Log($"[MixAutoDemo] Fin: puntaje {gm.Score}, servidas {gm.Served}, perfectas {gm.Perfects}, desmayos {gm.Knockouts}. Capturas en {shotDir}");
+            FindFirstObjectByType<PerfProbe>()?.Report();
             yield return new WaitForSeconds(0.5f);
             Application.Quit();
         }

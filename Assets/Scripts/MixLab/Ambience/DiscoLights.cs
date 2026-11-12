@@ -49,7 +49,6 @@ namespace MixLab
         void Awake()
         {
             mpb = new MaterialPropertyBlock();
-            QualitySettings.pixelLightCount = Mathf.Max(QualitySettings.pixelLightCount, 12);
             spotBase = new Quaternion[spots != null ? spots.Length : 0];
             for (int i = 0; i < spotBase.Length; i++) spotBase[i] = spots[i].transform.localRotation;
             eqBase = new Vector3[eqBars != null ? eqBars.Length : 0];

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: 3
   displayName: "Explosi\xF3n efervescente"
   hint: Gas + efervescente
-  customerLine: "\xA1\xBFQu\xE9 fue eso?! \xA1Me explot\xF3 en la cara!"
+  customerLine: "\xA1*Cof, cof*! \xA1Se me meti\xF3 por la nariz! \xA1Arde!"
   points: -50
   knockout: 0
   skinColor: {r: 0.96, g: 0.72, b: 0.56, a: 1}

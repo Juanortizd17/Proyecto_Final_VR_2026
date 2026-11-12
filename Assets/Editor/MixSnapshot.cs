@@ -38,12 +38,12 @@ namespace QualityControlXR.EditorTools
             Shot("11_rockola", new Vector3(-0.3f, 1.65f, -0.1f), new Vector3(-2.85f, 1.4f, -0.75f), 62f);
             Shot("12_sofas", new Vector3(-3.4f, 1.7f, -0.9f), new Vector3(-6.3f, 0.6f, -0.7f), 68f);
 
-            foreach (var id in new[] { ReactionId.Infierno, ReactionId.Nausea, ReactionId.Desmayo, ReactionId.Bailarin, ReactionId.Dormido, ReactionId.Perfecto })
+            foreach (var id in new[] { ReactionId.Infierno, ReactionId.Nausea, ReactionId.Desmayo, ReactionId.Llamarada, ReactionId.Hiper, ReactionId.Picante, ReactionId.Borracho, ReactionId.Congelado, ReactionId.Dormido, ReactionId.Perfecto })
             {
                 var data = AssetDatabase.LoadAssetAtPath<ReactionData>($"Assets/Data/Mix/Reactions/{id}.asset");
                 customer.ShowReaction(data);
                 Canvas.ForceUpdateCanvases();
-                Shot("reaccion_" + id, new Vector3(0.1f, 1.6f, 0.35f), new Vector3(0.25f, 1.5f, 1.5f), 62f);
+                Shot("reaccion_" + id, new Vector3(0.05f, 1.62f, 0.55f), new Vector3(0.1f, 1.52f, 1.5f), 50f);
             }
             customer.ResetPose();
             Debug.Log("[MixSnapshot] Capturas guardadas en " + Path.GetFullPath(OutDir));

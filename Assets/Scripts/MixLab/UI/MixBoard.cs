@@ -69,6 +69,8 @@ namespace MixLab
             var o = gm.CurrentOrder;
             if (o == null) return;
             orderTitle.text = o.displayName.ToUpper();
+            // Una sola línea: la letra se encoge por pasos según el largo del nombre
+            orderTitle.fontSize = Mathf.Clamp(Mathf.FloorToInt(1500f / Mathf.Max(8, o.displayName.Length) / 8f) * 8, 56, 104);
             string temp = o.needsTemperature ? $"\n<color=#FFC21A>+ temperatura {o.TemperatureLabel}</color>" : "";
             orderDetail.text = o.IngredientList + temp;
         }
@@ -89,8 +91,8 @@ namespace MixLab
 
             string title = gm.Won ? "¡TURNO COMPLETADO!" : "TURNO SUSPENDIDO";
             resultsText.text =
-                $"<size=84><b>{title}</b></size>\n" +
-                $"Puntaje: <size=88><b>{gm.Score}</b></size>{(gm.NewRecord ? "  <color=#FFD54A>¡NUEVO RÉCORD!</color>" : "")}     Récord: {gm.BestScore}\n" +
+                $"<size=72><b>{title}</b></size>\n" +
+                $"Puntaje: <size=72><b>{gm.Score}</b></size>{(gm.NewRecord ? "  <color=#FFD54A>¡NUEVO RÉCORD!</color>" : "")}     Récord: {gm.BestScore}\n" +
                 $"Bebidas servidas: {gm.Served}     Pedidos perfectos: {gm.Perfects}     Desmayos: {gm.Knockouts}\n" +
                 $"Reacciones descubiertas: {gm.DiscoveredCount}/{gm.Reactions.Count}\n" +
                 $"<i>{Feedback()}</i>";

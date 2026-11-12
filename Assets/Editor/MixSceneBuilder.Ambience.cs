@@ -315,6 +315,7 @@ namespace QualityControlXR.EditorTools
             const float scale = 0.002f;
             var size = new Vector2(w / scale, h / scale);
             var canvas = SB.MakeCanvas(name, pos, rot, size, scale);
+            canvas.GetComponent<CanvasScaler>().dynamicPixelsPerUnit = 2f;
             canvas.transform.SetParent(parent, true);
             Object.DestroyImmediate(canvas.GetComponent<GraphicRaycaster>());
             foreach (var extra in canvas.GetComponents<MonoBehaviour>())

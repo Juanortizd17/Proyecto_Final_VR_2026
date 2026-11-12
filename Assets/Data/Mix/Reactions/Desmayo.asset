@@ -15,7 +15,7 @@ MonoBehaviour:
   id: 10
   displayName: Desmayo fulminante
   hint: Salsa del Diablo + alcohol
-  customerLine: "\u2026 (fuera de combate)"
+  customerLine: "Ghhk\u2026 ghh\u2026 (ojos en blanco)"
   points: -100
   knockout: 1
   skinColor: {r: 0.92, g: 0.86, b: 0.78, a: 1}
