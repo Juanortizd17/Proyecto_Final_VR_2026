@@ -106,6 +106,13 @@ namespace MixLab
 
             yield return new WaitForSeconds(1.5f);
             yield return Shot("panel_final");
+            // Tablero de historial (a la derecha del puesto) con el turno recién guardado
+            if (player)
+            {
+                player.TeleportTo(new Vector3(1.4f, player.transform.position.y, -0.4f), 111f, 2f);
+                yield return new WaitForSeconds(0.6f);
+                yield return Shot("historial");
+            }
             Debug.Log($"[MixAutoDemo] Fin: puntaje {gm.Score}, servidas {gm.Served}, perfectas {gm.Perfects}, desmayos {gm.Knockouts}. Capturas en {shotDir}");
             FindFirstObjectByType<PerfProbe>()?.Report();
             yield return new WaitForSeconds(0.5f);

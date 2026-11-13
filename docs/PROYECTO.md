@@ -16,4 +16,6 @@ Elegir **una**. Todas usan Unity + XR Interaction Toolkit, Meta Quest 2/3.
    activación de órganos, paneles biomédicos XR, audio narrativo, navegación inmersiva.
 
 ## Decisión
-**Control de Calidad XR.**
+**Laboratorio Científico XR**, ambientado en un bar: *Laboratorio de Mezclas*. Las sustancias son ingredientes
+con propiedades químicas; las mezclas reaccionan en el cliente, se clasifican con el analizador y se estabilizan
+con frío. Antes se hizo un prototipo de *Control de Calidad XR*, guardado en la etiqueta `prototipo-control-calidad`.

@@ -35,6 +35,7 @@ namespace MixLab.EditorTools
             Shot("08_vista_bar", new Vector3(6.4f, 2.5f, -2.7f), new Vector3(-0.6f, 1.0f, 2.8f), 72f);
             Shot("09_desde_pista", new Vector3(0.4f, 1.8f, 8.7f), new Vector3(0f, 1.3f, 1.5f), 72f);
             Shot("10_meson_L", new Vector3(0.2f, 1.65f, -0.15f), new Vector3(2.3f, 1.15f, -0.3f), 62f);
+            Shot("13_historial", new Vector3(1.2f, 1.7f, -0.35f), new Vector3(3.35f, 1.7f, -1.15f), 62f);
             Shot("11_rockola", new Vector3(-0.3f, 1.65f, -0.1f), new Vector3(-2.85f, 1.4f, -0.75f), 62f);
             Shot("12_sofas", new Vector3(-3.4f, 1.7f, -0.9f), new Vector3(-6.3f, 0.6f, -0.7f), 68f);
 

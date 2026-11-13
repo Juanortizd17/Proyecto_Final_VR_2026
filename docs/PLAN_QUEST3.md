@@ -1,8 +1,25 @@
 # Planteamiento para Meta Quest 3 — Laboratorio de Mezclas
 
-Estado de partida: el juego está completo y probado en PC (mouse y teclado). El proyecto ya tiene
-XR Interaction Toolkit 3.0.8, OpenXR y el pipeline de APK del primer prototipo (Control de Calidad),
-pero la escena del bar todavía no tiene visor, manos ni objetos agarrables.
+## Estado actual
+
+Hecho sin visor (verificado con compilación y pruebas automáticas que simulan la mano):
+
+| Fase | Estado |
+|---|---|
+| 0. Preparación | ✔ Escena con XR Origin, OpenXR para Quest, APK compilado (`Builds/LaboratorioMezclas.apk`) |
+| 1. Moverse y botones | ✔ Locomoción, giro, teletransporte detrás de la barra, rayos sobre tableros y rockola |
+| 2. Agarrar y verter | ✔ Botellas agarrables, verter inclinando, recipientes de piezas, vuelta al estante |
+| 3. Estación completa | ✔ Palancas que se arrastran, agitar sacudiendo, vaciar volteando, posavasos con socket |
+| 4. Rendimiento | Parcial: nivel de calidad VR automático en el Quest; falta medir en el visor |
+| 5. Entrenamiento y pulido | Parcial: tutorial con textos para VR y vibración; falta ajustar con la prueba real |
+| 6. Entrega | Pendiente: video de respaldo y ajustes finales |
+
+Lo que falta depende de ponerse el visor: ver [PRUEBA_EN_QUEST.md](PRUEBA_EN_QUEST.md).
+
+---
+
+Estado de partida (antes de la conversión): el juego estaba completo y probado en PC (mouse y teclado), con
+XR Interaction Toolkit 3.0.8 y OpenXR instalados, pero la escena del bar no tenía visor, manos ni objetos agarrables.
 
 ## 1. Qué significa "listo"
 
