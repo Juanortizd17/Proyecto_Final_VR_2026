@@ -44,13 +44,33 @@ namespace MixLab
             {
                 if (row >= rows.Length || !gm.IsDiscovered(r.id)) continue;
                 string hex = ColorUtility.ToHtmlStringRGB(r.bookColor);
-                rows[row++].text = $"<color=#{hex}>●</color> <b>{r.displayName}</b>  <size={hint}><color=#B6A8D6>{r.hint}</color></size>";
+                FitRow(rows[row++], hex, r.displayName, r.hint, font, hint);
             }
             for (; row < rows.Length; row++) rows[row].text = "";
             if (footer)
                 footer.text = found == 0 ? "Todavía no has descubierto ninguna.\nPrueba mezclas raras a ver qué pasa…"
                     : found >= list.Count ? "<color=#7FE08A>¡Libro completo!</color>"
                     : $"Faltan {list.Count - found} por descubrir";
+        }
+
+        /// <summary>
+        /// Escribe la fila y, si no cabe en el ancho del tablero, achica primero la pista gris y
+        /// después el nombre, hasta que quepa. Así ninguna fila se sale de la pantalla.
+        /// </summary>
+        static void FitRow(Text t, string hex, string name, string hintText, int font, int hint)
+        {
+            float max = t.rectTransform.rect.width - 12f;
+            int minHint = Mathf.Max(20, Mathf.FloorToInt(hint * 0.65f));
+            int minFont = Mathf.Max(28, Mathf.FloorToInt(font * 0.7f));
+            for (int k = 0; k < 40; k++)
+            {
+                t.fontSize = font;
+                t.text = $"<color=#{hex}>●</color> <b>{name}</b>  <size={hint}><color=#B6A8D6>{hintText}</color></size>";
+                if (t.preferredWidth <= max) return;
+                if (hint > minHint) hint -= 2;
+                else if (font > minFont) font -= 2;
+                else break;
+            }
         }
     }
 }

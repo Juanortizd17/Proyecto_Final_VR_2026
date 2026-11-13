@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 3
   displayName: "Explosi\xF3n efervescente"
-  hint: Gas + efervescente sin enfriar
+  hint: "Gas + efervescente, sin fr\xEDo"
   customerLine: "\xA1*Cof, cof*! \xA1Se me meti\xF3 por la nariz! \xA1Arde!"
   points: -50
   knockout: 0

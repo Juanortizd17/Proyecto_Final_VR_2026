@@ -226,7 +226,7 @@ namespace QualityControlXR.EditorTools
             Add(ReactionId.Perfecto, "Pedido perfecto", "Exactamente lo que pidió", "¡Exactamente lo que pedí! Diez de diez.", 100, false, Skin, new Color(0.5f, 0.88f, 0.54f), 2.6f);
             Add(ReactionId.Picante, "Picante", "Un toque de ají", "¡Fff… fff…! Me arde la lengua… ¡se me duermen los labios!", -20, false, new Color(1f, 0.56f, 0.45f), new Color(1f, 0.54f, 0.36f), 3.2f);
             Add(ReactionId.Infierno, "Picante infernal", "Salsa del Diablo", "¡¡AAAGH!! ¡ME QUEMA LA GARGANTA! ¡¡AGUA, AGUA!!", -50, false, new Color(1f, 0.3f, 0.25f), new Color(1f, 0.23f, 0.19f), 3.6f);
-            Add(ReactionId.Explosion, "Explosión efervescente", "Gas + efervescente sin enfriar", "¡*Cof, cof*! ¡Se me metió por la nariz! ¡Arde!", -50, false, new Color(0.96f, 0.72f, 0.56f), new Color(0.85f, 0.95f, 0.77f), 3.4f);
+            Add(ReactionId.Explosion, "Explosión efervescente", "Gas + efervescente, sin frío", "¡*Cof, cof*! ¡Se me metió por la nariz! ¡Arde!", -50, false, new Color(0.96f, 0.72f, 0.56f), new Color(0.85f, 0.95f, 0.77f), 3.4f);
             Add(ReactionId.Borracho, "Mareo total", "Demasiado alcohol", "Hip… todo da vueltas… creo que voy a… *buurp*", -50, false, new Color(0.97f, 0.69f, 0.63f), new Color(1f, 0.62f, 0.69f), 3.8f);
             Add(ReactionId.Alegre, "Alegrito", "Un poco de alcohol", "Ooh, esto está bueno… hic.", 10, false, new Color(0.97f, 0.72f, 0.64f), new Color(1f, 0.75f, 0.8f), 3f);
             Add(ReactionId.Nausea, "Náusea verde", "Leche + limón", "Ay no… ay no… la leche cortada… ¡BUAAAGH!", -50, false, new Color(0.66f, 0.85f, 0.42f), new Color(0.66f, 0.85f, 0.42f), 3.6f);

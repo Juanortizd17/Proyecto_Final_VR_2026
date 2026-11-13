@@ -1,0 +1,14 @@
+Buenas tardes, profesor. Una consulta sobre el proyecto final.
+
+Elegimos la opción 3 (Laboratorio Científico XR), pero ambientada en un bar: el jugador prepara bebidas combinando ingredientes con propiedades (ácido, gas, alcohol, picante, etc.) y temperatura, y el cliente reacciona según la mezcla.
+
+Las funciones de la opción 3 quedan así:
+- Combinar: 19 ingredientes, temperatura y agitar.
+- Activar reacciones: 17 reacciones según la mezcla (náusea, explosión, llamarada, etc.).
+- Clasificar: un analizador marca la mezcla como estable, inestable o tóxica.
+- Estabilizar: el frío neutraliza las mezclas inestables; si no, el vaso explota.
+- Descubrir fórmulas: 38 recetas y un libro de reacciones descubiertas.
+
+Le adjunto unas capturas. ¿Le parece válido para la opción 3, o prefiere una ambientación de laboratorio tradicional?
+
+Gracias.
