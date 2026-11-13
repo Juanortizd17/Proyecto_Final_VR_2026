@@ -73,7 +73,12 @@ namespace MixLab
         /// <summary>Pista incluida: su tempo es exacto y las luces pueden seguir su reloj.</summary>
         public bool SyncedToClip => !loading && CurrentTrack != null && CurrentTrack.path == null && source && source.isPlaying;
         public string Message => Time.unscaledTime < messageUntil ? message : "";
-        public static string FolderPath => Path.Combine(Application.streamingAssetsPath, FolderName);
+        /// <summary>
+        /// Carpeta de canciones propias. En PC va junto al juego (StreamingAssets); en el Quest, dentro del APK
+        /// no se puede listar, así que se usa Android/data/com.uao.laboratoriomezclas/files/Musica (copiable por USB).
+        /// </summary>
+        public static string FolderPath => Path.Combine(Application.platform == RuntimePlatform.Android
+            ? Application.persistentDataPath : Application.streamingAssetsPath, FolderName);
 
         Track CurrentTrack => genres.Count > 0 && trackIndex < genres[genreIndex].tracks.Count ? genres[genreIndex].tracks[trackIndex] : null;
 
@@ -120,6 +125,8 @@ namespace MixLab
             try
             {
                 string root = FolderPath;
+                if (Application.platform == RuntimePlatform.Android && !Directory.Exists(root))
+                    foreach (var name in new[] { "House", "Electronica", "Guaracha", "Rock" }) Directory.CreateDirectory(Path.Combine(root, name));
                 if (!Directory.Exists(root)) return;
                 foreach (string dir in Directory.GetDirectories(root).OrderBy(d => d))
                 {

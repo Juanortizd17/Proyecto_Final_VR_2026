@@ -1,7 +1,7 @@
 using UnityEngine;
-using SB = QualityControlXR.EditorTools.SceneBuilder;
+using SB = MixLab.EditorTools.BuildKit;
 
-namespace QualityControlXR.EditorTools
+namespace MixLab.EditorTools
 {
     /// <summary>
     /// Piezas de los síntomas crudos del cliente (las activa Customer según la reacción):

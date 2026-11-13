@@ -4,7 +4,7 @@ Medido con el `.exe` de Windows en modo demostración (un turno completo jugado 
 a 1920×1080, en un portátil con NVIDIA GeForce RTX 4060 Laptop e Intel i7-13650HX.
 
 ```
-Builds\Windows\ControlCalidadXR.exe -autodemo -perf -quality <0|1|2> [-pixellights N]
+Builds\Windows\LaboratorioMezclas.exe -autodemo -perf -quality <0|1|2> [-pixellights N]
 ```
 
 `PerfProbe` registra el tiempo de cada cuadro y los contadores de dibujado; `QualityGovernor` aplica el nivel.

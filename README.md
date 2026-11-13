@@ -6,7 +6,7 @@ hecho con **Unity 6 (6000.0.58f2)** para la empresa ficticia *UAO Immersive Solu
 Eres el encargado de un laboratorio-bar. Ramiro, el cliente de prueba, pide bebidas; tú combinas ingredientes
 con propiedades químicas (ácido, gas, alcohol, picante, lácteo, cafeína…), ajustas la temperatura, agitas y sirves.
 Si aciertas, suma puntos. Si te equivocas, **su cuerpo reacciona**: se pone rojo y suda con el picante, se marea,
-se pone verde, le explota la mezcla en la cara o cae desmayado. El **analizador** de la estación clasifica cada mezcla (estable, inestable o tóxica); las inestables se **estabilizan** con frío o el vaso estalla. Hay **17 reacciones por descubrir** en el libro y **38 bebidas** en la carta. El bar es una discoteca viva: pista de baile con baldosas luminosas, DJ, bola de espejos, focos y ecualizador sincronizados con la música. Hay una **rockola** con géneros (house, electrónica, guaracha, rock): cada uno trae una pista original generada por código y suma las canciones que copies en `Assets/StreamingAssets/Musica/<Género>` (o en `Builds/Windows/ControlCalidadXR_Data/StreamingAssets/Musica` del juego compilado). Teclas: G género, N canción, M silencio.
+se pone verde, le explota la mezcla en la cara o cae desmayado. El **analizador** de la estación clasifica cada mezcla (estable, inestable o tóxica); las inestables se **estabilizan** con frío o el vaso estalla. Hay **17 reacciones por descubrir** en el libro y **38 bebidas** en la carta. El bar es una discoteca viva: pista de baile con baldosas luminosas, DJ, bola de espejos, focos y ecualizador sincronizados con la música. Hay una **rockola** con géneros (house, electrónica, guaracha, rock): cada uno trae una pista original generada por código y suma las canciones que copies en `Assets/StreamingAssets/Musica/<Género>` (o en `Builds/Windows/LaboratorioMezclas_Data/StreamingAssets/Musica` del juego compilado). Teclas: G género, N canción, M silencio.
 
 ![Vista del jugador](docs/screenshots/mix/01_jugador.png)
 
@@ -25,7 +25,7 @@ se pone verde, le explota la mezcla en la cara o cae desmayado. El **analizador*
 Por ahora es un **juego de PC en primera persona** (mouse y teclado). La conversión a Meta Quest es el siguiente paso.
 
 1. Abrir la carpeta con **Unity 6000.0.58f2**.
-2. Abrir `Assets/Scenes/MixLab.unity` y darle **Play**, o ejecutar `Builds/Windows/ControlCalidadXR.exe`.
+2. Abrir `Assets/Scenes/MixLab.unity` y darle **Play**, o ejecutar `Builds/Windows/LaboratorioMezclas.exe`.
 
 | Control | Acción |
 |---|---|
@@ -37,7 +37,7 @@ Por ahora es un **juego de PC en primera persona** (mouse y teclado). La convers
 | R | Dejar el vaso en la estación |
 | Esc · H | Pausa (con sensibilidad del mouse) · ayuda |
 
-**Modo demostración**: `ControlCalidadXR.exe -autodemo -roundSeconds 70` juega un turno solo y guarda capturas
+**Modo demostración**: `LaboratorioMezclas.exe -autodemo -roundSeconds 70` juega un turno solo y guarda capturas
 (las de la última corrida están en [docs/pc_demo](docs/pc_demo)).
 
 ## Reacciones

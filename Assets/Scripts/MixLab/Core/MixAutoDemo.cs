@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Linq;
-using QualityControlXR;
 using UnityEngine;
 
 namespace MixLab
@@ -10,7 +9,7 @@ namespace MixLab
     /// <summary>
     /// Modo demostración (solo con el argumento -autodemo): juega un turno corto usando las
     /// mismas acciones que el jugador, guarda capturas de cada reacción y cierra la app.
-    ///   ControlCalidadXR.exe -autodemo [-shotdir C:\ruta] [-roundSeconds 80]
+    ///   LaboratorioMezclas.exe -autodemo [-shotdir C:\ruta] [-roundSeconds 80]
     /// </summary>
     public class MixAutoDemo : MonoBehaviour
     {

@@ -3,7 +3,7 @@ using MixLab;
 using UnityEditor;
 using UnityEngine;
 
-namespace QualityControlXR.EditorTools
+namespace MixLab.EditorTools
 {
     /// <summary>Optimización: regulador de calidad, medidor de rendimiento y agrupado de objetos estáticos.</summary>
     public static partial class MixSceneBuilder

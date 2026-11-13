@@ -12,7 +12,6 @@ namespace MixLab
     {
         [SerializeField] AudioSource music;
         [SerializeField] float bpm = 124f;
-        [SerializeField] float musicVolume = 0.3f;
         [SerializeField] Renderer[] tiles;
         [SerializeField] int tileColumns = 6;
         [SerializeField] Light[] spots;

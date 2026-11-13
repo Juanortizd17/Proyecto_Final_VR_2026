@@ -3,7 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace QualityControlXR.EditorTools
+namespace MixLab.EditorTools
 {
     /// <summary>
     /// Sintetiza las pistas originales de la rockola (un bucle perfecto de 16 compases por género:

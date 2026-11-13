@@ -59,6 +59,8 @@ namespace MixLab
         public IReadOnlyList<ReactionData> Reactions => reactions;
         public IReadOnlyList<RecipeData> Recipes => recipes;
         public int DiscoveredCount => save.discovered.Count;
+        /// <summary>Historial de turnos guardado en JSON (el más reciente al final).</summary>
+        public IReadOnlyList<MixSession> Sessions => save.sessions;
         public ReactionData LastReaction { get; private set; }
 
         public event Action<MixState> OnStateChanged;

@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-namespace QualityControlXR.Tests
+namespace MixLab.Tests
 {
     /// <summary>
     /// Pruebas del Laboratorio de Mezclas sobre la escena real: reglas de reacción,

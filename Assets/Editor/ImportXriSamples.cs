@@ -3,19 +3,19 @@ using UnityEditor;
 using UnityEditor.PackageManager.UI;
 using UnityEngine;
 
-namespace QualityControlXR.EditorTools
+namespace MixLab.EditorTools
 {
     /// <summary>
     /// Importa las muestras del XR Interaction Toolkit (Starter Assets y XR Device Simulator)
     /// sin abrir el Package Manager. Uso: Unity -batchmode -executeMethod
-    /// QualityControlXR.EditorTools.ImportXriSamples.Run
+    /// MixLab.EditorTools.ImportXriSamples.Run
     /// </summary>
     public static class ImportXriSamples
     {
         const string Package = "com.unity.xr.interaction.toolkit";
         static readonly string[] Wanted = { "Starter Assets", "XR Device Simulator" };
 
-        [MenuItem("Tools/Quality Control XR/Import XRI Samples")]
+        [MenuItem("Tools/Laboratorio de Mezclas/Import XRI Samples")]
         public static void Run()
         {
             var samples = Sample.FindByPackage(Package, null);

@@ -4,9 +4,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
-using SB = QualityControlXR.EditorTools.SceneBuilder;
+using SB = MixLab.EditorTools.BuildKit;
 
-namespace QualityControlXR.EditorTools
+namespace MixLab.EditorTools
 {
     /// <summary>
     /// Ambientación del bar-discoteca: sala ampliada con pista de baile, cabina de DJ, luces de

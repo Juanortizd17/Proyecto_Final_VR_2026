@@ -9,9 +9,9 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
-using SB = QualityControlXR.EditorTools.SceneBuilder;
+using SB = MixLab.EditorTools.BuildKit;
 
-namespace QualityControlXR.EditorTools
+namespace MixLab.EditorTools
 {
     /// <summary>
     /// Genera el juego "Laboratorio de Mezclas" (opción 3 del enunciado) de forma reproducible:
@@ -72,7 +72,7 @@ namespace QualityControlXR.EditorTools
             var lights = BuildRoom();
 
             // Jugador (la cámara debe existir antes de crear los tableros)
-            BuildPlayer(out var hand, out var holdPoint, out var handAudio);
+            var player = BuildPlayer(out var hand, out var holdPoint, out var handAudio);
             var es = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
             es.transform.SetParent(managers.transform);
 
@@ -102,14 +102,15 @@ namespace QualityControlXR.EditorTools
             var board = BuildMainBoard();
             BuildBook(reactions.Length);
             BuildTutorial(glass, gmAudio);
+            BuildHistory();
 
-            new GameObject("DesktopHUD").AddComponent<DesktopHud>().transform.SetParent(managers.transform);
+            var hud = new GameObject("DesktopHUD"); hud.AddComponent<DesktopHud>(); hud.transform.SetParent(managers.transform);
+            BuildVr(managers.transform, player, hud, es.GetComponent<EventSystem>(), glass, lever);
             new GameObject("MixAutoDemo (solo con -autodemo)").AddComponent<MixAutoDemo>().transform.SetParent(managers.transform);
 
             EditorUtility.SetDirty(gm); EditorUtility.SetDirty(board);
             EditorSceneManager.SaveScene(scene, ScenePath);
             var scenes = new List<EditorBuildSettingsScene> { new EditorBuildSettingsScene(ScenePath, true) };
-            if (File.Exists(SB.ScenePath)) scenes.Add(new EditorBuildSettingsScene(SB.ScenePath, true));
             EditorBuildSettings.scenes = scenes.ToArray();
             AssetDatabase.SaveAssets();
             Debug.Log($"[MixSceneBuilder] Escena generada: {ScenePath} ({ing.Count} ingredientes, {recipes.Length} recetas, {reactions.Length} reacciones)");

@@ -10,7 +10,7 @@ namespace MixLab
     /// Medidor de rendimiento (solo con el argumento -perf): quita el límite de cuadros, registra
     /// el tiempo de cada cuadro y los contadores de dibujado, y al final escribe un resumen en el
     /// log y en perf_&lt;nivel&gt;.txt. Sirve para decidir con datos cuánto público y luces aguanta.
-    ///   ControlCalidadXR.exe -autodemo -perf -quality 0
+    ///   LaboratorioMezclas.exe -autodemo -perf -quality 0
     /// </summary>
     public class PerfProbe : MonoBehaviour
     {

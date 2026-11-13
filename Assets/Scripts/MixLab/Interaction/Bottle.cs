@@ -31,6 +31,11 @@ namespace MixLab
         Quaternion homeRot;
 
         public IngredientData Ingredient => ingredient;
+        public MixGlass Glass => glass;
+        public PourStyle Style => style;
+        public float MouthHeight => mouthHeight;
+        public Vector3 HomePosition => home;
+        public Quaternion HomeRotation => homeRot;
         public static bool AnyPouring => anyPouring;
 
         public void Setup(IngredientData data, MixGlass target, GameObject labelObject, float mouth)
@@ -143,6 +148,17 @@ namespace MixLab
             Destroy(piece);
             if (last) glass.Add(ingredient);
         }
+
+        // ---------- Usado por la versión VR (VrPourable) ----------
+
+        /// <summary>Al soltarla en VR, la botella vuelve sola a su puesto del estante.</summary>
+        public IEnumerator ReturnHome()
+        {
+            yield return Move(transform, transform.position, home, transform.rotation, homeRot, 0.35f, 0.06f);
+        }
+
+        /// <summary>Lanza una pieza (hielo, rodaja, pastilla) de un punto a otro, sin sumarla al vaso.</summary>
+        public void SpawnPiece(Vector3 from, Vector3 to) => StartCoroutine(FlyPiece(from, to, false));
 
         static IEnumerator Move(Transform tr, Vector3 p0, Vector3 p1, Quaternion r0, Quaternion r1, float seconds, float arc)
         {

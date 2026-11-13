@@ -8,9 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MixLab.unity
     guid: ac52b70228a6d184f8ea31c16322b161
-  - enabled: 1
-    path: Assets/Scenes/QualityControl.unity
-    guid: cb479e663c9dd6d42a2a27b2e79b68c4
   m_configObjects:
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 705ae5685dd15db44b268a7a44ba5fbc, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 036c8ceba2501ed499f07749712f796f, type: 2}

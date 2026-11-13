@@ -156,6 +156,24 @@ namespace MixLab
             foreach (var c in colliders) if (c) c.enabled = !held;
         }
 
+        /// <summary>VR: la mano agarra o suelta el vaso (las colisiones siguen activas para los sockets).</summary>
+        public void SetVrHeld(bool held)
+        {
+            EnsureHome();
+            if (held) AtHome = false;
+        }
+
+        /// <summary>VR: el jugador agitó el vaso con la mano.</summary>
+        public bool MarkShaken()
+        {
+            if (Count < 2 || Shaken || Busy) return false;
+            Shaken = true;
+            Refresh();
+            Play(shakeClip);
+            OnChanged?.Invoke();
+            return true;
+        }
+
         public IEnumerator FlyTo(Vector3 pos, Quaternion rot, float seconds)
         {
             Vector3 p0 = transform.position; Quaternion r0 = transform.rotation;

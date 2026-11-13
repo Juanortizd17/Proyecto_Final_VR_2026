@@ -10,19 +10,19 @@ using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 
-namespace QualityControlXR.EditorTools
+namespace MixLab.EditorTools
 {
     /// <summary>
     /// Configura el proyecto para Meta Quest 2/3 (Android + OpenXR) y para PC (OpenXR / Quest Link).
-    /// Uso: Tools > Quality Control XR > Configure for Meta Quest, o en batchmode con
-    /// -buildTarget Android -executeMethod QualityControlXR.EditorTools.ProjectSetup.ConfigureQuest
+    /// Uso: Tools > Laboratorio de Mezclas > Configure for Meta Quest, o en batchmode con
+    /// -buildTarget Android -executeMethod MixLab.EditorTools.ProjectSetup.ConfigureQuest
     /// </summary>
     public static class ProjectSetup
     {
         const string OpenXRLoader = "UnityEngine.XR.OpenXR.OpenXRLoader";
         const string SettingsFolder = "Assets/XR";
 
-        [MenuItem("Tools/Quality Control XR/Configure for Meta Quest")]
+        [MenuItem("Tools/Laboratorio de Mezclas/Configure for Meta Quest")]
         public static void ConfigureQuest()
         {
             ConfigurePlayer();
@@ -38,11 +38,11 @@ namespace QualityControlXR.EditorTools
         /// Modo PC puro: las gafas no se inicializan al abrir la app (OpenXR queda configurado
         /// pero apagado en Windows). Para volver a VR: Configure for Meta Quest.
         /// </summary>
-        [MenuItem("Tools/Quality Control XR/Configure for PC (sin gafas)")]
+        [MenuItem("Tools/Laboratorio de Mezclas/Configure for PC (sin gafas)")]
         public static void ConfigureDesktop()
         {
             PlayerSettings.companyName = "UAO Immersive Solutions";
-            PlayerSettings.productName = "Control de Calidad XR";
+            PlayerSettings.productName = "Laboratorio de Mezclas";
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.fullScreenMode = FullScreenMode.FullScreenWindow;
             ConfigureXRManagement(BuildTargetGroup.Standalone);
@@ -58,11 +58,11 @@ namespace QualityControlXR.EditorTools
         static void ConfigurePlayer()
         {
             PlayerSettings.companyName = "UAO Immersive Solutions";
-            PlayerSettings.productName = "Control de Calidad XR";
+            PlayerSettings.productName = "Laboratorio de Mezclas";
             PlayerSettings.colorSpace = ColorSpace.Linear;
 
             var android = NamedBuildTarget.Android;
-            PlayerSettings.SetApplicationIdentifier(android, "com.uao.controlcalidadxr");
+            PlayerSettings.SetApplicationIdentifier(android, "com.uao.laboratoriomezclas");
             PlayerSettings.SetScriptingBackend(android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel32;
@@ -115,7 +115,7 @@ namespace QualityControlXR.EditorTools
         /// pipeline integrado, así que esos materiales se verían magenta (controles, teleport, resaltado).
         /// Se pasan a Standard conservando el color guardado.
         /// </summary>
-        [MenuItem("Tools/Quality Control XR/Fix Sample Materials")]
+        [MenuItem("Tools/Laboratorio de Mezclas/Fix Sample Materials")]
         public static void FixSampleMaterials()
         {
             var standard = Shader.Find("Standard");

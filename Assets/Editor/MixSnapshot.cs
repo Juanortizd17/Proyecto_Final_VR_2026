@@ -5,7 +5,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace QualityControlXR.EditorTools
+namespace MixLab.EditorTools
 {
     /// <summary>Renderiza vistas del Laboratorio de Mezclas a docs/screenshots/mix (revisión visual).</summary>
     public static class MixSnapshot

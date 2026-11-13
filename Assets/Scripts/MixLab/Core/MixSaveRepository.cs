@@ -53,10 +53,33 @@ namespace MixLab
         public static void Save(MixSave save)
         {
             if (save.sessions.Count > MaxSessions) save.sessions.RemoveRange(0, save.sessions.Count - MaxSessions);
-            try { File.WriteAllText(FilePath, JsonUtility.ToJson(save, true)); }
+            try { File.WriteAllText(FilePath, JsonUtility.ToJson(save, true)); ExportCsv(save); }
             catch (Exception e) { Debug.LogWarning("[MixSave] No se pudo guardar: " + e.Message); }
         }
 
+
+        /// <summary>Ruta del historial en CSV (se abre con Excel o Google Sheets).</summary>
+        public static string CsvPath => Path.Combine(Application.persistentDataPath, Path.GetFileNameWithoutExtension(FileName) + "_historial.csv");
+
+        /// <summary>
+        /// Exporta el historial de turnos a CSV, separado por punto y coma (Excel en español lo abre
+        /// directo en columnas). Se llama cada vez que se guarda.
+        /// </summary>
+        public static void ExportCsv(MixSave save)
+        {
+            try
+            {
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine("turno;fecha;puntaje;bebidas_servidas;pedidos_perfectos;desmayos;completado");
+                for (int i = 0; i < save.sessions.Count; i++)
+                {
+                    var s = save.sessions[i];
+                    sb.AppendLine($"{i + 1};{s.date};{s.score};{s.served};{s.perfects};{s.knockouts};{(s.completed ? "si" : "no")}");
+                }
+                File.WriteAllText(CsvPath, sb.ToString(), new System.Text.UTF8Encoding(true));
+            }
+            catch (Exception e) { Debug.LogWarning("[MixSave] No se pudo exportar el CSV: " + e.Message); }
+        }
         public static void Delete()
         {
             try { if (File.Exists(FilePath)) File.Delete(FilePath); }

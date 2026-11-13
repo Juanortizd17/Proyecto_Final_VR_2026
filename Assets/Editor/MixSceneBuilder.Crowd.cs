@@ -3,9 +3,9 @@ using MixLab;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
-using SB = QualityControlXR.EditorTools.SceneBuilder;
+using SB = MixLab.EditorTools.BuildKit;
 
-namespace QualityControlXR.EditorTools
+namespace MixLab.EditorTools
 {
     /// <summary>Mobiliario de las zonas de clientes y el público del bar (Kenney Mini Characters).</summary>
     public static partial class MixSceneBuilder

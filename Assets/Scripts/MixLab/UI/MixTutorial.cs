@@ -36,15 +36,23 @@ namespace MixLab
 
         static readonly string[] VrSteps =
         {
-            "PASO 1 · MOVERSE\nUsa el joystick izquierdo para caminar y el derecho para girar.",
-            "PASO 2 · VERTER\nToma un ingrediente con el GRIP e inclínalo sobre el vaso.\nVierte dos ingredientes.",
-            "PASO 3 · AGITAR\nBaja la palanca AGITAR.",
-            "PASO 4 · SERVIR\nAgarra el vaso y déjalo sobre el posavasos del cliente.",
-            "¡LISTO PARA TRABAJAR!\nPrepara lo que pida el cliente antes de que pierda la paciencia.\nPulsa INICIAR TURNO."
+            "PASO 1 · MOVERSE\nJoystick <b>izquierdo</b>: caminar  ·  <b>derecho</b>: girar.\nTambién puedes dar un paso real.",
+            "PASO 2 · AGARRAR Y VERTER\nAcerca la mano a una botella y aprieta el botón lateral (<b>GRIP</b>).\n<b>Inclínala sobre el vaso</b> para verter. Vierte <b>dos</b> ingredientes.",
+            "PASO 3 · AGITAR\nAgarra el vaso y <b>sacúdelo</b> de lado a lado,\no tira de la palanca <b>AGITAR</b>.",
+            "PASO 4 · SERVIR\nLleva el vaso al <b>posavasos</b> del cliente y suéltalo encima.\nSi volteas el vaso, se vacía.",
+            "¡LISTO PARA TRABAJAR!\nPrepara lo que pida el cliente antes de que pierda la paciencia.\nApunta con el rayo a <b>INICIAR TURNO</b> y aprieta el <b>gatillo</b>."
         };
 
         string[] Steps => desktopMode ? DesktopSteps : VrSteps;
         public int CurrentStep => step;
+        public bool DesktopMode => desktopMode;
+
+        /// <summary>Cambia los textos del entrenamiento entre PC y VR (lo llama MixVrRig).</summary>
+        public void SetDesktopMode(bool desktop)
+        {
+            desktopMode = desktop;
+            if (gm != null && gm.State != MixState.Onboarding) OnState(gm.State); else Show();
+        }
 
         public void Setup(Text instruction, Text progress, GameObject start, GameObject skip, MixGlass g,
                           AudioSource source, AudioClip clip, bool desktop)
@@ -75,7 +83,7 @@ namespace MixLab
                 "Pedido perfecto: +100 y bono por rapidez\n" +
                 "Mezcla equivocada: el cliente reacciona\n" +
                 "3 desmayos y se suspende el turno\n" +
-                "El lavaplatos vacía el vaso";
+                (desktopMode ? "El lavaplatos vacía el vaso" : "Voltear el vaso lo vacía");
         }
 
         void OnGlassChanged()

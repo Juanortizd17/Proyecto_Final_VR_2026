@@ -4,36 +4,36 @@ using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
-namespace QualityControlXR.EditorTools
+namespace MixLab.EditorTools
 {
     /// <summary>
     /// Compilación del proyecto:
-    ///  · Windows (plataforma por defecto): Builds/Windows/ControlCalidadXR.exe
+    ///  · Windows (plataforma por defecto): Builds/Windows/LaboratorioMezclas.exe
     ///    Funciona con el Quest por Link o, sin visor, con el simulador (mouse y teclado).
-    ///  · Meta Quest (Android): Builds/ControlCalidadXR.apk
-    /// En batchmode: -buildTarget Win64 -executeMethod QualityControlXR.EditorTools.BuildQuest.BuildWindows
-    ///               -buildTarget Android -executeMethod QualityControlXR.EditorTools.BuildQuest.Build
+    ///  · Meta Quest (Android): Builds/LaboratorioMezclas.apk
+    /// En batchmode: -buildTarget Win64 -executeMethod MixLab.EditorTools.BuildQuest.BuildWindows
+    ///               -buildTarget Android -executeMethod MixLab.EditorTools.BuildQuest.Build
     /// </summary>
     public static class BuildQuest
     {
-        const string ApkOutput = "Builds/ControlCalidadXR.apk";
-        const string WindowsOutput = "Builds/Windows/ControlCalidadXR.exe";
+        const string ApkOutput = "Builds/LaboratorioMezclas.apk";
+        const string WindowsOutput = "Builds/Windows/LaboratorioMezclas.exe";
 
-        [MenuItem("Tools/Quality Control XR/Switch Platform to Windows")]
+        [MenuItem("Tools/Laboratorio de Mezclas/Switch Platform to Windows")]
         public static void SwitchToWindows() =>
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
 
-        [MenuItem("Tools/Quality Control XR/Switch Platform to Meta Quest (Android)")]
+        [MenuItem("Tools/Laboratorio de Mezclas/Switch Platform to Meta Quest (Android)")]
         public static void SwitchToQuest()
         {
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
             ProjectSetup.ConfigureQuest();
         }
 
-        [MenuItem("Tools/Quality Control XR/Build Windows App")]
+        [MenuItem("Tools/Laboratorio de Mezclas/Build Windows App")]
         public static void BuildWindows() => Run(WindowsOutput, BuildTarget.StandaloneWindows64, BuildTargetGroup.Standalone);
 
-        [MenuItem("Tools/Quality Control XR/Build Quest APK")]
+        [MenuItem("Tools/Laboratorio de Mezclas/Build Quest APK")]
         public static void Build() => Run(ApkOutput, BuildTarget.Android, BuildTargetGroup.Android);
 
         static void Run(string output, BuildTarget target, BuildTargetGroup group)

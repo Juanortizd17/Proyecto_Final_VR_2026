@@ -7,7 +7,7 @@ la proxima vez que lo abras. No hay que recompilar nada.
 - Las canciones suenan en orden alfabetico, despues de la pista original que trae cada genero.
 - Para crear un genero nuevo, crea otra carpeta (por ejemplo "Salsa") y pon canciones adentro.
 - En el juego ya compilado, esta carpeta esta en:
-  Builds/Windows/ControlCalidadXR_Data/StreamingAssets/Musica
+  Builds/Windows/LaboratorioMezclas_Data/StreamingAssets/Musica
 
 En el juego: usa la rockola (a la izquierda de la barra) o las teclas
 G = otro genero, N = otra cancion, M = silencio.

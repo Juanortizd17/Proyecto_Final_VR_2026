@@ -2,9 +2,9 @@ using MixLab;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using SB = QualityControlXR.EditorTools.SceneBuilder;
+using SB = MixLab.EditorTools.BuildKit;
 
-namespace QualityControlXR.EditorTools
+namespace MixLab.EditorTools
 {
     /// <summary>Tableros del juego (letra grande, pensada para leerse en VR) y pantalla de la rockola.</summary>
     public static partial class MixSceneBuilder
@@ -109,8 +109,46 @@ namespace QualityControlXR.EditorTools
             var tutorial = canvas.gameObject.AddComponent<MixTutorial>();
             var start = SB.MakeButton(canvas.transform, "StartButton", "INICIAR TURNO", new Vector2(225, 115), new Vector2(925, 265), new Color(0.1f, 0.6f, 0.3f), tutorial.StartShift, 62);
             var skip = SB.MakeButton(canvas.transform, "SkipButton", "Saltar tutorial", new Vector2(40, 25), new Vector2(420, 100), new Color(0.25f, 0.22f, 0.36f), tutorial.Skip, 36);
-            tutorial.Setup(instr, progress, start.gameObject, skip.gameObject, glass, uiAudio, SB.Clip("select"), SceneBuilder.DesktopMode);
+            tutorial.Setup(instr, progress, start.gameObject, skip.gameObject, glass, uiAudio, SB.Clip("select"), true);
             EditorUtility.SetDirty(tutorial);
+        }
+
+        /// <summary>
+        /// Pantalla de historial a la derecha del puesto (detrás del brazo de la barra): récord,
+        /// últimos turnos y progreso guardado entre partidas.
+        /// </summary>
+        static void BuildHistory()
+        {
+            var basePos = new Vector3(3.35f, 0f, -1.15f);
+            Vector3 toPlayer = PlayerStart - basePos; toPlayer.y = 0f;
+            var root = new GameObject("--- HISTORIAL ---").transform;
+            root.SetPositionAndRotation(basePos, Quaternion.LookRotation(-toPlayer));
+            var dark = SB.Mat("StationDark", new Color(0.12f, 0.1f, 0.18f));
+            var teal = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/NeonTeal.mat");
+            SB.Prim(PrimitiveType.Cylinder, "Pole", root, new Vector3(0f, 0.6f, 0.05f), new Vector3(0.08f, 0.6f, 0.08f), dark, true, local: true);
+            SB.Prim(PrimitiveType.Cylinder, "Foot", root, new Vector3(0f, 0.02f, 0.05f), new Vector3(0.6f, 0.02f, 0.6f), dark, false, local: true);
+            SB.Prim(PrimitiveType.Cube, "ScreenBack", root, new Vector3(0f, 1.75f, 0.06f), new Vector3(1.55f, 1.25f, 0.05f), dark, false, local: true);
+            if (teal) SB.Prim(PrimitiveType.Cube, "ScreenNeon", root, new Vector3(0f, 1.75f, 0.09f), new Vector3(1.6f, 1.3f, 0.01f), teal, false, local: true);
+
+            var size = new Vector2(1150, 920);
+            var canvas = SB.MakeCanvas("HistoryBoard", root.TransformPoint(new Vector3(0f, 1.75f, 0.03f)), root.rotation, size, 0.0013f);
+            canvas.GetComponent<CanvasScaler>().dynamicPixelsPerUnit = 2f;
+            Object.DestroyImmediate(canvas.GetComponent<GraphicRaycaster>());
+            canvas.transform.SetParent(root, true);
+            SB.Panel(canvas.transform, "Bg", PanelBg);
+            SB.Label(canvas.transform, "Title", "<b>HISTORIAL DE TURNOS</b>", 62, TextAnchor.MiddleCenter, Copper, new Vector2(20, 820), new Vector2(1130, 905), absolute: true);
+            var summary = SB.Label(canvas.transform, "Summary", "", 48, TextAnchor.MiddleCenter, Ink, new Vector2(30, 670), new Vector2(1120, 815), absolute: true);
+            var rows = new Text[6];
+            for (int i = 0; i < rows.Length; i++)
+            {
+                float y = 600f - i * 85f;
+                rows[i] = SB.Label(canvas.transform, "Row" + i, "", 42, TextAnchor.MiddleLeft, Ink, new Vector2(40, y), new Vector2(1120, y + 80), absolute: true);
+                rows[i].horizontalOverflow = HorizontalWrapMode.Overflow;
+            }
+            var footer = SB.Label(canvas.transform, "Footer", "", 30, TextAnchor.MiddleCenter, Muted, new Vector2(20, 15), new Vector2(1130, 70), absolute: true);
+            var board = canvas.gameObject.AddComponent<HistoryBoard>();
+            board.Setup(summary, rows, footer);
+            EditorUtility.SetDirty(board);
         }
 
         /// <summary>
