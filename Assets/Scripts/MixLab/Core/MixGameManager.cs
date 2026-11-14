@@ -77,6 +77,8 @@ namespace MixLab
         Color ambientSky, ambientEquator, ambientGround;
         Bottle[] bottles;
         int lastOrderIndex = -1;
+        int ordersUntilNewCustomer = 3;
+        bool newCustomer;
 
         public void Setup(RecipeData[] recipeList, ReactionData[] reactionList, MixGlass g, Customer c, TemperatureLever l,
                           ParticleSystem explosion, Light[] lights, AudioSource source,
@@ -137,6 +139,7 @@ namespace MixLab
         {
             if (State == MixState.Playing || Busy) return;
             Score = 0; Knockouts = 0; Served = 0; Perfects = 0; NewRecord = false; Won = false;
+            ordersUntilNewCustomer = 3;
             TimeLeft = shiftDuration;
             glass.Empty();
             lever.ResetLever();
@@ -154,7 +157,8 @@ namespace MixLab
             lastOrderIndex = i;
             CurrentOrder = recipes[i];
             PatienceLeft = orderPatience;
-            customer.Say("Quiero " + CurrentOrder.requestLine + ", por favor.");
+            customer.Say((newCustomer ? "¡Hola! Soy " + CustomerName + ". " : "") + "Quiero " + CurrentOrder.requestLine + ", por favor.");
+            newCustomer = false;
             OnOrderChanged?.Invoke();
         }
 
@@ -279,6 +283,15 @@ namespace MixLab
             customer.ResetPose();
             yield return glass.ReturnHome(0.4f);
             lever.ResetLever();
+
+            // Cada 2 o 3 pedidos (o después de un desmayo) se va el cliente y llega otro distinto
+            bool continues = State == MixState.Playing && Knockouts < maxKnockouts && TimeLeft > 0f;
+            if (continues && (data.knockout || --ordersUntilNewCustomer <= 0))
+            {
+                ordersUntilNewCustomer = UnityEngine.Random.Range(2, 4);
+                yield return customer.SwapRoutine(customer.RandomOtherLook());
+                newCustomer = true;
+            }
             Busy = false;
 
             if (State == MixState.Playing)

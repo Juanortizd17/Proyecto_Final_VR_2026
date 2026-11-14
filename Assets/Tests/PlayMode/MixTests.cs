@@ -233,6 +233,22 @@ namespace MixLab.Tests
             Assert.Less(player.transform.position.y, 0.15f, "Sigue en el piso");
         }
 
+        [UnityTest]
+        public IEnumerator Customer_ANewCustomerArrivesWithAnotherLook()
+        {
+            var customer = Object.FindFirstObjectByType<Customer>();
+            string before = customer.Name;
+            Vector3 seat = customer.transform.position;
+            int next = customer.RandomOtherLook();
+            Assert.AreNotEqual(customer.LookIndex, next);
+            yield return customer.SwapRoutine(next);
+            Assert.AreEqual(next, customer.LookIndex);
+            Assert.AreNotEqual(before, customer.Name, "Llega un cliente con otro nombre");
+            Assert.AreEqual(gm.CustomerName, customer.Name);
+            Assert.Less(Vector3.Distance(seat, customer.transform.position), 0.001f, "Vuelve a sentarse en el mismo puesto");
+            Assert.Greater(Customer.Looks.Select(l => l.style).Distinct().Count(), 3, "Hay varios peinados");
+        }
+
         IEnumerator WaitWhileGlassBusy()
         {
             float limit = Time.realtimeSinceStartup + 10f;

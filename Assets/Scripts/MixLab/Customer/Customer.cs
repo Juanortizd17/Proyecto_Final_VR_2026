@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -72,6 +73,102 @@ namespace MixLab
         /// <summary>Lo activa el director del juego cuando queda poca paciencia.</summary>
         public bool Impatient { get; set; }
 
+        // =====================================================================
+        // Clientes: cada cierto número de pedidos llega uno distinto
+        // =====================================================================
+
+        public enum HairStyle { Short, Long, Bun, Curly, Bald }
+
+        /// <summary>Aspecto de un cliente: nombre, piel, ropa, pelo y accesorios.</summary>
+        public struct Look
+        {
+            public string name; public Color skin, shirt, pants, hair, accent; public HairStyle style; public bool cap, beard;
+            public Look(string n, Color sk, Color sh, Color pa, Color ha, HairStyle st, bool c = false, bool b = false, Color? ac = null)
+            { name = n; skin = sk; shirt = sh; pants = pa; hair = ha; style = st; cap = c; beard = b; accent = ac ?? sh * 0.6f; }
+        }
+
+        static Color Rgb(float r, float g, float b) => new Color(r, g, b);
+        public static readonly Look[] Looks =
+        {
+            new Look("Ramiro",      Rgb(0.95f, 0.76f, 0.61f), Rgb(0.24f, 0.44f, 0.72f), Rgb(0.17f, 0.18f, 0.26f), Rgb(0.23f, 0.15f, 0.09f), HairStyle.Short),
+            new Look("Lucía",       Rgb(0.87f, 0.66f, 0.50f), Rgb(0.86f, 0.27f, 0.47f), Rgb(0.20f, 0.20f, 0.30f), Rgb(0.08f, 0.06f, 0.06f), HairStyle.Long),
+            new Look("Don Ernesto", Rgb(0.93f, 0.74f, 0.62f), Rgb(0.34f, 0.50f, 0.30f), Rgb(0.40f, 0.32f, 0.22f), Rgb(0.78f, 0.78f, 0.80f), HairStyle.Bald, b: true),
+            new Look("Valentina",   Rgb(0.60f, 0.40f, 0.28f), Rgb(0.95f, 0.78f, 0.25f), Rgb(0.15f, 0.20f, 0.40f), Rgb(0.12f, 0.08f, 0.06f), HairStyle.Curly),
+            new Look("Kevin",       Rgb(0.80f, 0.60f, 0.45f), Rgb(0.80f, 0.20f, 0.18f), Rgb(0.14f, 0.14f, 0.18f), Rgb(0.30f, 0.20f, 0.10f), HairStyle.Short, c: true, ac: Rgb(0.15f, 0.15f, 0.2f)),
+            new Look("Marta",       Rgb(0.96f, 0.80f, 0.68f), Rgb(0.55f, 0.30f, 0.75f), Rgb(0.25f, 0.22f, 0.30f), Rgb(0.72f, 0.26f, 0.10f), HairStyle.Bun),
+            new Look("Andrés",      Rgb(0.45f, 0.30f, 0.22f), Rgb(0.95f, 0.50f, 0.15f), Rgb(0.20f, 0.20f, 0.22f), Rgb(0.07f, 0.05f, 0.05f), HairStyle.Short, b: true),
+            new Look("Camila",      Rgb(0.90f, 0.70f, 0.55f), Rgb(0.20f, 0.70f, 0.65f), Rgb(0.30f, 0.25f, 0.40f), Rgb(0.90f, 0.75f, 0.40f), HairStyle.Long),
+            new Look("Brayan",      Rgb(0.70f, 0.50f, 0.36f), Rgb(0.95f, 0.95f, 0.95f), Rgb(0.20f, 0.30f, 0.55f), Rgb(0.10f, 0.07f, 0.05f), HairStyle.Curly, c: true, ac: Rgb(0.85f, 0.15f, 0.2f)),
+        };
+
+        GameObject[] hairStyles = new GameObject[0];
+        GameObject capAcc, beardAcc;
+        readonly List<Renderer> shirtR = new List<Renderer>(), pantsR = new List<Renderer>(), hairR = new List<Renderer>(), accentR = new List<Renderer>();
+        int lookIndex;
+
+        public int LookIndex => lookIndex;
+
+        GameObject CurrentHair()
+        {
+            int i = (int)Looks[lookIndex].style;
+            return i < hairStyles.Length && hairStyles[i] ? hairStyles[i] : hairNormal;
+        }
+
+        /// <summary>Viste al cliente con el aspecto indicado (nombre, piel, ropa, pelo, accesorios).</summary>
+        public void ApplyLook(int index)
+        {
+            Cache();
+            lookIndex = ((index % Looks.Length) + Looks.Length) % Looks.Length;
+            var look = Looks[lookIndex];
+            customerName = look.name;
+            normalSkin = look.skin;
+            targetSkin = currentSkin = look.skin;
+            ApplySkin(currentSkin);
+            Tint(shirtR, look.shirt); Tint(pantsR, look.pants); Tint(hairR, look.hair); Tint(accentR, look.accent);
+            Hair(false);
+            if (beardAcc) beardAcc.SetActive(look.beard);
+        }
+
+        void Tint(List<Renderer> list, Color c)
+        {
+            foreach (var r in list)
+            {
+                if (r == null) continue;
+                r.GetPropertyBlock(mpb); mpb.SetColor("_Color", c); r.SetPropertyBlock(mpb);
+            }
+        }
+
+        /// <summary>El cliente actual se va deslizándose y llega otro por el lado contrario.</summary>
+        public IEnumerator SwapRoutine(int nextLook)
+        {
+            Say("");
+            Vector3 home = transform.position;
+            Vector3 side = transform.right * 1.6f;
+            yield return Slide(home, home + side, 0.55f);
+            ResetPose();
+            ApplyLook(nextLook);
+            yield return Slide(home - side, home, 0.6f);
+            transform.position = home;
+        }
+
+        IEnumerator Slide(Vector3 from, Vector3 to, float seconds)
+        {
+            for (float t = 0f; t < 1f; t += Time.deltaTime / seconds)
+            {
+                float k = t * t * (3f - 2f * t);
+                transform.position = Vector3.Lerp(from, to, k) + Vector3.up * (Mathf.Abs(Mathf.Sin(t * Mathf.PI * 4f)) * 0.04f);
+                yield return null;
+            }
+            transform.position = to;
+        }
+
+        /// <summary>Elige un cliente distinto al actual.</summary>
+        public int RandomOtherLook()
+        {
+            int next = Random.Range(0, Looks.Length - 1);
+            return next >= lookIndex ? next + 1 : next;
+        }
+
         public void Setup(string displayName, Color skinColor, Transform mouthTarget, Transform coaster, GameObject bubbleRoot, Text bubbleLabel)
         {
             customerName = displayName; normalSkin = skinColor; mouthPoint = mouthTarget; coasterPoint = coaster;
@@ -110,6 +207,16 @@ namespace MixLab
             cheeks = G("Cheeks"); cheekRenderers = cheeks.GetComponentsInChildren<Renderer>(true);
             cheekScale = cheeks.transform.GetChild(0).localScale;
             hairNormal = G("HairNormal"); hairUp = G("HairUp"); splash = G("Splash"); icicles = G("Icicles");
+            hairStyles = new[] { hairNormal, O("HairLong"), O("HairBun"), O("HairCurly"), O("HairBald") };
+            capAcc = O("Acc_Cap"); beardAcc = O("Acc_Beard");
+            foreach (var r in GetComponentsInChildren<Renderer>(true))
+            {
+                string m = r.sharedMaterial ? r.sharedMaterial.name : "";
+                if (m == "CustomerShirt") shirtR.Add(r);
+                else if (m == "CustomerPants") pantsR.Add(r);
+                else if (m == "CustomerHair") hairR.Add(r);
+                else if (m == "CustomerAccent") accentR.Add(r);
+            }
             stars = head.Find("Stars");
 
             // Síntomas crudos (opcionales: si la escena es antigua simplemente no aparecen)
@@ -350,7 +457,14 @@ namespace MixLab
         static void Show(GameObject go) { if (go) go.SetActive(true); }
         static void Hide(GameObject go) { if (go) go.SetActive(false); }
 
-        void Hair(bool up) { hairNormal.SetActive(!up); hairUp.SetActive(up); }
+        void Hair(bool up)
+        {
+            var current = CurrentHair();
+            foreach (var h in hairStyles) if (h && h != current) h.SetActive(false);
+            if (current) current.SetActive(!up);
+            hairUp.SetActive(up);
+            if (capAcc) capAcc.SetActive(!up && Looks[lookIndex].cap);
+        }
 
         /// <summary>Un párpado caído (borrachera): solo se ve el izquierdo.</summary>
         void Droop()

@@ -547,7 +547,7 @@ namespace MixLab.EditorTools
 
         static Customer BuildCustomer()
         {
-            var root = new GameObject("Customer_Ramiro");
+            var root = new GameObject("Customer");
             root.transform.SetPositionAndRotation(CustomerPos, Quaternion.Euler(0f, 180f, 0f));   // +Z local mira al jugador
             var skin = SB.Mat("CustomerSkin", Color.white);       // el color lo pone Customer con MaterialPropertyBlock
             var shirt = SB.Mat("CustomerShirt", new Color(0.24f, 0.44f, 0.72f));
@@ -595,6 +595,42 @@ namespace MixLab.EditorTools
             float[] sx = { -0.12f, -0.06f, 0f, 0.06f, 0.12f, -0.03f, 0.04f };
             for (int i = 0; i < sx.Length; i++)
                 L(PrimitiveType.Capsule, "Spike", hairUp, new Vector3(sx[i], 0.2f + (i % 2) * 0.03f, i > 4 ? -0.08f : 0f), new Vector3(0.055f, 0.1f, 0.055f), hair, -sx[i] * 220f);
+
+            // Otros peinados y accesorios: Customer elige uno según el cliente de turno
+            var accent = SB.Mat("CustomerAccent", new Color(0.2f, 0.35f, 0.8f));
+            var hairLong = Group("HairLong", head, Vector3.zero);
+            L(PrimitiveType.Sphere, "Cap", hairLong, new Vector3(0f, 0.1f, -0.05f), new Vector3(0.39f, 0.22f, 0.37f), hair);
+            L(PrimitiveType.Sphere, "Back", hairLong, new Vector3(0f, -0.04f, -0.1f), new Vector3(0.38f, 0.44f, 0.22f), hair);
+            L(PrimitiveType.Sphere, "LockL", hairLong, new Vector3(-0.165f, -0.07f, -0.01f), new Vector3(0.08f, 0.28f, 0.15f), hair);
+            L(PrimitiveType.Sphere, "LockR", hairLong, new Vector3(0.165f, -0.07f, -0.01f), new Vector3(0.08f, 0.28f, 0.15f), hair);
+            L(PrimitiveType.Sphere, "Fringe", hairLong, new Vector3(0f, 0.16f, 0.06f), new Vector3(0.3f, 0.07f, 0.13f), hair);
+            hairLong.gameObject.SetActive(false);
+            var hairBun = Group("HairBun", head, Vector3.zero);
+            L(PrimitiveType.Sphere, "Cap", hairBun, new Vector3(0f, 0.1f, -0.05f), new Vector3(0.385f, 0.22f, 0.36f), hair);
+            L(PrimitiveType.Sphere, "Bun", hairBun, new Vector3(0f, 0.21f, -0.12f), Vector3.one * 0.15f, hair);
+            hairBun.gameObject.SetActive(false);
+            var hairCurly = Group("HairCurly", head, Vector3.zero);
+            L(PrimitiveType.Sphere, "Afro", hairCurly, new Vector3(0f, 0.12f, -0.07f), new Vector3(0.46f, 0.36f, 0.42f), hair);
+            for (int i = 0; i < 6; i++)
+            {
+                float a = i * Mathf.PI / 5f;
+                L(PrimitiveType.Sphere, "Curl", hairCurly, new Vector3(Mathf.Cos(a) * 0.2f, 0.12f + Mathf.Sin(a) * 0.14f, -0.07f), Vector3.one * 0.13f, hair);
+            }
+            hairCurly.gameObject.SetActive(false);
+            var hairBald = Group("HairBald", head, Vector3.zero);
+            L(PrimitiveType.Sphere, "SideL", hairBald, new Vector3(-0.155f, 0f, -0.05f), new Vector3(0.09f, 0.12f, 0.2f), hair);
+            L(PrimitiveType.Sphere, "SideR", hairBald, new Vector3(0.155f, 0f, -0.05f), new Vector3(0.09f, 0.12f, 0.2f), hair);
+            L(PrimitiveType.Sphere, "Back", hairBald, new Vector3(0f, 0f, -0.14f), new Vector3(0.26f, 0.14f, 0.1f), hair);
+            hairBald.gameObject.SetActive(false);
+            var capAcc = Group("Acc_Cap", head, Vector3.zero);
+            L(PrimitiveType.Sphere, "Crown", capAcc, new Vector3(0f, 0.12f, -0.02f), new Vector3(0.395f, 0.22f, 0.385f), accent);
+            L(PrimitiveType.Cube, "Visor", capAcc, new Vector3(0f, 0.135f, 0.18f), new Vector3(0.27f, 0.018f, 0.15f), accent);
+            capAcc.gameObject.SetActive(false);
+            var beard = Group("Acc_Beard", head, Vector3.zero);
+            L(PrimitiveType.Sphere, "Beard", beard, new Vector3(0f, -0.16f, 0.06f), new Vector3(0.27f, 0.12f, 0.22f), hair);
+            L(PrimitiveType.Sphere, "SideL", beard, new Vector3(-0.12f, -0.09f, 0.06f), new Vector3(0.07f, 0.12f, 0.1f), hair);
+            L(PrimitiveType.Sphere, "SideR", beard, new Vector3(0.12f, -0.09f, 0.06f), new Vector3(0.07f, 0.12f, 0.1f), hair);
+            beard.gameObject.SetActive(false);
 
             // Cejas
             var brows = Group("Brows", head, Vector3.zero);
