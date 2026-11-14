@@ -44,7 +44,7 @@ namespace MixLab
             "Clic izq sobre el vaso:  agarrarlo\n" +
             "Con el vaso: apunta al cliente para servir\n" +
             "R  dejar el vaso   ·   Esc  pausa\n" +
-            "M  silencio  ·  N  otra canción  ·  G  otro género\n" +
+            "M  silencio  ·  N  canción  ·  G  género\n" +
             "H  ocultar ayuda";
 
         public void Setup(Transform hold, MixGlass g, TemperatureLever l, AudioSource source, AudioClip pick, AudioClip click)

@@ -111,10 +111,10 @@ namespace MixLab
             helpHint = hint.gameObject;
             MakeText(hint.transform, "Text", "<color=#FFC21A><b>H</b></color>  Controles", 19, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(170f, 40f));
 
-            var help = MakeImage(root, "HelpPanel", new Color(0.06f, 0.07f, 0.09f, 0.72f), new Vector2(0f, 0f), new Vector2(30f, 30f), new Vector2(420f, 210f), new Vector2(0f, 0f));
+            var help = MakeImage(root, "HelpPanel", new Color(0.06f, 0.07f, 0.09f, 0.72f), new Vector2(0f, 0f), new Vector2(30f, 30f), new Vector2(470f, 225f), new Vector2(0f, 0f));
             helpPanel = help.gameObject;
             helpText = MakeText(help.transform, "Text", interactor != null ? interactor.HelpText : "",
-                19, TextAnchor.MiddleLeft, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(390f, 190f));
+                19, TextAnchor.MiddleLeft, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(440f, 205f));
 
             // Menú de pausa
             var pause = MakeImage(root, "PausePanel", new Color(0f, 0f, 0f, 0.72f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(4000f, 4000f));

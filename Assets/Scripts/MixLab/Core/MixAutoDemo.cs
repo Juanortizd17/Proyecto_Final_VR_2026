@@ -99,7 +99,13 @@ namespace MixLab
                 yield return new WaitForSeconds(0.5f);
                 hand.ReleaseGlass();
                 gm.Serve();
-                yield return new WaitForSeconds(2.6f);
+                if (n == 0)
+                {
+                    yield return new WaitForSeconds(1.0f);      // el vaso ya está en la boca
+                    yield return Shot("bebiendo");
+                    yield return new WaitForSeconds(1.6f);
+                }
+                else yield return new WaitForSeconds(2.6f);
                 if (gm.LastReaction) yield return Shot("reaccion_" + gm.LastReaction.id);
                 n++;
             }

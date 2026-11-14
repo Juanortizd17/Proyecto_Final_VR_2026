@@ -231,10 +231,15 @@ namespace MixLab
             }
             else
             {
-                Vector3 mouth = customer.MouthPoint.position;
-                Quaternion tilt = Quaternion.AngleAxis(-75f, customer.transform.right) * Quaternion.identity;
+                // El borde del vaso queda en los labios y el resto por fuera de la cara, inclinado hacia la boca
+                // (la base del vaso es su pivote, así que se coloca a un vaso de distancia del labio).
+                Vector3 fwd = customer.transform.forward; fwd.y = 0f; fwd.Normalize();
+                Vector3 axis = (-fwd * Mathf.Sin(70f * Mathf.Deg2Rad) + Vector3.up * Mathf.Cos(70f * Mathf.Deg2Rad)).normalized;
+                Vector3 lips = customer.MouthPoint.position + fwd * 0.04f;
+                Vector3 drinkPos = lips - axis * 0.15f;
+                Quaternion tilt = Quaternion.FromToRotation(Vector3.up, axis);
                 customer.HoldGlass(glass.transform);            // lo toma con la mano
-                yield return glass.FlyTo(mouth, tilt, 0.4f);
+                yield return glass.FlyTo(drinkPos, tilt, 0.4f);
                 Play(drinkClip, 0.9f);
                 yield return new WaitForSeconds(0.5f);
                 glass.Empty();
