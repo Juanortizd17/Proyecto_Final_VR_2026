@@ -1,0 +1,1101 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Guía completa — Laboratorio de Mezclas</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  :root { --ink:#1b1530; --muted:#5d5878; --copper:#c8701e; --teal:#1f9e90; --soft:#f4f2f9; --line:#ddd8ea; --red:#c8363b; --green:#1f8f55; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.5; margin: 0; }
+  h1 { font-size: 22pt; margin: 0 0 6mm; padding-bottom: 2mm; border-bottom: 3px solid var(--copper); page-break-before: always; }
+  h1 .n { color: var(--copper); margin-right: 3mm; }
+  h2 { font-size: 14pt; margin: 7mm 0 2mm; color: var(--ink); }
+  h3 { font-size: 11.5pt; margin: 5mm 0 1.5mm; color: var(--teal); }
+  h2, h3 { break-after: avoid; page-break-after: avoid; }
+  h2 + .say, h2 + p, h3 + p, h2 + table, h2 + ul, h2 + ol, h2 + pre { break-before: avoid; page-break-before: avoid; }
+  p { margin: 0 0 2.5mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1mm; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 9.2pt; background: var(--soft); padding: 0 1.2mm; border-radius: 2px; }
+  pre { font-family: Consolas, "Courier New", monospace; font-size: 8.8pt; background: #1b1530; color: #f7d9b4; padding: 3mm 4mm; border-radius: 4px; white-space: pre-wrap; page-break-inside: avoid; margin: 0 0 3mm; line-height: 1.35; }
+  table { width: 100%; border-collapse: collapse; margin: 1mm 0 4mm; font-size: 9.4pt; page-break-inside: auto; }
+  tr { page-break-inside: avoid; }
+  th { background: var(--ink); color: #fff; text-align: left; padding: 1.6mm 2mm; font-weight: 600; }
+  td { border-bottom: 1px solid var(--line); padding: 1.4mm 2mm; vertical-align: top; }
+  tr:nth-child(even) td { background: #faf9fd; }
+  .box { background: var(--soft); border-left: 4px solid var(--teal); padding: 3mm 4mm; margin: 2mm 0 4mm; border-radius: 3px; page-break-inside: avoid; }
+  .box.copper { border-left-color: var(--copper); }
+  .box.red { border-left-color: var(--red); }
+  .box b.t { display: block; margin-bottom: 1mm; }
+  .say { background: #fff7ee; border: 1px solid #f0c99c; border-radius: 4px; padding: 3mm 4mm; margin: 2mm 0 4mm; font-size: 11pt; page-break-inside: avoid; }
+  .say::before { content: "Para decirlo en voz alta"; display: block; font-size: 8.5pt; font-weight: 700; color: var(--copper); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 1mm; }
+  figure { margin: 2mm 0 4mm; page-break-inside: avoid; text-align: center; }
+  figure img { max-width: 100%; border-radius: 4px; border: 1px solid var(--line); }
+  figure.half img { max-width: 49%; }
+  figcaption { font-size: 8.8pt; color: var(--muted); font-style: italic; margin-top: 1mm; }
+  .two { display: flex; gap: 4mm; }
+  .two > * { flex: 1; }
+  .tag { display: inline-block; font-size: 8pt; font-weight: 700; padding: 0 2mm; border-radius: 3px; color: #fff; }
+  .g { background: var(--green); } .a { background: #c98a12; } .r { background: var(--red); }
+  .muted { color: var(--muted); }
+  .cover { page-break-after: always; height: 255mm; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover .top { background: var(--ink); color: #fff; padding: 14mm 12mm; border-radius: 6px; }
+  .cover h0 { display: block; font-size: 34pt; font-weight: 800; line-height: 1.1; }
+  .cover .sub { color: #f2a54a; font-size: 14pt; margin-top: 4mm; }
+  .cover img { width: 100%; border-radius: 6px; }
+  .toc { columns: 2; column-gap: 8mm; font-size: 10pt; }
+  .toc div { break-inside: avoid; margin-bottom: 1.2mm; }
+  .toc span { color: var(--copper); font-weight: 700; display: inline-block; width: 8mm; }
+  .flow { display: flex; align-items: stretch; gap: 1.5mm; margin: 2mm 0 4mm; page-break-inside: avoid; }
+  .flow div { flex: 1; background: var(--soft); border-radius: 4px; padding: 2mm; font-size: 9pt; text-align: center; }
+  .flow div b { display: block; color: var(--copper); font-size: 10pt; }
+  .flow i { align-self: center; color: var(--muted); font-style: normal; }
+</style>
+</head>
+<body>
+
+<!-- ============================== PORTADA ============================== -->
+<section class="cover">
+  <div class="top">
+    <h0>Laboratorio de Mezclas</h0>
+    <div class="sub">Guía completa del proyecto para entenderlo y explicarlo en clase</div>
+    <p style="margin-top:6mm;color:#d9d4ea">Proyecto Final · Fundamentos de Realidad Virtual 2026<br>
+    Opción 3 del enunciado: <b>Laboratorio Científico XR</b><br>
+    Unity 6 (6000.0.58f2) · XR Interaction Toolkit 3 · Meta Quest 3 · también jugable en PC</p>
+  </div>
+  <img src="../screenshots/mix/02_general.png" alt="Vista general del bar">
+  <p class="muted" style="font-size:9pt">Cómo leer esta guía: los capítulos 1 a 3 son lo mínimo para el pitch. Del 4 al 9 explican el juego y
+  sus reglas. Del 10 al 19 explican cómo está construido por dentro (lo que evalúan en organización, scripts y datos).
+  Los capítulos 20 a 23 son para prepararse: rúbrica, preguntas difíciles, glosario y guion de demo.
+  Los recuadros naranjas son frases listas para decir en voz alta.</p>
+</section>
+
+<h1 style="page-break-before:avoid">Contenido</h1>
+<div class="toc">
+  <div><span>1</span>El pitch</div>
+  <div><span>2</span>Qué pide el profesor</div>
+  <div><span>3</span>El juego en una página</div>
+  <div><span>4</span>Cómo se juega, paso a paso</div>
+  <div><span>5</span>Cómo encaja en la opción 3</div>
+  <div><span>6</span>Requisitos obligatorios</div>
+  <div><span>7</span>La "química": propiedades y reglas</div>
+  <div><span>8</span>Las 17 reacciones</div>
+  <div><span>9</span>Recetas, puntaje y eventos</div>
+  <div><span>10</span>Arquitectura del software</div>
+  <div><span>11</span>Recorrido de un servicio por el código</div>
+  <div><span>12</span>Los scripts, uno por uno</div>
+  <div><span>13</span>La capa VR (XR Interaction Toolkit)</div>
+  <div><span>14</span>El cliente: animación y clientes distintos</div>
+  <div><span>15</span>Ambiente: música, luces y público</div>
+  <div><span>16</span>Manejo de datos</div>
+  <div><span>17</span>Organización del proyecto Unity</div>
+  <div><span>18</span>Optimización para VR</div>
+  <div><span>19</span>Pruebas automáticas</div>
+  <div><span>20</span>La rúbrica y cómo defender cada criterio</div>
+  <div><span>21</span>Preguntas difíciles y respuestas</div>
+  <div><span>22</span>Glosario</div>
+  <div><span>23</span>Guion de demo y limitaciones</div>
+</div>
+
+<!-- ============================== 1 PITCH ============================== -->
+<h1><span class="n">1</span>El pitch</h1>
+
+<p>El pitch es corto y va dirigido al profesor: tiene que dejar claro <b>qué es</b>, <b>por qué cumple</b> el enunciado
+y <b>qué lo hace interesante</b>. Abajo hay tres versiones según el tiempo que tengas.</p>
+
+<h2>Versión de 30 segundos</h2>
+<div class="say">"Laboratorio de Mezclas es un laboratorio de química en realidad virtual, ambientado en un bar.
+El jugador combina ingredientes que tienen propiedades químicas —ácido, gas, alcohol, picante, lácteo, cafeína, frío—
+para preparar lo que pide el cliente. Si acierta la fórmula gana puntos; si se equivoca, la mezcla reacciona en el cliente:
+vomita, se le prende el pelo, le explota en la cara o se desmaya. Antes de servir, un analizador clasifica la mezcla
+como estable, inestable o tóxica, y las inestables hay que estabilizarlas con frío o el vaso estalla.
+Se juega en Meta Quest 3 con las manos: agarras la botella y la inclinas sobre el vaso para verter."</div>
+
+<h2>Versión de 1 minuto (la de clase)</h2>
+<div class="say">"Elegimos la opción 3, Laboratorio Científico XR. En vez de tubos de ensayo, lo llevamos a un bar,
+porque así el resultado de cada mezcla se ve de forma clara y divertida en una persona.<br><br>
+El enunciado pide cinco cosas y las cinco son mecánicas del juego: <b>combinar</b> 19 ingredientes;
+<b>activar reacciones</b>, que son 17 distintas; <b>clasificar</b> la mezcla con un analizador;
+<b>estabilizar</b> las mezclas peligrosas enfriándolas; y <b>descubrir fórmulas</b>, con 38 recetas y un libro de reacciones que se guarda.<br><br>
+Las interacciones que pide la opción también están: objetos que se agarran, un socket que es el posavasos del cliente,
+botones en los tableros, una palanca de temperatura y la validación química que hace el juego.<br><br>
+Hay entrenamiento, temporizador, fallos, eventos inesperados como el apagón, puntaje, historial guardado y pantalla de cierre.
+Y por dentro una sola lógica sirve para dos formas de jugar: en el visor y en PC, lo que nos permitió probar todo con pruebas automáticas."</div>
+
+<h2>Frase de cierre</h2>
+<div class="say">"En resumen: cumple las cinco funciones de la opción 3 con mecánicas reales, se juega con las manos en el Quest 3,
+y el código está organizado para que la química, la entrada y los datos estén separados y probados."</div>
+
+<h2>Consejos para presentarlo</h2>
+<ul>
+  <li><b>Empieza por la idea, no por la tecnología.</b> Primero "laboratorio de química en un bar"; después Unity y XR Toolkit.</li>
+  <li><b>Di la palabra "opción 3" y nombra las cinco funciones.</b> Es lo primero que el profesor va a verificar.</li>
+  <li><b>Ten una imagen o la demo lista</b> mientras hablas: el bar, una reacción (la llamarada impresiona) y el analizador.</li>
+  <li><b>No memorices palabra por palabra.</b> Memoriza el orden: idea → cinco funciones → interacciones → requisitos → cómo está hecho.</li>
+  <li><b>Si preguntan por qué un bar</b>: porque mantiene las cinco funciones y hace visible el resultado de cada mezcla (ver capítulo 21).</li>
+</ul>
+
+<!-- ============================== 2 ENUNCIADO ============================== -->
+<h1><span class="n">2</span>Qué pide el profesor</h1>
+
+<p>El documento del proyecto (<code>docs/Proyecto_Final_VR_2026.pptx</code>) tiene cuatro partes. Conviene tenerlas claras
+porque cada parte de nuestro juego responde a una de ellas.</p>
+
+<h2>2.1 La problemática</h2>
+<p>Una empresa ficticia, <b>UAO Immersive Solutions</b>, hace simulaciones en VR para instituciones que quieren experiencias
+gamificadas y de aprendizaje activo. Cada proyecto debe ser <b>inmersivo, intuitivo y evaluable</b>, con el usuario
+interactuando con objetos, resolviendo tareas y aplicando conocimientos. Debe hacerse en <b>Unity con XR Interaction Toolkit
+para Meta Quest 2/3</b> y demostrar cinco cosas:</p>
+<table>
+  <tr><th>Debe demostrar</th><th>Dónde lo demostramos</th></tr>
+  <tr><td>Dominio técnico de XR Toolkit</td><td>XR Origin, Grab Interactable, Simple Interactable, Socket propio, teletransporte, UI por rayo, háptica (cap. 13)</td></tr>
+  <tr><td>Integración de programación</td><td>~40 scripts en C# con lógica separada, eventos y pruebas (cap. 10–12, 19)</td></tr>
+  <tr><td>Diseño de interacción inmersiva</td><td>Verter inclinando, agitar sacudiendo, vaciar volteando, servir en el posavasos</td></tr>
+  <tr><td>Optimización para VR</td><td>Regulador de calidad, mediciones, ajustes de Android (cap. 18)</td></tr>
+  <tr><td>Flujo interactivo estructurado</td><td>Entrenamiento → turno → cierre, con máquina de estados (cap. 4 y 10)</td></tr>
+</table>
+
+<h2>2.2 Las opciones</h2>
+<p>Había cuatro: Control de Calidad XR, Riego Inteligente, <b>Laboratorio Científico XR</b> y Viaje Alucinante.
+La opción 3 dice: <i>"el usuario manipula elementos químicos y compuestos para generar nuevas sustancias mediante simulación interactiva.
+Podrá combinar elementos químicos, activar reacciones, clasificar compuestos, estabilizar mezclas, descubrir nuevas fórmulas.
+Interacciones: grab interactivos, sockets químicos, botones de laboratorio, palancas de temperatura/presión, sistema de validación química."</i></p>
+<div class="box copper"><b class="t">Dato útil</b>Antes hicimos un prototipo de la opción 1 (Control de Calidad). Lo dejamos guardado en git con la etiqueta
+<code>prototipo-control-calidad</code> y lo quitamos del proyecto para que quede limpio. Si el profesor pregunta, es parte del proceso de diseño.</div>
+
+<h2>2.3 Requerimientos obligatorios (todos los proyectos)</h2>
+<ul>
+  <li><b>Onboarding VR</b>: enseñar movimiento, interacciones, agarre y uso de controles.</li>
+  <li><b>Interacciones principales</b>: manipulación física, objetivos claros, progresión.</li>
+  <li><b>Eventos dinámicos</b>: temporizador, fallo, evento inesperado y sistema reactivo a eventos.</li>
+  <li><b>Puntuación</b> y evaluación de progreso verificable.</li>
+  <li><b>Cierre</b>: finalización clara, retroalimentación y resultado final.</li>
+</ul>
+
+<h2>2.4 Cómo se califica</h2>
+<div class="two">
+<table>
+  <tr><th colspan="2">Prueba ejecutable — 40%</th></tr>
+  <tr><td>Calidad de interfaz de usuario</td><td>15%</td></tr>
+  <tr><td>Calidad de implementación 3D</td><td>15%</td></tr>
+  <tr><td>Calidad de interacciones</td><td>25%</td></tr>
+  <tr><td>Calidad de inmersión</td><td>25%</td></tr>
+  <tr><td>Montaje general</td><td>20%</td></tr>
+</table>
+<table>
+  <tr><th colspan="2">Sustentación — 60%</th></tr>
+  <tr><td>Organización Unity</td><td>15%</td></tr>
+  <tr><td>Calidad de scripts</td><td>15%</td></tr>
+  <tr><td>Manejo de datos</td><td>20%</td></tr>
+  <tr><td>Sustentación personal</td><td>40%</td></tr>
+  <tr><td>Presentación personal</td><td>10%</td></tr>
+</table>
+</div>
+<p>Fíjate en esto: <b>la sustentación vale más que la prueba</b>, y dentro de ella la <b>sustentación personal es el 40%</b>.
+Es decir, que cada uno pueda explicar el proyecto pesa casi tanto como todo lo demás junto. Para eso es esta guía.</p>
+
+<!-- ============================== 3 JUEGO EN UNA PÁGINA ============================== -->
+<h1><span class="n">3</span>El juego en una página</h1>
+
+<figure><img src="../pc_demo/03_pedido.png"><figcaption>Lo que ve el jugador: tablero del pedido al centro, libro de reacciones a la izquierda,
+entrenamiento a la derecha, el cliente con su globo de diálogo y los ingredientes en la barra.</figcaption></figure>
+
+<table>
+  <tr><th>Pregunta</th><th>Respuesta corta</th></tr>
+  <tr><td>¿Qué es?</td><td>Un laboratorio de química en VR disfrazado de bar-discoteca.</td></tr>
+  <tr><td>¿Quién es el jugador?</td><td>El encargado de la barra (el "químico").</td></tr>
+  <tr><td>¿Cuál es el objetivo?</td><td>Preparar lo que pide cada cliente antes de que pierda la paciencia, sumar puntos y no tumbar a 3 clientes.</td></tr>
+  <tr><td>¿Qué son las "sustancias"?</td><td>19 ingredientes, cada uno con propiedades (ácido, gas, alcohol, picante, lácteo, cafeína, frío, etc.).</td></tr>
+  <tr><td>¿Qué es una "reacción"?</td><td>Lo que le pasa al cliente al beber: 17 posibles, desde "pedido perfecto" hasta "desmayo".</td></tr>
+  <tr><td>¿Cuánto dura una partida?</td><td>Un turno de 4 minutos, más el entrenamiento inicial.</td></tr>
+  <tr><td>¿Cómo se gana / pierde?</td><td>Se completa el turno al acabarse el tiempo; se suspende si 3 clientes se desmayan.</td></tr>
+  <tr><td>¿En qué se juega?</td><td>Meta Quest 3 (APK, con las manos) o PC (mouse y teclado). Es la misma escena.</td></tr>
+  <tr><td>¿Qué lo hace especial?</td><td>Reacciones visibles y exageradas, analizador químico, vaso que explota, bar vivo con música y público.</td></tr>
+</table>
+
+<h2>Las piezas del escenario</h2>
+<ul>
+  <li><b>La barra en L</b> con el estante de ingredientes (dos tramos frente al jugador y uno lateral con coco, piña y vino).</li>
+  <li><b>La estación</b>: el vaso mezclador sobre su base, la palanca de temperatura (izquierda), la palanca de agitar (derecha) y el letrero del <b>analizador</b>.</li>
+  <li><b>El lavaplatos</b> al extremo derecho, para vaciar el vaso.</li>
+  <li><b>El cliente</b> sentado al otro lado de la barra, con su <b>posavasos</b> (donde se sirve).</li>
+  <li><b>Tableros</b>: pedido y puntaje (centro), libro de reacciones (izquierda), entrenamiento/reglas (derecha), historial (a la derecha del puesto).</li>
+  <li><b>La rockola</b> a la izquierda, para cambiar género, canción y volumen.</li>
+  <li><b>El ambiente</b>: pista de baile con baldosas que se iluminan, DJ, bola de espejos, focos, mesas y sofás con público.</li>
+</ul>
+<figure><img src="../screenshots/mix/05_estacion.png"><figcaption>La estación: palanca de temperatura, vaso sobre su base, analizador y palanca de agitar.</figcaption></figure>
+
+<!-- ============================== 4 COMO SE JUEGA ============================== -->
+<h1><span class="n">4</span>Cómo se juega, paso a paso</h1>
+
+<div class="flow">
+  <div><b>1. Entrenamiento</b>moverse, verter, agitar, servir</div><i>→</i>
+  <div><b>2. Iniciar turno</b>botón en el tablero</div><i>→</i>
+  <div><b>3. Pedido</b>el cliente pide una bebida</div><i>→</i>
+  <div><b>4. Mezclar</b>ingredientes, temperatura, agitar</div><i>→</i>
+  <div><b>5. Analizar</b>estable / inestable / tóxica</div><i>→</i>
+  <div><b>6. Servir</b>reacción y puntos</div><i>→</i>
+  <div><b>7. Cierre</b>resumen e historial</div>
+</div>
+
+<h2>4.1 Entrenamiento (onboarding)</h2>
+<p>Al entrar, el tablero de la derecha muestra el entrenamiento. Tiene cuatro pasos y <b>cada uno solo avanza si el jugador lo hace de verdad</b>
+(no hay botón de "siguiente"):</p>
+<table>
+  <tr><th>Paso</th><th>Qué se enseña</th><th>Cómo lo detecta el juego</th></tr>
+  <tr><td>1. Moverse</td><td>Joystick (VR) o WASD + mouse (PC)</td><td>La cabeza del jugador se desplaza más de 35 cm</td></tr>
+  <tr><td>2. Agarrar y verter</td><td>Agarrar una botella e inclinarla sobre el vaso</td><td>El vaso llega a 2 ingredientes</td></tr>
+  <tr><td>3. Agitar</td><td>Sacudir el vaso o tirar de la palanca</td><td>El vaso queda "agitado"</td></tr>
+  <tr><td>4. Servir</td><td>Soltar el vaso en el posavasos</td><td>El cliente reacciona</td></tr>
+</table>
+<p>Al terminar aparece el botón <b>INICIAR TURNO</b>. También hay un botón "Saltar tutorial". Los textos cambian solos según si se juega en VR o en PC.
+Durante el entrenamiento el cliente es Ramiro, que reacciona igual pero sin puntaje.</p>
+
+<h2>4.2 El turno</h2>
+<ol>
+  <li>El cliente pide una bebida en su globo ("Quiero un café con leche bien caliente, por favor"). El tablero central muestra el nombre,
+  los ingredientes, si exige temperatura, la barra de <b>paciencia</b>, el <b>tiempo</b> del turno, los <b>puntos</b> y los <b>desmayos</b>.</li>
+  <li>El jugador vierte ingredientes en el vaso (máximo 4). El vaso muestra cada ingrediente como una capa de color.</li>
+  <li>Ajusta la temperatura si hace falta (frío, ambiente, caliente) y agita para mezclar (las capas se funden en un color).</li>
+  <li>Mira el analizador: si la mezcla es inestable, tiene 9 segundos para enfriarla o el vaso estalla.</li>
+  <li>Sirve en el posavasos. El cliente bebe, reacciona, se suman o restan puntos, y si la reacción es nueva se agrega al libro.</li>
+  <li>El vaso vuelve limpio a la estación y llega el siguiente pedido. Cada 2 o 3 pedidos cambia el cliente.</li>
+  <li>Si el jugador se equivoca, puede vaciar el vaso (lavaplatos en PC, voltear el vaso en VR) y empezar de nuevo.</li>
+</ol>
+
+<h2>4.3 Controles</h2>
+<div class="two">
+<table>
+  <tr><th colspan="2">Meta Quest 3</th></tr>
+  <tr><td>Caminar · girar</td><td>Joystick izquierdo · derecho</td></tr>
+  <tr><td>Teletransporte</td><td>Joystick derecho adelante, apuntar, soltar</td></tr>
+  <tr><td>Agarrar</td><td>Botón lateral (grip), de cerca o de lejos</td></tr>
+  <tr><td>Verter</td><td>Inclinar la botella sobre el vaso</td></tr>
+  <tr><td>Agitar</td><td>Sacudir el vaso o tirar de la palanca</td></tr>
+  <tr><td>Temperatura</td><td>Arrastrar la palanca a izquierda/derecha</td></tr>
+  <tr><td>Vaciar</td><td>Voltear el vaso</td></tr>
+  <tr><td>Servir</td><td>Soltar el vaso sobre el posavasos</td></tr>
+  <tr><td>Botones</td><td>Rayo + gatillo</td></tr>
+</table>
+<table>
+  <tr><th colspan="2">PC</th></tr>
+  <tr><td>Caminar · mirar</td><td>WASD · mouse</td></tr>
+  <tr><td>Verter</td><td>Clic sobre el ingrediente</td></tr>
+  <tr><td>Palancas</td><td>Clic sobre la palanca</td></tr>
+  <tr><td>Agarrar el vaso</td><td>Clic sobre el vaso</td></tr>
+  <tr><td>Servir</td><td>Con el vaso, clic sobre el cliente</td></tr>
+  <tr><td>Vaciar</td><td>Clic sobre el lavaplatos</td></tr>
+  <tr><td>Dejar el vaso</td><td>R</td></tr>
+  <tr><td>Pausa · ayuda</td><td>Esc · H</td></tr>
+  <tr><td>Música</td><td>M silencio · N canción · G género</td></tr>
+</table>
+</div>
+
+<h2>4.4 El cierre</h2>
+<p>Cuando se acaba el tiempo (o hay 3 desmayos), el tablero central muestra: <b>¡TURNO COMPLETADO!</b> o <b>TURNO SUSPENDIDO</b>, el puntaje,
+el récord (y si es nuevo récord), bebidas servidas, pedidos perfectos, desmayos, reacciones descubiertas y una frase de retroalimentación
+(por ejemplo "Buen pulso. Lee bien cada pedido antes de mezclar" o "Demasiados clientes fuera de combate. Revisa las mezclas peligrosas en el libro").
+Hay botones <b>REINICIAR</b> y <b>SALIR</b>. El tablero de historial se actualiza con el turno recién guardado.</p>
+<figure class="half"><img src="../pc_demo/16_panel_final.png"> <img src="../screenshots/mix/13_historial.png"><figcaption>Panel final y tablero de historial.</figcaption></figure>
+
+<!-- ============================== 5 OPCION 3 ============================== -->
+<h1><span class="n">5</span>Cómo encaja en la opción 3</h1>
+
+<p>Este capítulo es el corazón de la defensa. El profesor va a querer saber si el juego "es" un laboratorio científico.
+La respuesta es sí, porque <b>cada función que pide la opción es una mecánica concreta</b>, no un adorno.</p>
+
+<h2>5.1 Las cinco funciones</h2>
+<table>
+  <tr><th>Pide</th><th>En el juego</th><th>Dónde está en el código</th></tr>
+  <tr><td><b>Combinar elementos químicos</b></td><td>19 ingredientes con propiedades. Hasta 4 por vaso, más temperatura y agitado.</td><td><code>Bottle</code>, <code>VrPourable</code>, <code>MixGlass</code></td></tr>
+  <tr><td><b>Activar reacciones</b></td><td>17 reacciones que dependen de la suma de propiedades y la temperatura.</td><td><code>ReactionRules.Evaluate</code>, <code>Customer</code></td></tr>
+  <tr><td><b>Clasificar compuestos</b></td><td>El analizador marca la mezcla como estable, inestable o tóxica, en tiempo real.</td><td><code>MixAnalyzer</code>, <code>ReactionRules.Classify</code></td></tr>
+  <tr><td><b>Estabilizar mezclas</b></td><td>Lo explosivo o inflamable se neutraliza con frío. Si no, cuenta regresiva y el vaso estalla.</td><td><code>ReactionRules.WillExplode</code>, <code>MixGlass.ExplodeAtStation</code></td></tr>
+  <tr><td><b>Descubrir nuevas fórmulas</b></td><td>38 recetas; libro de reacciones que empieza vacío y se llena al descubrirlas. Se guarda.</td><td><code>RecipeData</code>, <code>ReactionBookBoard</code>, <code>MixSaveRepository</code></td></tr>
+</table>
+
+<h2>5.2 Las interacciones que pide la opción</h2>
+<table>
+  <tr><th>Pide</th><th>En el juego</th><th>Componente</th></tr>
+  <tr><td>Grab interactivos</td><td>Las 19 botellas y recipientes, y el vaso, se agarran con la mano.</td><td><code>XRGrabInteractable</code></td></tr>
+  <tr><td>Sockets químicos</td><td>El posavasos del cliente: solo acepta el vaso con mezcla y al encajarlo se sirve.</td><td><code>CoasterSocket</code> (hereda de <code>XRSocketInteractor</code>)</td></tr>
+  <tr><td>Botones de laboratorio</td><td>Iniciar turno, saltar tutorial, reiniciar, salir, rockola.</td><td>Canvas con <code>TrackedDeviceGraphicRaycaster</code> + <code>XRUIInputModule</code></td></tr>
+  <tr><td>Palancas de temperatura/presión</td><td>Palanca de temperatura de 3 posiciones y palanca de agitar.</td><td><code>XRSimpleInteractable</code> + <code>VrLever</code></td></tr>
+  <tr><td>Sistema de validación química</td><td>Las reglas evalúan la mezcla, el analizador avisa antes y el cliente muestra el resultado.</td><td><code>ReactionRules</code> + <code>MixAnalyzer</code></td></tr>
+</table>
+
+<h2>5.3 Por qué un bar sigue siendo un laboratorio</h2>
+<ul>
+  <li>Hay <b>sustancias con propiedades</b> (el equivalente a elementos con características químicas).</li>
+  <li>Hay <b>reglas de combinación</b> con prioridades, como en una tabla de reactividad: gas + efervescente reacciona; leche + ácido se corta; alcohol + calor se inflama.</li>
+  <li>Hay <b>condiciones</b> (temperatura) que cambian el resultado y sirven para <b>estabilizar</b>.</li>
+  <li>Hay un <b>instrumento de análisis</b> (el analizador) que clasifica antes de "probar".</li>
+  <li>Hay <b>experimentación y descubrimiento</b>: el libro solo muestra lo que ya descubriste, y las pistas enseñan qué combinaciones provocan qué.</li>
+  <li>El cliente es el "tubo de ensayo": hace visible el resultado de cada reacción.</li>
+</ul>
+<div class="say">"Las cinco funciones de la opción 3 son mecánicas del juego. El bar es la ambientación; la química está en las reglas:
+cada ingrediente tiene propiedades, las combinaciones reaccionan, el analizador clasifica, el frío estabiliza y el libro registra lo que descubres."</div>
+
+<!-- ============================== 6 REQUISITOS ============================== -->
+<h1><span class="n">6</span>Requisitos obligatorios</h1>
+
+<table>
+  <tr><th>Requisito</th><th>Cómo se cumple</th><th>Script</th></tr>
+  <tr><td><b>Onboarding VR</b></td><td>Entrenamiento de 4 pasos validados con acciones reales; enseña joystick, grip, inclinar, sacudir y soltar en el socket.</td><td><code>MixTutorial</code></td></tr>
+  <tr><td><b>Manipulación física</b></td><td>Botellas, vaso y palancas con la mano.</td><td><code>VrPourable</code>, <code>VrGlass</code>, <code>VrLever</code></td></tr>
+  <tr><td><b>Objetivos claros</b></td><td>El pedido en el tablero y en el globo del cliente, con ingredientes y temperatura.</td><td><code>MixBoard</code></td></tr>
+  <tr><td><b>Progresión</b></td><td>Libro de reacciones que se llena, récord, historial, clientes que cambian.</td><td><code>ReactionBookBoard</code>, <code>HistoryBoard</code></td></tr>
+  <tr><td><b>Temporizador</b></td><td>Turno de 240 s y paciencia de 50 s por pedido.</td><td><code>MixGameManager</code></td></tr>
+  <tr><td><b>Fallo</b></td><td>3 desmayos suspenden el turno; si se acaba la paciencia, −30 y el cliente pide otra cosa; el vaso que estalla resta 30.</td><td><code>MixGameManager</code></td></tr>
+  <tr><td><b>Evento inesperado</b></td><td>A los 40 s y luego cada ~45 s: <b>hora pico</b> (paciencia ×2,2 durante 12 s) o <b>apagón</b> (luces al 12% y etiquetas ocultas durante 9 s).</td><td><code>MixGameManager.EventLoop</code></td></tr>
+  <tr><td><b>Sistema reactivo</b></td><td>Eventos C#: tableros, luces de la pista, público, tutorial y audio reaccionan a lo que pasa.</td><td>eventos <code>OnReaction</code>, <code>OnStateChanged</code>…</td></tr>
+  <tr><td><b>Puntuación verificable</b></td><td>Reglas fijas de puntos; todo queda en el JSON y el CSV.</td><td><code>MixGameManager</code>, <code>MixSaveRepository</code></td></tr>
+  <tr><td><b>Cierre</b></td><td>Panel final con resultado, estadísticas y retroalimentación; botones Reiniciar/Salir.</td><td><code>MixBoard</code></td></tr>
+</table>
+
+<!-- ============================== 7 QUIMICA ============================== -->
+<h1><span class="n">7</span>La "química": propiedades y reglas</h1>
+
+<h2>7.1 Propiedades</h2>
+<p>Cada ingrediente tiene un conjunto de números (<code>MixProps</code>): <b>agua, frío, ácido, frutal, menta, lácteo, cafeína, dulce,
+gas, alcohol, picante, efervescente</b>. Cuando el jugador mezcla, el juego <b>suma</b> las propiedades de todo lo que hay en el vaso.
+Las reglas trabajan sobre esa suma. Por ejemplo, Tequila (alcohol 2) + Ron (alcohol 1) = alcohol 3.</p>
+
+<h2>7.2 Los 19 ingredientes</h2>
+<table>
+  <tr><th>Ingrediente</th><th>Etiqueta</th><th>Propiedades</th><th>Ingrediente</th><th>Etiqueta</th><th>Propiedades</th></tr>
+  <tr><td>Agua</td><td>neutral</td><td>agua 1</td><td>Cola</td><td>gas + cafeína</td><td>gas 1, cafeína 1</td></tr>
+  <tr><td>Hielo</td><td>frío</td><td>frío 1</td><td>Cerveza</td><td>alcohol + gas</td><td>alcohol 1, gas 1</td></tr>
+  <tr><td>Limón</td><td>ácido</td><td>ácido 1</td><td>Ron</td><td>alcohol</td><td>alcohol 1</td></tr>
+  <tr><td>Naranja</td><td>frutal</td><td>frutal 1</td><td>Tequila</td><td>alcohol ×2</td><td>alcohol 2</td></tr>
+  <tr><td>Menta</td><td>fresca</td><td>menta 1</td><td>Ají</td><td>picante</td><td>picante 1</td></tr>
+  <tr><td>Leche</td><td>lácteo</td><td>lácteo 1</td><td>Salsa del Diablo</td><td>picante ×3</td><td>picante 3</td></tr>
+  <tr><td>Café</td><td>cafeína</td><td>cafeína 1</td><td>Efervescente</td><td>reactiva</td><td>efervescente 1</td></tr>
+  <tr><td>Azúcar</td><td>dulce</td><td>dulce 1</td><td>Crema de coco</td><td>frutal + dulce</td><td>frutal 1, dulce 1</td></tr>
+  <tr><td>Soda</td><td>gas</td><td>gas 1</td><td>Piña</td><td>frutal</td><td>frutal 1</td></tr>
+  <tr><td></td><td></td><td></td><td>Vino tinto</td><td>alcohol + frutal</td><td>alcohol 1, frutal 1</td></tr>
+</table>
+<p>Hielo, limón, ají, azúcar y la pastilla efervescente son "piezas" (saltan del recipiente al vaso); el resto son líquidos que se vierten.</p>
+
+<h2>7.3 Cómo se decide la reacción (en orden de prioridad)</h2>
+<p><code>ReactionRules.Evaluate</code> revisa las reglas <b>de arriba a abajo</b> y se queda con la primera que se cumple.
+Las peligrosas van primero: por eso, aunque la mezcla coincida con una receta, si además es explosiva, explota.
+"Frío" significa que hay hielo en el vaso <b>o</b> la palanca está en FRÍO.</p>
+<table>
+  <tr><th>#</th><th>Si…</th><th>Reacción</th></tr>
+  <tr><td>1</td><td>gas &gt; 0 y efervescente &gt; 0, sin frío</td><td>Explosión efervescente</td></tr>
+  <tr><td>2</td><td>picante ≥ 3 y alcohol &gt; 0</td><td>Desmayo fulminante (cuenta como desmayo)</td></tr>
+  <tr><td>3</td><td>temperatura CALIENTE, alcohol ≥ 2 y sin hielo</td><td>Llamarada</td></tr>
+  <tr><td>4</td><td>alcohol ≥ 3</td><td>Mareo total</td></tr>
+  <tr><td>5</td><td>lácteo &gt; 0 y ácido &gt; 0</td><td>Náusea verde</td></tr>
+  <tr><td>6</td><td>los ingredientes son exactamente los del pedido (y su temperatura si la exige)</td><td>Pedido perfecto</td></tr>
+  <tr><td>7</td><td>picante ≥ 3</td><td>Picante infernal</td></tr>
+  <tr><td>8</td><td>picante &gt; 0</td><td>Picante</td></tr>
+  <tr><td>9</td><td>cafeína &gt; 0 y alcohol &gt; 0</td><td>Fiebre de baile</td></tr>
+  <tr><td>10</td><td>cafeína ≥ 2</td><td>Sobredosis de café</td></tr>
+  <tr><td>11</td><td>dulce ≥ 3</td><td>Subidón de azúcar</td></tr>
+  <tr><td>12</td><td>frío y menta &gt; 0</td><td>Cerebro congelado</td></tr>
+  <tr><td>13</td><td>ácido ≥ 2</td><td>Cara de limón</td></tr>
+  <tr><td>14</td><td>gas ≥ 2</td><td>Ataque de hipo</td></tr>
+  <tr><td>15</td><td>sin cafeína y (lácteo ≥ 2, o lácteo con calor)</td><td>Sueño profundo</td></tr>
+  <tr><td>16</td><td>alcohol &gt; 0</td><td>Alegrito</td></tr>
+  <tr><td>17</td><td>ninguna de las anteriores</td><td>Sin chiste</td></tr>
+</table>
+
+<h2>7.4 Clasificar: el analizador</h2>
+<p><code>ReactionRules.Classify</code> se ejecuta <b>cada cuadro</b> sobre lo que hay en el vaso y la temperatura actual:</p>
+<table>
+  <tr><th>Clase</th><th>Cuándo</th><th>Qué muestra</th></tr>
+  <tr><td><span class="tag g">ESTABLE</span></td><td>Ninguna condición peligrosa (o ya se estabilizó)</td><td>Letrero verde: "se puede servir" o "ESTABILIZADA, el frío la neutralizó"</td></tr>
+  <tr><td><span class="tag a">INESTABLE</span></td><td>Explosiva sin frío, o inflamable (caliente + alcohol ≥ 2) sin hielo</td><td>Ámbar parpadeando, cuenta regresiva si es explosiva, pitidos</td></tr>
+  <tr><td><span class="tag r">TÓXICA</span></td><td>picante ≥ 3 con alcohol, lácteo con ácido, o alcohol ≥ 3</td><td>Rojo: "vacíala en el lavaplatos"</td></tr>
+</table>
+<p>Además de cambiar el letrero, el analizador envía un aviso al tablero central cuando la mezcla pasa a inestable o tóxica, porque en VR el
+letrero de la barra no siempre está a la vista.</p>
+
+<h2>7.5 Estabilizar y la explosión</h2>
+<ul>
+  <li>Si la mezcla es <b>explosiva</b> (gas + efervescente) y no está fría, el analizador arranca una <b>cuenta regresiva de 9 segundos</b> y el vaso tiembla (en VR también vibra el control).</li>
+  <li>Si el jugador le pone <b>hielo</b> o mueve la palanca a <b>FRÍO</b>, la mezcla queda <b>estabilizada</b>: la cuenta se detiene y al servirla da <b>+20</b> de bono.</li>
+  <li>Si no hace nada, el vaso <b>estalla en la estación</b>: salpica el líquido, vuelan 12 vidrios con física, se pierden <b>30 puntos</b> y aparece un vaso nuevo.</li>
+  <li>La mezcla <b>inflamable</b> (alcohol fuerte calentado) se estabiliza con hielo; si se sirve así, el cliente sufre la llamarada.</li>
+</ul>
+
+<!-- ============================== 8 REACCIONES ============================== -->
+<h1><span class="n">8</span>Las 17 reacciones</h1>
+
+<p>Cada reacción es un <b>ScriptableObject</b> (<code>ReactionData</code>) con nombre, pista para el libro, frase del cliente, puntos,
+si cuenta como desmayo, color de piel, color en el libro y duración. Los síntomas visibles los anima <code>Customer</code>.</p>
+<table>
+  <tr><th>Reacción</th><th>Pista</th><th>Pts</th><th>Lo que se ve</th></tr>
+  <tr><td>Pedido perfecto</td><td>Exactamente lo que pidió</td><td>+100*</td><td>Ojos felices, brazos arriba, corazones; el público aplaude, baldosas en verde</td></tr>
+  <tr><td>Picante</td><td>Un toque de ají</td><td>−20</td><td>Piel roja, jadeo, lengua afuera, labios hinchados, ronchas, lágrimas</td></tr>
+  <tr><td>Picante infernal</td><td>Salsa del Diablo</td><td>−50</td><td>Ojos saltones, vena en la frente, vapor por las orejas</td></tr>
+  <tr><td>Explosión efervescente</td><td>Gas + efervescente, sin frío</td><td>−50</td><td>Estalla frente al cliente, espuma, tos, se agarra la cara</td></tr>
+  <tr><td>Mareo total</td><td>Demasiado alcohol</td><td>−50</td><td>Se tambalea, párpado caído, nariz roja, baba, eructo</td></tr>
+  <tr><td>Alegrito</td><td>Un poco de alcohol</td><td>+10</td><td>Contento, mejillas rosadas</td></tr>
+  <tr><td>Náusea verde</td><td>Leche + limón</td><td>−50</td><td>Piel verde, arcadas, vómito en chorro, bilis</td></tr>
+  <tr><td>Cerebro congelado</td><td>Menta + frío</td><td>−20</td><td>Piel azulada, labios azules, carámbano de moco, tirita</td></tr>
+  <tr><td>Sobredosis de café</td><td>Doble cafeína</td><td>−20</td><td>Pupilas diminutas, vena, sangrado de nariz, temblor</td></tr>
+  <tr><td>Subidón de azúcar</td><td>Triple azúcar</td><td>−20</td><td>Hiperactivo, estrellas</td></tr>
+  <tr><td>Fiebre de baile</td><td>Cafeína + alcohol</td><td>+10</td><td>Se pone a bailar</td></tr>
+  <tr><td>Ataque de hipo</td><td>Doble gas</td><td>−20</td><td>Saltitos de hipo</td></tr>
+  <tr><td>Cara de limón</td><td>Doble ácido</td><td>−20</td><td>Cara arrugada</td></tr>
+  <tr><td>Sueño profundo</td><td>Leche tibia o doble leche</td><td>−20</td><td>Se duerme, burbuja de moco</td></tr>
+  <tr><td>Llamarada</td><td>Alcohol fuerte + caliente, sin hielo</td><td>−50</td><td>Le arde el pelo 2 s y entra en pánico; queda con hollín, sin cejas y tosiendo humo</td></tr>
+  <tr><td>Desmayo fulminante</td><td>Salsa del Diablo + alcohol</td><td>−100</td><td>Ojos en blanco, espuma, espasmos, sangrado de nariz; <b>cuenta como desmayo</b></td></tr>
+  <tr><td>Sin chiste</td><td>Nada especial</td><td>0</td><td>Cara de decepción</td></tr>
+</table>
+<p class="muted">* El pedido perfecto da 100 más un bono de rapidez de hasta 50 según la paciencia que quedaba.</p>
+<figure class="half"><img src="../screenshots/mix/reaccion_Llamarada.png"> <img src="../pc_demo/06_reaccion_Nausea.png"><figcaption>Llamarada y náusea verde.</figcaption></figure>
+
+<!-- ============================== 9 RECETAS PUNTAJE EVENTOS ============================== -->
+<h1><span class="n">9</span>Recetas, puntaje y eventos</h1>
+
+<h2>9.1 Las 38 recetas</h2>
+<p>Cada receta (<code>RecipeData</code>) tiene nombre, frase del pedido, lista de ingredientes y, opcionalmente, temperatura exigida.
+Para que sea "perfecto", el vaso debe tener <b>exactamente</b> esos ingredientes (sin importar el orden) y la temperatura correcta.</p>
+<table style="font-size:8.6pt">
+  <tr><th>Receta</th><th>Ingredientes</th><th>Receta</th><th>Ingredientes</th></tr>
+  <tr><td>Limonada helada</td><td>Agua, Limón, Hielo</td><td>Tinto (caliente)</td><td>Café, Agua</td></tr>
+  <tr><td>Mojito</td><td>Ron, Menta, Limón, Soda</td><td>Capuchino dulce (caliente)</td><td>Café, Leche, Azúcar</td></tr>
+  <tr><td>Café con leche (caliente)</td><td>Café, Leche</td><td>Café irlandés (caliente)</td><td>Café, Ron, Leche, Azúcar</td></tr>
+  <tr><td>Michelada</td><td>Cerveza, Limón, Ají</td><td>Canelazo (caliente)</td><td>Ron, Agua, Azúcar, Limón</td></tr>
+  <tr><td>Soda con limón</td><td>Soda, Limón</td><td>Limonada de menta</td><td>Agua, Limón, Menta, Hielo</td></tr>
+  <tr><td>Agua de menta (fría)</td><td>Agua, Menta</td><td>Clara con limón</td><td>Cerveza, Soda, Limón</td></tr>
+  <tr><td>Carajillo (caliente)</td><td>Café, Ron</td><td>Chelada</td><td>Cerveza, Limón, Hielo</td></tr>
+  <tr><td>Cuba libre</td><td>Ron, Cola, Hielo</td><td>Paloma</td><td>Tequila, Soda, Limón, Hielo</td></tr>
+  <tr><td>Tequila sunrise</td><td>Tequila, Naranja, Hielo</td><td>Ron con naranja</td><td>Ron, Naranja, Hielo</td></tr>
+  <tr><td>Naranjada</td><td>Naranja, Agua, Azúcar</td><td>Naranja espumosa</td><td>Naranja, Soda, Hielo</td></tr>
+  <tr><td>Café helado</td><td>Café, Leche, Hielo, Azúcar</td><td>Piña colada</td><td>Ron, Coco, Piña, Hielo</td></tr>
+  <tr><td>Leche merengada (fría)</td><td>Leche, Azúcar</td><td>Limonada de coco</td><td>Coco, Limón, Agua, Hielo</td></tr>
+  <tr><td>Refajo</td><td>Cerveza, Cola</td><td>Coco loco</td><td>Tequila, Coco, Hielo</td></tr>
+  <tr><td>Margarita</td><td>Tequila, Limón, Hielo</td><td>Jugo de piña</td><td>Piña, Agua, Azúcar</td></tr>
+  <tr><td>Aguapanela con limón (caliente)</td><td>Agua, Azúcar, Limón</td><td>Tinto de verano</td><td>Vino, Soda, Limón, Hielo</td></tr>
+  <tr><td>Ponche caliente (caliente)</td><td>Ron, Naranja, Azúcar</td><td>Sangría</td><td>Vino, Naranja, Piña, Azúcar</td></tr>
+  <tr><td>Cola con hielo</td><td>Cola, Hielo</td><td>Calimocho</td><td>Vino, Cola</td></tr>
+  <tr><td>Frappé de menta</td><td>Menta, Leche, Hielo, Azúcar</td><td>Vino caliente (caliente)</td><td>Vino, Naranja, Azúcar</td></tr>
+  <tr><td>Sangrita</td><td>Naranja, Limón, Ají</td><td>Espresso doble (caliente)</td><td>Café, Café</td></tr>
+</table>
+
+<h2>9.2 Puntaje</h2>
+<table>
+  <tr><th>Situación</th><th>Puntos</th></tr>
+  <tr><td>Pedido perfecto</td><td>+100 + bono de rapidez (hasta +50, proporcional a la paciencia que quedaba)</td></tr>
+  <tr><td>Servir una mezcla estabilizada con frío</td><td>+20 extra</td></tr>
+  <tr><td>Cualquier otra reacción</td><td>Lo que diga la reacción (de +10 a −100, tabla del cap. 8)</td></tr>
+  <tr><td>El cliente se cansa de esperar</td><td>−30 y pide otra cosa</td></tr>
+  <tr><td>El vaso estalla en la estación</td><td>−30</td></tr>
+  <tr><td>El puntaje nunca baja de 0</td><td>—</td></tr>
+</table>
+
+<h2>9.3 Tiempos</h2>
+<table>
+  <tr><th>Elemento</th><th>Valor</th></tr>
+  <tr><td>Duración del turno</td><td>240 s (4 minutos)</td></tr>
+  <tr><td>Paciencia por pedido</td><td>50 s (no corre mientras el cliente bebe o cambia)</td></tr>
+  <tr><td>Desmayos para perder</td><td>3</td></tr>
+  <tr><td>Primer evento inesperado</td><td>a los 40 s; luego uno cada ~45 s</td></tr>
+  <tr><td>Hora pico</td><td>12 s con la paciencia bajando ×2,2</td></tr>
+  <tr><td>Apagón</td><td>9 s con luces al 12% y etiquetas ocultas</td></tr>
+  <tr><td>Cuenta regresiva de mezcla explosiva</td><td>9 s</td></tr>
+  <tr><td>Capacidad del vaso</td><td>4 ingredientes</td></tr>
+  <tr><td>Cambio de cliente</td><td>cada 2 o 3 pedidos, y siempre tras un desmayo</td></tr>
+</table>
+
+<!-- ============================== 10 ARQUITECTURA ============================== -->
+<h1><span class="n">10</span>Arquitectura del software</h1>
+
+<p>Esta es la parte que más se evalúa en "calidad de scripts" y "organización". La idea central es simple:</p>
+<div class="box"><b class="t">Una sola lógica, dos formas de jugar</b>
+La química, el turno, el puntaje y los datos no saben si el jugador usa el visor o el mouse. La entrada de VR y la de PC son capas
+delgadas que terminan llamando a <b>los mismos métodos</b>: <code>glass.Add(ingrediente)</code>, <code>lever.Set(temperatura)</code>,
+<code>glass.Shake()</code>, <code>gameManager.Serve()</code>. Por eso todo se puede probar sin visor.</div>
+
+<h2>10.1 Capas</h2>
+<pre>
+ DATOS          ScriptableObjects: IngredientData · RecipeData · ReactionData
+                        │
+ REGLAS         ReactionRules  (estático, sin MonoBehaviour → fácil de probar)
+                        │
+ DIRECTOR       MixGameManager ──eventos C#──► MixBoard · ReactionBookBoard · HistoryBoard
+                   │     ▲                     MixTutorial · DiscoLights · Patron · Dancer
+                   │     │ Serve()
+ INTERACCIÓN    MixGlass ◄── Bottle (PC) / VrPourable (VR)       MixAnalyzer (clasifica cada cuadro)
+                             TemperatureLever / ShakeLever ◄── VrLever (VR)
+                             ServeSpot (PC) / CoasterSocket (VR)
+                        │
+ ENTRADA        PC: DesktopPlayer + MixInteractor (mira y clic)
+                VR: MixVrRig + XR Origin (manos, rayos, locomoción)
+                        │
+ PERSISTENCIA   MixSaveRepository → mix_save.json + mix_save_historial.csv
+</pre>
+
+<h2>10.2 Máquina de estados</h2>
+<p><code>MixGameManager</code> tiene tres estados (<code>MixState</code>):</p>
+<ul>
+  <li><b>Onboarding</b>: entrenamiento. Se puede servir y el cliente reacciona, pero no hay puntaje ni tiempo.</li>
+  <li><b>Playing</b>: turno con tiempo, paciencia, eventos y puntaje.</li>
+  <li><b>Finished</b>: panel final; se guarda la sesión.</li>
+</ul>
+<p>Además usa una bandera <code>Busy</code> mientras el cliente está bebiendo/reaccionando o mientras cambia el cliente, para que no se pueda servir de nuevo.</p>
+
+<h2>10.3 Comunicación por eventos (patrón observador)</h2>
+<p>El director <b>publica</b> eventos y los demás sistemas se <b>suscriben</b>. Así el <code>MixGameManager</code> no necesita conocer a los tableros,
+las luces ni al público. Si mañana se agrega otro tablero, no hay que tocar el director.</p>
+<table>
+  <tr><th>Evento</th><th>Lo publica</th><th>Lo escuchan</th></tr>
+  <tr><td><code>OnStateChanged</code></td><td>MixGameManager</td><td>MixBoard, MixTutorial, HistoryBoard, DesktopHud</td></tr>
+  <tr><td><code>OnOrderChanged</code></td><td>MixGameManager</td><td>MixBoard</td></tr>
+  <tr><td><code>OnScoreChanged</code></td><td>MixGameManager</td><td>MixBoard</td></tr>
+  <tr><td><code>OnAlert</code></td><td>MixGameManager</td><td>MixBoard (franja de avisos)</td></tr>
+  <tr><td><code>OnReaction</code></td><td>MixGameManager</td><td>DiscoLights (color de pista), Patron/Dancer (público), MixTutorial</td></tr>
+  <tr><td><code>OnDiscoveredChanged</code></td><td>MixGameManager</td><td>ReactionBookBoard, HistoryBoard</td></tr>
+  <tr><td><code>MixGlass.OnChanged</code></td><td>MixGlass</td><td>MixTutorial</td></tr>
+  <tr><td><code>MusicPlayer.OnChanged</code></td><td>MusicPlayer</td><td>JukeboxBoard</td></tr>
+  <tr><td><code>MixVrRig.OnVrEnabled</code></td><td>MixVrRig</td><td>quien necesite saber que se entró a VR</td></tr>
+</table>
+
+<h2>10.4 Principios que conviene nombrar</h2>
+<ul>
+  <li><b>Separación de responsabilidades</b>: reglas (qué pasa), director (cuándo pasa), vistas (cómo se ve), entrada (cómo lo pide el jugador), datos (qué se guarda).</li>
+  <li><b>Lógica pura</b>: <code>ReactionRules</code> es una clase estática sin dependencias de escena; recibe ingredientes y temperatura y devuelve un resultado.</li>
+  <li><b>Datos configurables</b>: ingredientes, recetas y reacciones son assets; se cambian sin recompilar.</li>
+  <li><b>Componentes pequeños</b>: cada script hace una cosa (vaso, palanca, socket, tablero…).</li>
+  <li><b>Escena reproducible</b>: la escena se genera desde código (cap. 17).</li>
+</ul>
+
+<!-- ============================== 11 RECORRIDO ============================== -->
+<h1><span class="n">11</span>Recorrido de un servicio por el código</h1>
+
+<p>Este es el ejemplo ideal para explicar en vivo: qué pasa por dentro desde que el jugador vierte hasta que el cliente reacciona.</p>
+<ol>
+  <li><b>Verter.</b> En VR, el jugador agarra la botella (<code>XRGrabInteractable</code>) y la inclina. <code>VrPourable.Update</code> mide el ángulo
+  entre el eje de la botella y la vertical; si pasa de 100° y la boca está sobre el vaso durante 0,35 s, llama a <code>MixGlass.Add(ingrediente)</code>.
+  En PC, el clic sobre la botella llama a <code>Bottle.Pour()</code>, que hace la animación y al final también llama a <code>MixGlass.Add</code>.</li>
+  <li><b>El vaso cambia.</b> <code>MixGlass</code> guarda el ingrediente en su lista, muestra una capa con su color, suena y dispara <code>OnChanged</code>.
+  El tutorial escucha ese evento para avanzar de paso.</li>
+  <li><b>Análisis.</b> Cada cuadro <code>MixAnalyzer</code> llama a <code>ReactionRules.Classify(contenido, temperatura)</code> y pinta el letrero.
+  Si <code>ReactionRules.WillExplode</code> es verdadero, arranca la cuenta regresiva y marca el vaso como inestable (tiembla).</li>
+  <li><b>Servir.</b> En VR el jugador suelta el vaso sobre el posavasos; <code>CoasterSocket</code> comprueba que sea el vaso, que tenga algo y que el cliente esté libre,
+  y llama a <code>MixGameManager.Serve()</code>. En PC, <code>ServeSpot.Interact</code> hace lo mismo.</li>
+  <li><b>Evaluar.</b> <code>ServeRoutine</code> (una corrutina) pone <code>Busy = true</code>, llama a <code>ReactionRules.Evaluate</code> y a <code>IsStabilized</code>.</li>
+  <li><b>Beber.</b> El vaso vuela al posavasos; si no es explosión, el cliente lo toma con la mano (<code>Customer.HoldGlass</code>), lo lleva a la boca y bebe.
+  Si es explosión, el vaso estalla frente a él.</li>
+  <li><b>Reaccionar.</b> <code>Customer.ShowReaction(datos)</code> cambia color de piel, ojos, boca, gesto, cuerpo y activa los síntomas y partículas.</li>
+  <li><b>Registrar.</b> Si la reacción es nueva, se agrega a <code>save.discovered</code>, se guarda el JSON y se dispara <code>OnDiscoveredChanged</code> (el libro se actualiza).</li>
+  <li><b>Puntaje.</b> Si es turno, se suman puntos (perfecto + bono, estabilizado +20, etc.), se cuenta el desmayo si aplica y se dispara <code>OnScoreChanged</code>.</li>
+  <li><b>Reacción del bar.</b> Se dispara <code>OnReaction</code>: la pista cambia de color, el público aplaude o se asusta.</li>
+  <li><b>Siguiente.</b> Tras la duración de la reacción, el vaso vuelve limpio, la palanca se reinicia, y si toca, cambia el cliente. Luego <code>Busy = false</code>
+  y llega el siguiente pedido (o el turno termina).</li>
+</ol>
+
+<!-- ============================== 12 SCRIPTS ============================== -->
+<h1><span class="n">12</span>Los scripts, uno por uno</h1>
+<p>Todo el código del juego está en <code>Assets/Scripts/MixLab</code>, bajo el namespace <code>MixLab</code> y el assembly definition <code>MixLab.asmdef</code>.</p>
+
+<h2>Data — los datos editables</h2>
+<table>
+  <tr><th>Script</th><th>Qué es</th></tr>
+  <tr><td><code>IngredientData</code></td><td>ScriptableObject de un ingrediente: nombre, etiqueta, color y propiedades. Aquí está también la estructura <code>MixProps</code> (las propiedades y su suma).</td></tr>
+  <tr><td><code>RecipeData</code></td><td>ScriptableObject de una receta: nombre, frase del pedido, ingredientes, temperatura exigida.</td></tr>
+  <tr><td><code>ReactionData</code></td><td>ScriptableObject de una reacción: nombre, pista, frase, puntos, si es desmayo, colores, duración.</td></tr>
+  <tr><td><code>MixEnums</code></td><td>Tipos compartidos: <code>Temperature</code>, <code>ReactionId</code> (17), <code>MixClass</code> (Vacía/Estable/Inestable/Tóxica), y <code>MixState</code> (Onboarding/Playing/Finished).</td></tr>
+</table>
+
+<h2>Core — el cerebro</h2>
+<table>
+  <tr><th>Script</th><th>Qué hace</th></tr>
+  <tr><td><code>ReactionRules</code></td><td>Clase estática. <code>Sum</code> suma propiedades; <code>Evaluate</code> decide la reacción; <code>Classify</code> clasifica; <code>WillExplode</code>, <code>IsStabilized</code>, <code>MatchesRecipe</code>. No depende de la escena.</td></tr>
+  <tr><td><code>MixGameManager</code></td><td>Director: estados, pedidos, paciencia, tiempo, servir (corrutina), puntaje, eventos inesperados, cambio de cliente, guardado al final. Publica los eventos. Es un singleton (<code>Instance</code>).</td></tr>
+  <tr><td><code>MixSaveRepository</code></td><td>Lee y escribe <code>mix_save.json</code> con <code>JsonUtility</code>, conserva las últimas 50 sesiones y exporta el CSV. Todo con <code>try/catch</code>.</td></tr>
+  <tr><td><code>MixAutoDemo</code></td><td>Con <code>-autodemo</code>, juega un turno solo y saca capturas. Sirve para probar el .exe y documentar.</td></tr>
+  <tr><td><code>PerfProbe</code></td><td>Con <code>-perf</code>, mide FPS, llamadas de dibujado, lotes y triángulos con <code>ProfilerRecorder</code>.</td></tr>
+</table>
+
+<h2>Interaction — la estación</h2>
+<table>
+  <tr><th>Script</th><th>Qué hace</th></tr>
+  <tr><td><code>MixGlass</code></td><td>Contenido del vaso (máx. 4), capas de color, agitar, vaciar, volar a un punto, volver a casa, temblar si es inestable, estallar con vidrios con física y reaparecer. Evento <code>OnChanged</code>.</td></tr>
+  <tr><td><code>Bottle</code></td><td>Ingrediente del estante. En PC anima el vertido (líquido) o el lanzamiento de piezas (hielo, rodajas). Oculta su etiqueta en el apagón. En VR vuelve sola al estante.</td></tr>
+  <tr><td><code>MixAnalyzer</code></td><td>Clasifica cada cuadro, colorea el letrero y la lámpara, lleva la cuenta regresiva con pitidos y hace estallar el vaso si se acaba.</td></tr>
+  <tr><td><code>TemperatureLever</code></td><td>Tres posiciones; gira la palanca, colorea la perilla y el letrero. Evento <code>OnChanged</code>.</td></tr>
+  <tr><td><code>ShakeLever</code></td><td>Agita el vaso si tiene 2+ ingredientes y está en su base.</td></tr>
+  <tr><td><code>ServeSpot</code> · <code>SinkSpot</code> · <code>StationPad</code></td><td>(PC) Servir al cliente, vaciar en el lavaplatos, dejar el vaso en la base.</td></tr>
+  <tr><td><code>MixInteractable</code></td><td>Clase base abstracta para lo que se usa con la mira en PC: <code>Prompt</code>, <code>CanInteract</code>, <code>Interact</code>.</td></tr>
+  <tr><td><code>MixInteractor</code></td><td>(PC) La "mano": rayo desde el centro de la pantalla, con asistencia de puntería (sphere cast) para cosas delgadas, botones de los tableros, sostener el vaso.</td></tr>
+</table>
+
+<h2>Customer — los personajes</h2>
+<table>
+  <tr><th>Script</th><th>Qué hace</th></tr>
+  <tr><td><code>Customer</code></td><td>El cliente principal: respira, parpadea, mira al jugador, mueve los brazos con cinemática inversa, se impacienta y muestra los síntomas de cada reacción. Maneja los 9 aspectos de clientes y el cambio entre ellos.</td></tr>
+  <tr><td><code>Patron</code></td><td>Público: reacciona a lo que pasa en la barra (aplaude con un perfecto, se asusta con una explosión).</td></tr>
+</table>
+
+<h2>UI — los tableros</h2>
+<table>
+  <tr><th>Script</th><th>Qué hace</th></tr>
+  <tr><td><code>MixBoard</code></td><td>Tablero central: espera, pedido/tiempo/puntos/paciencia/avisos y panel final con Reiniciar y Salir.</td></tr>
+  <tr><td><code>ReactionBookBoard</code></td><td>Libro: solo muestra lo descubierto; ajusta tamaño de letra y cada fila al ancho del tablero.</td></tr>
+  <tr><td><code>MixTutorial</code></td><td>Entrenamiento por pasos validados; textos de PC o VR; luego muestra las reglas del turno.</td></tr>
+  <tr><td><code>HistoryBoard</code></td><td>Historial: récord, turnos, promedio, completados, reacciones descubiertas y últimos 6 turnos.</td></tr>
+  <tr><td><code>JukeboxBoard</code></td><td>Pantalla de la rockola: género, canción, volumen y botones.</td></tr>
+</table>
+
+<h2>Ambience — el ambiente</h2>
+<table>
+  <tr><th>Script</th><th>Qué hace</th></tr>
+  <tr><td><code>MusicPlayer</code></td><td>Rockola: géneros incluidos más canciones propias de una carpeta; guarda género y volumen.</td></tr>
+  <tr><td><code>DiscoLights</code></td><td>Baldosas, focos, bola de espejos, ecualizador y neones al ritmo; flash de color según la reacción.</td></tr>
+  <tr><td><code>Dancer</code></td><td>Bailarines que se mueven al compás.</td></tr>
+  <tr><td><code>QualityGovernor</code></td><td>Regulador de calidad: tres niveles y baja de nivel si caen los FPS.</td></tr>
+</table>
+
+<h2>Desktop — modo PC</h2>
+<table>
+  <tr><th>Script</th><th>Qué hace</th></tr>
+  <tr><td><code>DesktopPlayer</code></td><td>Primera persona con <code>CharacterController</code> (gravedad, choques), mouse, pasos y pausa.</td></tr>
+  <tr><td><code>DesktopHud</code> · <code>IAimHud</code></td><td>Mira, texto de acción, estado del vaso, ayuda de controles y menú de pausa con sensibilidad.</td></tr>
+</table>
+
+<h2>VR — la capa del visor</h2>
+<table>
+  <tr><th>Script</th><th>Qué hace</th></tr>
+  <tr><td><code>MixVrRig</code></td><td>Decide si se juega en VR y prepara la escena (cap. 13).</td></tr>
+  <tr><td><code>VrPourable</code></td><td>Verter inclinando la botella sobre el vaso.</td></tr>
+  <tr><td><code>VrGlass</code></td><td>Agitar sacudiendo, vaciar volteando, volver a la estación, vibrar si es inestable.</td></tr>
+  <tr><td><code>VrLever</code></td><td>Palancas que se arrastran con la mano.</td></tr>
+  <tr><td><code>CoasterSocket</code></td><td>Socket del posavasos que sirve la bebida.</td></tr>
+</table>
+
+<h2>Editor — herramientas (no van en el juego)</h2>
+<table>
+  <tr><th>Script</th><th>Qué hace</th></tr>
+  <tr><td><code>MixSceneBuilder</code> (6 archivos)</td><td>Genera la escena completa: datos, sala, barra, estación, cliente, público, tableros, ambiente, rendimiento y capa VR.</td></tr>
+  <tr><td><code>BuildKit</code></td><td>Utilidades del generador: lienzos, textos, botones, primitivas, modelos ajustados, materiales, audio.</td></tr>
+  <tr><td><code>MixMusicGenerator</code></td><td>Sintetiza las 4 pistas originales en WAV.</td></tr>
+  <tr><td><code>MixSnapshot</code></td><td>Saca capturas de la escena; <code>MixPipeline</code> encadena generar + compilar.</td></tr>
+  <tr><td><code>BuildQuest</code> · <code>ProjectSetup</code></td><td>Compila para Windows o Quest y configura OpenXR, Android y calidad.</td></tr>
+</table>
+
+<!-- ============================== 13 VR ============================== -->
+<h1><span class="n">13</span>La capa VR (XR Interaction Toolkit)</h1>
+
+<h2>13.1 ¿Cómo sabe el juego si está en VR?</h2>
+<p><code>MixVrRig</code> decide al arrancar:</p>
+<ul>
+  <li>En el <b>Quest</b> (APK de Android): siempre VR.</li>
+  <li>En <b>PC</b>: modo escritorio, salvo que se abra con <code>-vr</code> (Quest Link); en ese caso inicializa OpenXR y, si detecta el visor, entra en VR.</li>
+  <li>En el <b>Editor</b>: VR si el visor ya está activo al darle Play.</li>
+</ul>
+<p>Al entrar en VR (<code>EnableVr</code>): apaga el jugador de PC y su HUD, enciende el <b>XR Origin</b>, cambia el módulo de UI al de XR,
+activa los componentes XRI de botellas, vaso, palancas y posavasos, activa la zona de teletransporte y pasa el tutorial a textos VR.
+Todo eso ya está en la escena desde el principio, pero apagado.</p>
+
+<h2>13.2 Componentes de XR Interaction Toolkit usados</h2>
+<table>
+  <tr><th>Componente</th><th>Para qué</th></tr>
+  <tr><td><b>XR Origin (XR Rig)</b> de los Starter Assets</td><td>Cámara del visor, controles, interactores near-far (agarrar de cerca y de lejos), locomoción continua, giro y teletransporte.</td></tr>
+  <tr><td><code>XRInteractionManager</code></td><td>Coordina todas las interacciones.</td></tr>
+  <tr><td><code>XRGrabInteractable</code></td><td>19 ingredientes y el vaso. Movimiento instantáneo, agarre dinámico (se toma por donde está la mano), sin lanzar al soltar.</td></tr>
+  <tr><td><code>XRSimpleInteractable</code></td><td>Las dos palancas (se seleccionan y el script lee el movimiento de la mano).</td></tr>
+  <tr><td><code>XRSocketInteractor</code> (heredado en <code>CoasterSocket</code>)</td><td>Posavasos que solo acepta el vaso con mezcla.</td></tr>
+  <tr><td><code>TeleportationArea</code></td><td>Zona invisible detrás de la barra a la que uno se puede teletransportar.</td></tr>
+  <tr><td><code>XRUIInputModule</code> + <code>TrackedDeviceGraphicRaycaster</code></td><td>Pulsar los botones de los tableros con el rayo y el gatillo.</td></tr>
+  <tr><td><code>SendHapticImpulse</code></td><td>Vibración al verter, al agitar, al mover la temperatura y mientras la mezcla es inestable.</td></tr>
+</table>
+
+<h2>13.3 Verter inclinando (<code>VrPourable</code>)</h2>
+<p>Mientras la botella está en la mano, cada cuadro:</p>
+<ol>
+  <li>Calcula la <b>inclinación</b>: el ángulo entre el eje "arriba" de la botella y la vertical del mundo.</li>
+  <li>Calcula dónde está la <b>boca</b> (posición de la botella + su eje × su altura) y dónde está el <b>borde</b> del vaso.</li>
+  <li>Puede verter si: está "armada", el vaso no está ocupado ni lleno, la inclinación supera <b>100°</b> (75° para recipientes de piezas) y la boca está a menos de <b>11 cm</b> en horizontal del centro del vaso y por encima del borde.</li>
+  <li>Mientras se cumple, dibuja el chorro; tras <b>0,35 s</b> entra una dosis (<code>glass.Add</code>), vibra el control y la botella queda "desarmada".</li>
+  <li>Para otra dosis hay que <b>enderezarla</b> (menos de 65°) y volver a inclinar. Así no se vacía la botella entera sin querer.</li>
+  <li>Al soltarla, vuelve volando a su puesto del estante.</li>
+</ol>
+
+<h2>13.4 Agitar sacudiendo y vaciar (<code>VrGlass</code>)</h2>
+<ul>
+  <li>Calcula la velocidad del vaso entre cuadros. Cuando va a más de <b>0,8 m/s</b> y su dirección cambia bruscamente (se invierte), cuenta un "vaivén".</li>
+  <li>Con <b>5 vaivenes</b> seguidos (sin pausas de más de 0,7 s), la mezcla queda agitada y el control vibra.</li>
+  <li>Si el vaso queda <b>boca abajo</b> (más de ~117°) con algo dentro, se vacía.</li>
+  <li>Al soltarlo, espera 0,12 s: si lo tomó el socket del posavasos, se sirve; si no, vuelve solo a la estación.</li>
+  <li>Mientras el cliente lo tiene o el vaso estalla, el agarre se desactiva para que nadie lo pueda quitar.</li>
+</ul>
+
+<h2>13.5 Palancas (<code>VrLever</code>)</h2>
+<ul>
+  <li>Al agarrarla guarda la posición de la mano. Mientras se sujeta, mide cuánto se movió la mano hacia la derecha de la palanca.</li>
+  <li><b>Temperatura</b>: 4 cm a la izquierda = FRÍO, 4 cm a la derecha = CALIENTE, cerca del centro = AMBIENTE.</li>
+  <li><b>Agitar</b>: un tirón de 6 cm en cualquier dirección.</li>
+  <li>Un <b>toque corto</b> sin arrastrar también funciona, como un botón.</li>
+</ul>
+
+<h2>13.6 El socket del posavasos (<code>CoasterSocket</code>)</h2>
+<p>Hereda de <code>XRSocketInteractor</code> y sobrescribe <code>CanHover</code> y <code>CanSelect</code>: solo acepta el vaso, solo si tiene algo,
+si no está ocupado, y si el cliente está libre y el turno no terminó. Así no se puede "servir" una botella ni servir dos veces.
+Al encajar (<code>OnSelectEntered</code>) llama a <code>MixGameManager.Serve()</code>.</p>
+
+<div class="box red"><b class="t">Lo que hay que decir con honestidad</b>
+La capa VR está implementada, compila para Quest (APK) y está cubierta por pruebas automáticas que simulan la mano.
+La sensación real (altura de la barra, comodidad al verter, mareo, lectura de textos) se ajusta con la prueba en el visor;
+la lista de chequeo está en <code>docs/PRUEBA_EN_QUEST.md</code>.</div>
+
+<!-- ============================== 14 CLIENTE ============================== -->
+<h1><span class="n">14</span>El cliente: animación y clientes distintos</h1>
+
+<h2>14.1 Animación procedural</h2>
+<p>El cliente está hecho con primitivas (esferas, cápsulas, cubos) y <b>no usa animaciones grabadas</b>: todo se calcula por código cada cuadro
+(<b>animación procedural</b>). Eso permite combinar libremente ojos, boca, cuerpo y gestos para las 17 reacciones.</p>
+<ul>
+  <li><b>Vida en reposo</b>: respira, parpadea a intervalos al azar, sigue al jugador con la mirada.</li>
+  <li><b>Brazos con cinemática inversa (IK)</b>: se elige dónde debe estar la mano (en la cara, en la barriga, sosteniendo el vaso…) y el código calcula hombro y codo con dos huesos de 25 cm.</li>
+  <li><b>Expresiones</b>: 10 tipos de ojos, 9 de boca, 13 de cuerpo y 12 gestos.</li>
+  <li><b>Color de piel</b> con <code>MaterialPropertyBlock</code> (cambia el color sin crear materiales nuevos, lo que es eficiente).</li>
+  <li><b>Síntomas</b>: piezas que aparecen (vena, ronchas, hollín, moco, espuma, sangrado de nariz, llamas en la cabeza) y sistemas de partículas (vómito, lágrimas, vapor, humo, fuego).</li>
+  <li><b>Impaciencia</b>: cuando queda menos del 30% de paciencia, golpea la barra con los dedos.</li>
+</ul>
+
+<h2>14.2 Clientes distintos</h2>
+<p>Durante el turno, cada 2 o 3 pedidos (y siempre después de un desmayo) el cliente se va deslizándose hacia un lado y entra otro por el lado contrario,
+que se presenta al pedir ("¡Hola! Soy Lucía. Quiero…"). Hay 9 aspectos:</p>
+<table>
+  <tr><th>Cliente</th><th>Aspecto</th></tr>
+  <tr><td>Ramiro</td><td>Pelo corto castaño, camisa azul (es el del entrenamiento)</td></tr>
+  <tr><td>Lucía</td><td>Pelo largo negro, camisa rosada</td></tr>
+  <tr><td>Don Ernesto</td><td>Calvo con canas a los lados y barba blanca</td></tr>
+  <tr><td>Valentina</td><td>Afro, piel oscura, camisa amarilla</td></tr>
+  <tr><td>Kevin</td><td>Gorra oscura, camisa roja</td></tr>
+  <tr><td>Marta</td><td>Moño pelirrojo, camisa morada</td></tr>
+  <tr><td>Andrés</td><td>Barba negra, piel oscura, camisa naranja</td></tr>
+  <tr><td>Camila</td><td>Pelo largo rubio, camisa turquesa</td></tr>
+  <tr><td>Brayan</td><td>Afro con gorra roja, camisa blanca</td></tr>
+</table>
+<p>Técnicamente es <b>un solo personaje</b> con varios peinados y accesorios que se prenden o apagan, y colores aplicados con <code>MaterialPropertyBlock</code>.
+Cambiar de cliente no crea objetos nuevos: es barato y no afecta el rendimiento.</p>
+
+<!-- ============================== 15 AMBIENTE ============================== -->
+<h1><span class="n">15</span>Ambiente: música, luces y público</h1>
+
+<h2>15.1 Música</h2>
+<ul>
+  <li>Cuatro géneros incluidos: <b>House</b> (124 BPM), <b>Electrónica</b> (128), <b>Guaracha</b> (128) y <b>Rock</b> (120). Cada uno es una pista
+  <b>original generada por código</b> (<code>MixMusicGenerator</code> sintetiza bombo, caja, hi-hat, bajo, acordes, melodía y guitarra en WAV), así que no hay problemas de derechos.</li>
+  <li><b>Canciones propias</b>: se copian archivos .mp3/.ogg/.wav en <code>StreamingAssets/Musica/&lt;Género&gt;</code> (PC) o en
+  <code>Android/data/com.uao.laboratoriomezclas/files/Musica/&lt;Género&gt;</code> (Quest). Una carpeta nueva crea un género nuevo.</li>
+  <li>La rockola del bar permite cambiar género, canción y volumen con botones; se recuerdan en <code>PlayerPrefs</code>.</li>
+</ul>
+
+<h2>15.2 Luces de discoteca</h2>
+<p><code>DiscoLights</code> lleva el compás de la música (si la pista es incluida, usa su reloj exacto) y mueve baldosas con patrones, focos que barren,
+bola de espejos, un ecualizador que lee el espectro del audio y neones que pulsan. Con cada reacción, la pista destella verde (perfecto), rojo (malo) o amarillo.
+El pedido fue "luces de discoteca, pero que no esté oscuro": por eso hay lámparas y luz ambiente suficientes.</p>
+
+<h2>15.3 Público</h2>
+<p>DJ, gente en la barra, en mesas, en sofás y bailando (personajes de Kenney con animaciones). Bailan al compás, cambian de paso cada 4 tiempos,
+saltan con un pedido perfecto y reaccionan a lo que pasa. El público opcional se reduce automáticamente si baja el rendimiento.</p>
+<figure><img src="../screenshots/mix/06_pista.png"><figcaption>La pista de baile con el DJ, la bola de espejos y el público.</figcaption></figure>
+
+<!-- ============================== 16 DATOS ============================== -->
+<h1><span class="n">16</span>Manejo de datos</h1>
+<p>Vale el 20% de la sustentación. Hay cuatro tipos de datos y conviene explicarlos por separado.</p>
+
+<h2>16.1 Configuración: ScriptableObjects</h2>
+<p>Un <b>ScriptableObject</b> es un archivo de datos de Unity (un "asset") que se edita en el Inspector. En <code>Assets/Data/Mix</code> hay
+19 ingredientes, 38 recetas y 17 reacciones. <b>Ventaja</b>: agregar una bebida o cambiar los puntos de una reacción no requiere tocar código.</p>
+
+<h2>16.2 Progreso: JSON</h2>
+<p><code>MixSaveRepository</code> guarda <code>mix_save.json</code> con <code>JsonUtility</code>. Estructura:</p>
+<pre>{
+  "bestScore": 755,
+  "discovered": ["Perfecto", "Nausea", "Explosion"],
+  "sessions": [
+    { "date": "2026-11-13 18:45", "score": 536, "served": 10,
+      "perfects": 5, "knockouts": 0, "completed": true }
+  ]
+}</pre>
+<ul>
+  <li>Clases serializables <code>MixSave</code> y <code>MixSession</code>.</li>
+  <li>Se guarda al descubrir una reacción y al terminar cada turno; se conservan las últimas <b>50</b> sesiones.</li>
+  <li>Lectura y escritura con <code>try/catch</code>: si el archivo no existe o está dañado, se empieza con un guardado nuevo y el juego no se rompe.</li>
+  <li>Las pruebas automáticas usan otro archivo para no tocar la partida real.</li>
+</ul>
+
+<h2>16.3 Exportación: CSV</h2>
+<p>Cada vez que se guarda, se reescribe <code>mix_save_historial.csv</code>, separado por punto y coma (Excel en español lo abre directo en columnas):</p>
+<pre>turno;fecha;puntaje;bebidas_servidas;pedidos_perfectos;desmayos;completado
+1;2026-11-13 18:45;536;10;5;0;si</pre>
+
+<h2>16.4 En el juego</h2>
+<ul>
+  <li><b>Tablero de historial</b>: récord, número de turnos, promedio, completados, reacciones descubiertas y últimos 6 turnos.</li>
+  <li><b>Libro de reacciones</b>: lo descubierto, con su pista.</li>
+  <li><b>Panel final</b>: récord y si se superó.</li>
+</ul>
+
+<h2>16.5 Preferencias y ubicación</h2>
+<ul>
+  <li><code>PlayerPrefs</code>: género y volumen de la música.</li>
+  <li>En PC los archivos quedan en <code>%USERPROFILE%\AppData\LocalLow\UAO Immersive Solutions\Laboratorio de Mezclas\</code>.</li>
+  <li>En el Quest, en <code>Android/data/com.uao.laboratoriomezclas/files/</code>.</li>
+</ul>
+
+<!-- ============================== 17 ORGANIZACION ============================== -->
+<h1><span class="n">17</span>Organización del proyecto Unity</h1>
+
+<pre>Assets/
+  Scripts/MixLab.asmdef        assembly definition del juego
+  Scripts/MixLab/
+    Core/  Data/  Interaction/  Customer/  UI/  Ambience/  Desktop/  VR/
+  Editor/                      generador de escena y herramientas de compilación
+  Data/Mix/                    Ingredients · Recipes · Reactions (ScriptableObjects)
+  Audio/Mix/                   pistas originales generadas por código
+  Materials/                   materiales generados
+  Scenes/MixLab.unity          la única escena
+  StreamingAssets/Musica/      carpetas para canciones propias
+  Tests/PlayMode/              pruebas automáticas (MixLab.Tests.asmdef)
+  Samples/                     XR Interaction Toolkit: Starter Assets y Device Simulator
+  ThirdParty/Kenney/           modelos y sonidos libres (CC0)
+  XR/ · XRI/                   configuración de OpenXR y XRI
+docs/                          enunciado, guías, capturas, plan de Quest, rendimiento
+presentation/                  presentación de sustentación
+Builds/                        LaboratorioMezclas.exe y LaboratorioMezclas.apk</pre>
+
+<h2>17.1 Decisiones que conviene explicar</h2>
+<ul>
+  <li><b>Carpetas por dominio</b>, no por tipo de archivo: todo lo del vaso está en Interaction, todo lo de la VR en VR.</li>
+  <li><b>Assembly definitions</b> (<code>MixLab</code> y <code>MixLab.Tests</code>): separan el código en ensamblados, compilan más rápido y obligan a declarar dependencias (XR Toolkit, Input System, UI).</li>
+  <li><b>Namespace</b> <code>MixLab</code> en todo el código del juego.</li>
+  <li><b>Escena generada por código</b>: <code>Tools › Mix Lab › Build Scene</code> crea la escena, los datos y la capa VR. Ventajas: es reproducible, cualquier ajuste de diseño se aplica a todo de una vez, y no se pierden cambios por conflictos de la escena en git.</li>
+  <li><b>Control de versiones</b>: repositorio público en GitHub con commits por funcionalidad. El prototipo anterior quedó en la etiqueta <code>prototipo-control-calidad</code>.</li>
+  <li><b>Assets libres</b>: Kenney (CC0) para modelos y sonidos; la música es propia.</li>
+  <li><b>Menús</b>: <code>Tools › Mix Lab</code> (escena, capturas, música) y <code>Tools › Laboratorio de Mezclas</code> (compilar Windows/Quest, configurar).</li>
+</ul>
+
+<!-- ============================== 18 OPTIMIZACION ============================== -->
+<h1><span class="n">18</span>Optimización para VR</h1>
+
+<p>En VR el juego se dibuja dos veces (un ojo cada uno) a 72–90 cuadros por segundo, y el Quest es un procesador de celular.
+Por eso se midió y se agregó un regulador.</p>
+
+<h2>18.1 Mediciones (PC, RTX 4060 Laptop, 1920×1080)</h2>
+<table>
+  <tr><th>Nivel</th><th>Público</th><th>Luces por píxel</th><th>Llamadas de dibujado</th><th>Triángulos</th><th>FPS</th></tr>
+  <tr><td>Alto</td><td>36 + 3</td><td>12</td><td>2.956</td><td>539.000</td><td>60 o más</td></tr>
+  <tr><td>Medio</td><td>16 + 3</td><td>6</td><td>1.958</td><td>330.000</td><td>193</td></tr>
+  <tr><td>VR</td><td>8 + 3</td><td>3</td><td>1.254</td><td>186.000</td><td>106</td></tr>
+  <tr><td>VR, sin luces extra</td><td>8 + 3</td><td>0</td><td>704</td><td>96.000</td><td>60 o más</td></tr>
+</table>
+<p><b>Conclusión clave</b>: lo que más cuesta son las <b>luces en tiempo real</b>, no los personajes. Pasar de 12 luces a 1 baja las llamadas de dibujado un 64%.</p>
+
+<h2>18.2 Qué se hizo</h2>
+<ul>
+  <li><b>Regulador de calidad</b> (<code>QualityGovernor</code>) con tres niveles (Alto, Medio, VR) que limitan público, luces extra y luces por píxel. En el Quest arranca en VR; si los FPS bajan, baja de nivel solo.</li>
+  <li><b>Agrupado estático</b>: 352 objetos de decoración marcados como estáticos para unir llamadas de dibujado.</li>
+  <li><b>Personajes livianos</b>: sin sombras, y la animación solo corre cuando se ven.</li>
+  <li><b>MaterialPropertyBlock</b> para cambiar colores sin duplicar materiales.</li>
+  <li><b>Android</b>: IL2CPP en ARM64, Vulkan, texturas ASTC, antialiasing MSAA 4×.</li>
+  <li><b>Texto</b>: tamaños fijos (el ajuste automático desbordaba la textura de la fuente).</li>
+  <li><b>Medición propia</b> con <code>PerfProbe</code> para comparar niveles con datos y no a ojo.</li>
+</ul>
+<p class="muted">Pendiente: medir en el propio Quest y, si hace falta, reducir más las luces y fundir mallas (plan en <code>docs/PLAN_QUEST3.md</code>).</p>
+
+<!-- ============================== 19 PRUEBAS ============================== -->
+<h1><span class="n">19</span>Pruebas automáticas</h1>
+<p>Hay <b>18 pruebas</b> PlayMode (se ejecutan con la escena real, desde el Test Runner de Unity). Todas pasan.</p>
+<table>
+  <tr><th>Prueba</th><th>Qué verifica</th></tr>
+  <tr><td>Rules_EachCombinationGivesItsReaction</td><td>Cada combinación da la reacción correcta</td></tr>
+  <tr><td>Rules_ClassifyAndStabilize</td><td>Clasificación estable/inestable/tóxica y estabilización con frío</td></tr>
+  <tr><td>Rules_RecipesNeedExactIngredientsAndTemperature</td><td>Las recetas exigen ingredientes y temperatura exactos</td></tr>
+  <tr><td>Hazard_UnstableGlassExplodesUnlessStabilized</td><td>El vaso inestable estalla si no se enfría</td></tr>
+  <tr><td>Flow_PourShakeServe_PerfectOrderScores</td><td>Verter, agitar y servir un pedido perfecto suma puntos</td></tr>
+  <tr><td>Flow_ThreeKnockoutsSuspendTheShift</td><td>3 desmayos suspenden el turno</td></tr>
+  <tr><td>Book_DiscoveredReactionsPersist</td><td>El libro se guarda y se carga</td></tr>
+  <tr><td>Tutorial_CompletesWithRealActions</td><td>El entrenamiento avanza con acciones reales</td></tr>
+  <tr><td>Player_IsBlockedByTheCounter</td><td>El jugador no atraviesa la barra</td></tr>
+  <tr><td>Customer_ANewCustomerArrivesWithAnotherLook</td><td>El cambio de cliente funciona</td></tr>
+  <tr><td>Vr_ModeTurnsOnRigAndInteractables</td><td>Al entrar en VR se activan el rig y los 20 agarrables, 2 palancas y el socket</td></tr>
+  <tr><td>Vr_TiltingABottleOverTheGlassPoursOneDose</td><td>Inclinar sobre el vaso vierte una dosis; lejos del vaso no</td></tr>
+  <tr><td>Vr_PieceContainerDropsIntoTheGlass</td><td>Los recipientes de piezas también vierten</td></tr>
+  <tr><td>Vr_ShakingTheGlassMixesIt</td><td>Sacudir el vaso lo agita</td></tr>
+  <tr><td>Vr_TurningTheGlassUpsideDownEmptiesIt</td><td>Voltear el vaso lo vacía</td></tr>
+  <tr><td>Vr_LeversAreDraggedByHand</td><td>Las palancas responden al arrastre</td></tr>
+  <tr><td>Vr_CoasterSocketServesTheDrink</td><td>El socket sirve y bloquea el vaso mientras el cliente bebe</td></tr>
+  <tr><td>Data_HistoryAndCsvAreSaved</td><td>Se guardan el historial y el CSV y el tablero los muestra</td></tr>
+</table>
+<div class="say">"Como la misma lógica sirve para PC y VR, pudimos probar todo con pruebas automáticas: las de VR activan el modo VR y simulan los movimientos de la mano sin necesidad del visor."</div>
+
+<!-- ============================== 20 RUBRICA ============================== -->
+<h1><span class="n">20</span>La rúbrica y cómo defender cada criterio</h1>
+
+<table>
+  <tr><th>Criterio</th><th>Peso</th><th>Qué mostrar / decir</th></tr>
+  <tr><td>Interfaz de usuario</td><td>15%</td><td>Tableros grandes en el mundo (World Space), legibles en VR; analizador con colores; avisos en el tablero central; libro que se ajusta; panel final claro.</td></tr>
+  <tr><td>Implementación 3D</td><td>15%</td><td>Bar con barra en L, pista luminosa, DJ, mesas, sofás, público animado; cliente con síntomas y partículas; vaso que estalla con vidrios.</td></tr>
+  <tr><td>Interacciones</td><td>25%</td><td>Agarrar, verter inclinando, agitar sacudiendo, vaciar volteando, palancas que se arrastran, socket, botones con rayo, háptica.</td></tr>
+  <tr><td>Inmersión</td><td>25%</td><td>Música y luces sincronizadas, público que reacciona, audio 3D, clientes distintos, eventos como el apagón.</td></tr>
+  <tr><td>Montaje general</td><td>20%</td><td>Flujo completo de entrenamiento a cierre; APK para Quest 3; también corre en PC.</td></tr>
+  <tr><td>Organización Unity</td><td>15%</td><td>Carpetas por dominio, asmdef, namespace, escena reproducible, git.</td></tr>
+  <tr><td>Calidad de scripts</td><td>15%</td><td>Eventos C#, reglas separadas y puras, componentes pequeños, código comentado, 18 pruebas.</td></tr>
+  <tr><td>Manejo de datos</td><td>20%</td><td>ScriptableObjects, JSON con manejo de errores, CSV, tablero de historial, PlayerPrefs.</td></tr>
+  <tr><td>Sustentación personal</td><td>40%</td><td>Entender esta guía; poder hacer el recorrido del capítulo 11 y responder el capítulo 21.</td></tr>
+  <tr><td>Presentación personal</td><td>10%</td><td>Pitch del capítulo 1, presentación en <code>presentation/</code>, demo del capítulo 23.</td></tr>
+</table>
+
+<!-- ============================== 21 PREGUNTAS ============================== -->
+<h1><span class="n">21</span>Preguntas difíciles y respuestas</h1>
+
+<h3>¿Por qué un bar y no un laboratorio con tubos de ensayo?</h3>
+<p>Porque mantiene las cinco funciones de la opción 3 y hace el resultado visible y memorable. Las propiedades de los ingredientes son las "sustancias",
+la reacción del cliente es el resultado observable y el analizador es la validación química. Además, en VR un personaje que reacciona genera más
+inmersión que un líquido que cambia de color.</p>
+
+<h3>¿Dónde está exactamente la "química"?</h3>
+<p>En <code>ReactionRules</code>: suma las propiedades de los ingredientes y aplica reglas con prioridad, como una tabla de reactividad.
+Por ejemplo gas + efervescente sin frío = explosión; lácteo + ácido = leche cortada; alcohol fuerte + calor = se inflama.</p>
+
+<h3>¿Qué componentes de XR Interaction Toolkit usaron?</h3>
+<p>XR Origin de los Starter Assets (interactores near-far, locomoción, giro, teletransporte), <code>XRInteractionManager</code>,
+<code>XRGrabInteractable</code>, <code>XRSimpleInteractable</code>, <code>XRSocketInteractor</code> (heredado), <code>TeleportationArea</code>,
+<code>XRUIInputModule</code>, <code>TrackedDeviceGraphicRaycaster</code> y háptica con <code>SendHapticImpulse</code>.</p>
+
+<h3>¿Cómo detectan que el jugador está vertiendo?</h3>
+<p>Con el ángulo entre el eje de la botella y la vertical (más de 100°) y la posición de su boca encima del vaso durante 0,35 s.
+Para otra dosis hay que enderezar la botella.</p>
+
+<h3>¿Cómo detectan que agitó el vaso?</h3>
+<p>Con la velocidad: se cuentan los cambios bruscos de dirección a más de 0,8 m/s; 5 seguidos dan la mezcla por agitada.</p>
+
+<h3>¿Por qué el socket es una clase propia?</h3>
+<p>Para controlar qué acepta: solo el vaso, con mezcla, y solo si el cliente está libre. Se sobrescriben <code>CanHover</code> y <code>CanSelect</code>.
+Es un buen ejemplo de extender XR Toolkit con herencia.</p>
+
+<h3>¿Cómo se comunican los sistemas?</h3>
+<p>Con eventos de C#. El director publica (<code>OnReaction</code>, <code>OnScoreChanged</code>…) y los tableros, luces y público se suscriben.
+El director no conoce a ninguno de ellos (bajo acoplamiento).</p>
+
+<h3>¿Qué es un ScriptableObject y por qué lo usaron?</h3>
+<p>Un archivo de datos de Unity editable en el Inspector. Lo usamos para ingredientes, recetas y reacciones: se pueden cambiar o agregar sin tocar código.</p>
+
+<h3>¿Por qué JSON y no PlayerPrefs para el progreso?</h3>
+<p>PlayerPrefs sirve para valores sueltos (lo usamos para el volumen). El progreso tiene listas (reacciones descubiertas, historial de sesiones),
+y JSON las guarda estructuradas en un archivo legible. Además lo exportamos a CSV.</p>
+
+<h3>¿Qué pasa si se borra o se daña el archivo de guardado?</h3>
+<p><code>MixSaveRepository.Load</code> lo detecta (try/catch o archivo inexistente) y devuelve un guardado nuevo. Nada se rompe.</p>
+
+<h3>¿Por qué la escena se genera por código?</h3>
+<p>Para que sea reproducible y fácil de ajustar: un cambio de diseño (por ejemplo, el tamaño de letra de todos los tableros) se aplica regenerando.
+También evita conflictos de la escena en git. La escena generada se guarda y se puede abrir y revisar normalmente en Unity.</p>
+
+<h3>¿Cómo optimizaron?</h3>
+<p>Medimos con <code>PerfProbe</code> y vimos que el costo está en las luces en tiempo real. Agregamos un regulador de tres niveles, agrupado estático,
+personajes sin sombras y configuración de Android (IL2CPP, Vulkan, ASTC, MSAA 4×).</p>
+
+<h3>¿Cómo lo probaron sin visor?</h3>
+<p>La escena tiene modo PC con la misma lógica. Y las pruebas automáticas activan el modo VR y simulan la mano (inclinar la botella, sacudir, arrastrar palancas, encajar en el socket).</p>
+
+<h3>¿Qué es la cinemática inversa del cliente?</h3>
+<p>En vez de animar hombro y codo, decimos dónde queremos la mano y el código calcula los ángulos del brazo (dos huesos). Así el cliente puede
+tomar el vaso esté donde esté.</p>
+
+<h3>¿Qué es un MaterialPropertyBlock?</h3>
+<p>Una forma de cambiar propiedades de un material (como el color) en un objeto sin crear una copia del material. Es más eficiente
+y lo usamos para la piel, la ropa, el pelo y las luces.</p>
+
+<h3>¿Por qué el cliente no usa animaciones de un modelo?</h3>
+<p>Porque las reacciones combinan muchas partes a la vez (ojos, boca, brazos, síntomas). Con animación procedural cada combinación sale sola,
+sin tener que grabar 17 animaciones.</p>
+
+<h3>¿Qué fue lo más difícil?</h3>
+<p>Sugerencia: que una sola lógica sirviera para PC y VR, y mantener el rendimiento con tantas luces y personajes. (Elige lo que tú hayas vivido.)</p>
+
+<h3>¿Qué mejorarían?</h3>
+<p>Ajustar la VR con más pruebas en el visor, medir rendimiento en el Quest y bajar luces si hace falta, agregar más clientes y modos de juego (por ejemplo, un modo libre de experimentación).</p>
+
+<h3>¿La música tiene derechos de autor?</h3>
+<p>No: las cuatro pistas incluidas son originales, generadas por código. Las canciones propias las pone cada usuario en su carpeta.</p>
+
+<!-- ============================== 22 GLOSARIO ============================== -->
+<h1><span class="n">22</span>Glosario</h1>
+<table>
+  <tr><th>Término</th><th>Qué significa</th></tr>
+  <tr><td>XR / VR</td><td>Realidad extendida / realidad virtual.</td></tr>
+  <tr><td>OpenXR</td><td>Estándar para hablar con los visores; Unity lo usa para el Quest.</td></tr>
+  <tr><td>XR Interaction Toolkit (XRI)</td><td>Paquete de Unity con componentes listos para interacción en VR.</td></tr>
+  <tr><td>XR Origin</td><td>El "jugador" en VR: cámara del visor y controles.</td></tr>
+  <tr><td>Interactor / Interactable</td><td>Lo que interactúa (la mano, el rayo, el socket) / lo que recibe la interacción (botella, palanca).</td></tr>
+  <tr><td>Grab Interactable</td><td>Objeto que se puede agarrar.</td></tr>
+  <tr><td>Socket</td><td>Lugar donde un objeto encaja al soltarlo cerca.</td></tr>
+  <tr><td>Near-far interactor</td><td>Interactor que agarra de cerca y también de lejos con un rayo.</td></tr>
+  <tr><td>Háptica</td><td>Vibración de los controles.</td></tr>
+  <tr><td>Onboarding</td><td>Entrenamiento inicial.</td></tr>
+  <tr><td>MonoBehaviour</td><td>Clase base de los scripts que van en objetos de Unity (tienen Start, Update…).</td></tr>
+  <tr><td>Corrutina</td><td>Método que se ejecuta a lo largo de varios cuadros (para secuencias como servir y beber).</td></tr>
+  <tr><td>Singleton</td><td>Clase de la que hay una sola instancia accesible globalmente (<code>MixGameManager.Instance</code>).</td></tr>
+  <tr><td>Evento C#</td><td>Aviso al que otros scripts se suscriben para enterarse de algo.</td></tr>
+  <tr><td>Máquina de estados</td><td>Un sistema que está en un estado a la vez (Onboarding, Playing, Finished) con transiciones claras.</td></tr>
+  <tr><td>ScriptableObject</td><td>Archivo de datos de Unity editable en el Inspector.</td></tr>
+  <tr><td>JSON / CSV</td><td>Formatos de texto para guardar datos estructurados / tablas.</td></tr>
+  <tr><td>PlayerPrefs</td><td>Almacén simple de Unity para preferencias.</td></tr>
+  <tr><td>Assembly definition (asmdef)</td><td>Archivo que agrupa scripts en un ensamblado propio con dependencias declaradas.</td></tr>
+  <tr><td>Namespace</td><td>"Apellido" del código para evitar choques de nombres (<code>MixLab</code>).</td></tr>
+  <tr><td>Prefab</td><td>Objeto reutilizable guardado como asset.</td></tr>
+  <tr><td>World Space Canvas</td><td>Interfaz que existe como objeto en el mundo 3D (necesaria en VR).</td></tr>
+  <tr><td>Raycast</td><td>Lanzar un rayo invisible para saber qué toca.</td></tr>
+  <tr><td>Cinemática inversa (IK)</td><td>Calcular articulaciones a partir de dónde debe quedar la mano.</td></tr>
+  <tr><td>Animación procedural</td><td>Animación calculada por código en vez de grabada.</td></tr>
+  <tr><td>Draw call (llamada de dibujado)</td><td>Cada orden de dibujar algo que el procesador envía a la tarjeta gráfica; menos es mejor.</td></tr>
+  <tr><td>FPS</td><td>Cuadros por segundo. En VR se busca 72 o más.</td></tr>
+  <tr><td>Static batching</td><td>Unir objetos que no se mueven para dibujarlos juntos.</td></tr>
+  <tr><td>MaterialPropertyBlock</td><td>Cambiar el color/propiedades de un objeto sin copiar su material.</td></tr>
+  <tr><td>APK</td><td>Instalador de aplicaciones Android (el Quest es Android).</td></tr>
+  <tr><td>IL2CPP · Vulkan · ASTC · MSAA</td><td>Compilación a código nativo · API gráfica moderna · compresión de texturas móvil · suavizado de bordes.</td></tr>
+  <tr><td>Quest Link</td><td>Conectar el Quest al PC para jugar desde el PC.</td></tr>
+  <tr><td>BPM</td><td>Pulsos por minuto (tempo de la música).</td></tr>
+</table>
+
+<!-- ============================== 23 DEMO ============================== -->
+<h1><span class="n">23</span>Guion de demo y limitaciones</h1>
+
+<h2>23.1 Demo de 5 minutos</h2>
+<ol>
+  <li><b>(30 s)</b> Mostrar el bar: tableros, cliente, estación, rockola, pista. Cambiar de género en la rockola.</li>
+  <li><b>(1 min)</b> Entrenamiento: moverse, verter dos ingredientes, agitar, servir. Mostrar que cada paso avanza solo.</li>
+  <li><b>(1 min)</b> Iniciar turno y hacer un pedido perfecto. Señalar el bono de rapidez y el libro.</li>
+  <li><b>(1 min)</b> Soda + efervescente: el analizador se pone ámbar con cuenta regresiva. Ponerle hielo: "ESTABILIZADA", servir y mostrar el +20.</li>
+  <li><b>(1 min)</b> Una reacción fuerte: leche + limón (náusea) o ron + tequila en caliente (llamarada).</li>
+  <li><b>(30 s)</b> Terminar el turno (o mostrar una captura): panel final y tablero de historial. Mencionar el JSON y el CSV.</li>
+</ol>
+<div class="box copper"><b class="t">Plan B</b>Si el visor falla, la misma demo se hace en PC con <code>Builds/Windows/LaboratorioMezclas.exe</code>.
+También está <code>LaboratorioMezclas.exe -autodemo</code>, que juega un turno solo.</div>
+
+<h2>23.2 Combinaciones útiles para la demo</h2>
+<table>
+  <tr><th>Mezcla</th><th>Resultado</th></tr>
+  <tr><td>Soda + Efervescente</td><td>Inestable → con hielo se estabiliza; sin hielo, explota</td></tr>
+  <tr><td>Leche + Limón</td><td>Náusea verde (tóxica en el analizador)</td></tr>
+  <tr><td>Tequila + Ron, palanca CALIENTE</td><td>Llamarada (inflamable en el analizador)</td></tr>
+  <tr><td>Salsa del Diablo + Ron</td><td>Desmayo fulminante (cuenta como desmayo)</td></tr>
+  <tr><td>Menta + Hielo</td><td>Cerebro congelado</td></tr>
+  <tr><td>Café + Café</td><td>Sobredosis de café (salvo que el pedido sea espresso doble caliente)</td></tr>
+  <tr><td>Café + Ron</td><td>Fiebre de baile (salvo que el pedido sea carajillo caliente)</td></tr>
+</table>
+
+<h2>23.3 Limitaciones que conviene reconocer</h2>
+<ul>
+  <li>La capa VR está implementada y probada con pruebas automáticas; la sensación final se ajusta con la prueba en el visor.</li>
+  <li>El rendimiento se midió en PC; falta medirlo en el Quest.</li>
+  <li>El estilo visual es simple (de bloques, assets libres): se priorizó la mecánica y la legibilidad.</li>
+  <li>Las reglas químicas son inventadas para el juego, inspiradas en efectos reales (leche cortada, efervescencia, inflamabilidad del alcohol).</li>
+</ul>
+<div class="say">"Lo que más nos importó fue que cada función del enunciado fuera una mecánica real y que el código estuviera separado
+para poder probarlo. Lo siguiente es seguir afinando la experiencia en el visor."</div>
+
+</body>
+</html>
