@@ -103,6 +103,7 @@ namespace MixLab.EditorTools
             BuildBook(reactions.Length);
             BuildTutorial(glass, gmAudio);
             BuildHistory();
+            BuildMainMenu();
 
             var hud = new GameObject("DesktopHUD"); hud.AddComponent<DesktopHud>(); hud.transform.SetParent(managers.transform);
             BuildVr(managers.transform, player, hud, es.GetComponent<EventSystem>(), glass, lever);

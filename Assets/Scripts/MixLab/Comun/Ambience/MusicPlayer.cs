@@ -134,7 +134,11 @@ namespace MixLab
                     string name = Path.GetFileName(dir);
                     var g = FindGenre(name);
                     if (g == null) { if (files.Count == 0) continue; g = AddGenre(name); }
+                    // Si hay canciones propias, suenan primero; la pista original del juego queda al final
+                    var included = g.tracks.Where(t => t.path == null).ToList();
+                    if (files.Count > 0) g.tracks.RemoveAll(t => t.path == null);
                     foreach (string f in files) g.tracks.Add(new Track { title = Path.GetFileNameWithoutExtension(f), path = f });
+                    if (files.Count > 0) g.tracks.AddRange(included);
                 }
             }
             catch (Exception e) { Debug.LogWarning("[MusicPlayer] No se pudo leer la carpeta de música: " + e.Message); }

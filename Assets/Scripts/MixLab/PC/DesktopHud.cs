@@ -126,15 +126,13 @@ namespace MixLab
             MakeButton(box.transform, "Reiniciar turno", new Vector2(0f, 25f), new Color(0.22f, 0.3f, 0.45f), () =>
             {
                 SetPaused(false);
+                MainMenu.SkipNextLoad = true;
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             });
-            MakeButton(box.transform, "Salir", new Vector2(0f, -45f), new Color(0.55f, 0.15f, 0.15f), () =>
+            MakeButton(box.transform, "Menú principal", new Vector2(0f, -45f), new Color(0.55f, 0.15f, 0.15f), () =>
             {
-#if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-#else
-                Application.Quit();
-#endif
+                SetPaused(false);
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);   // vuelve a la pantalla inicial
             });
             MakeText(box.transform, "SensLabel", "Sensibilidad del mouse", 22, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0f, -115f), new Vector2(500f, 34f));
             sensSlider = MakeSlider(box.transform, new Vector2(-30f, -160f));

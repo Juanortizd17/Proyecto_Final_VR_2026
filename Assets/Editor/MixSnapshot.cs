@@ -25,6 +25,14 @@ namespace MixLab.EditorTools
             if (instr) instr.text = "PASO 2 · VERTER\nApunta a un ingrediente del estante y haz <b>CLIC IZQUIERDO</b>.\nVierte <b>dos</b> ingredientes en el vaso.";
             Canvas.ForceUpdateCanvases();
 
+            // Pantalla inicial (en el juego los números salen del guardado)
+            var menuGo = GameObject.Find("MainMenu");
+            var stats = menuGo ? menuGo.transform.Find("MainPanel/Stats")?.GetComponent<Text>() : null;
+            if (stats) stats.text = "Récord: <b>755</b>     ·     Turnos jugados: <b>4</b>     ·     Reacciones descubiertas: <b>10/17</b>";
+            Canvas.ForceUpdateCanvases();
+            Shot("00_menu", new Vector3(0f, 1.65f, -0.05f), new Vector3(0f, 1.6f, 1.6f), 72f);
+            if (menuGo) menuGo.SetActive(false);
+
             Shot("01_jugador", new Vector3(0f, 1.65f, -0.05f), new Vector3(0f, 1.5f, 1.6f), 72f);
             Shot("02_general", new Vector3(3.3f, 2.7f, -2.5f), new Vector3(0f, 1.2f, 1.2f), 62f);
             Shot("03_estante_izquierdo", new Vector3(-0.35f, 1.6f, 0.05f), new Vector3(-1.0f, 1.12f, 0.92f), 62f);

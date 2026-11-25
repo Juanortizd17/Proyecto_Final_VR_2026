@@ -114,6 +114,71 @@ namespace MixLab.EditorTools
         }
 
         /// <summary>
+        /// Pantalla inicial: panel grande frente al jugador (se lee igual en PC y en VR) con botones gruesos.
+        /// </summary>
+        static void BuildMainMenu()
+        {
+            var size = new Vector2(1500, 950);
+            var canvas = SB.MakeCanvas("MainMenu", new Vector3(0f, 1.62f, 0.42f), Quaternion.identity, size, 0.0006f);
+            canvas.GetComponent<CanvasScaler>().dynamicPixelsPerUnit = 2f;
+            canvas.sortingOrder = 10;
+            SB.Panel(canvas.transform, "Bg", new Color(0.07f, 0.05f, 0.13f, 1f));
+            var frame = SB.Panel(canvas.transform, "Frame", Copper);
+            frame.rectTransform.offsetMin = new Vector2(0f, 938f); frame.rectTransform.offsetMax = Vector2.zero;   // franja cobre arriba
+            var menu = canvas.gameObject.AddComponent<MainMenu>();
+
+            Color green = new Color(0.12f, 0.58f, 0.32f), blue = new Color(0.22f, 0.32f, 0.55f),
+                  violet = new Color(0.36f, 0.24f, 0.55f), red = new Color(0.6f, 0.16f, 0.17f);
+            Vector2 B(float y) => new Vector2(450, y);
+            Vector2 E(float y) => new Vector2(1050, y + 95);
+
+            // --- Principal ---
+            var main = SB.Child(canvas.transform, "MainPanel");
+            SB.Label(main, "Title", "<b>LABORATORIO DE MEZCLAS</b>", 96, TextAnchor.MiddleCenter, Copper, new Vector2(20, 805), new Vector2(1480, 925), absolute: true);
+            SB.Label(main, "Subtitle", "Un laboratorio de química detrás de la barra", 40, TextAnchor.MiddleCenter, Muted, new Vector2(20, 745), new Vector2(1480, 805), absolute: true);
+            SB.MakeButton(main, "Play", "JUGAR", B(615), E(615), green, menu.Play, 56);
+            SB.MakeButton(main, "PlayDirect", "IR DIRECTO AL TURNO", B(500), E(500), blue, menu.PlayDirect, 46);
+            SB.MakeButton(main, "HowTo", "CÓMO JUGAR", B(385), E(385), violet, menu.ShowHowTo, 46);
+            SB.MakeButton(main, "Options", "OPCIONES", B(270), E(270), violet, menu.ShowOptions, 46);
+            SB.MakeButton(main, "Quit", "SALIR", B(155), E(155), red, menu.Quit, 46);
+            var stats = SB.Label(main, "Stats", "", 34, TextAnchor.MiddleCenter, Ink, new Vector2(20, 75), new Vector2(1480, 135), absolute: true);
+            SB.Label(main, "Credits", "UAO Immersive Solutions  ·  Fundamentos de Realidad Virtual 2026  ·  Modelos y sonidos: Kenney (CC0)  ·  Música original",
+                24, TextAnchor.MiddleCenter, Muted, new Vector2(20, 18), new Vector2(1480, 62), absolute: true);
+
+            // --- Cómo jugar ---
+            var howTo = SB.Child(canvas.transform, "HowToPanel");
+            SB.Label(howTo, "Title", "<b>CÓMO JUGAR</b>", 70, TextAnchor.MiddleCenter, Copper, new Vector2(20, 830), new Vector2(1480, 930), absolute: true);
+            var howToText = SB.Label(howTo, "Body", "", 36, TextAnchor.UpperLeft, Ink, new Vector2(80, 190), new Vector2(1420, 820), absolute: true);
+            SB.MakeButton(howTo, "Back", "VOLVER", B(50), E(50), blue, menu.Back, 48);
+
+            // --- Opciones ---
+            var options = SB.Child(canvas.transform, "OptionsPanel");
+            SB.Label(options, "Title", "<b>OPCIONES</b>", 70, TextAnchor.MiddleCenter, Copper, new Vector2(20, 830), new Vector2(1480, 930), absolute: true);
+            Text Row(Transform parent, string name, string label, float y, UnityEngine.Events.UnityAction down, UnityEngine.Events.UnityAction up)
+            {
+                SB.Label(parent, name + "Label", label, 46, TextAnchor.MiddleLeft, Ink, new Vector2(200, y), new Vector2(760, y + 95), absolute: true);
+                SB.MakeButton(parent, name + "Down", "−", new Vector2(800, y), new Vector2(930, y + 95), blue, down, 70);
+                var value = SB.Label(parent, name + "Value", "", 46, TextAnchor.MiddleCenter, Copper, new Vector2(935, y), new Vector2(1105, y + 95), absolute: true);
+                SB.MakeButton(parent, name + "Up", "+", new Vector2(1110, y), new Vector2(1240, y + 95), blue, up, 70);
+                return value;
+            }
+            var music = Row(options, "Music", "Volumen de la música", 680, menu.MusicDown, menu.MusicUp);
+            var master = Row(options, "Master", "Volumen general", 560, menu.MasterDown, menu.MasterUp);
+            var sensRow = SB.Child(options, "SensRow");
+            var sens = Row(sensRow, "Sens", "Sensibilidad del mouse", 440, menu.SensDown, menu.SensUp);
+            var reset = SB.MakeButton(options, "Reset", "BORRAR PROGRESO", B(285), E(285), red, menu.ResetProgress, 40);
+            SB.Label(options, "ResetHint", "Borra el récord, el libro de reacciones y el historial", 26, TextAnchor.MiddleCenter, Muted,
+                new Vector2(20, 240), new Vector2(1480, 280), absolute: true);
+            SB.MakeButton(options, "Back", "VOLVER", B(60), E(60), blue, menu.Back, 48);
+
+            menu.Setup(main.gameObject, howTo.gameObject, options.gameObject, stats, howToText, music, master, sens,
+                sensRow.gameObject, reset.GetComponentInChildren<Text>());
+            howTo.gameObject.SetActive(false);
+            options.gameObject.SetActive(false);
+            EditorUtility.SetDirty(menu);
+        }
+
+        /// <summary>
         /// Pantalla de historial a la derecha del puesto (detrás del brazo de la barra): récord,
         /// últimos turnos y progreso guardado entre partidas.
         /// </summary>

@@ -108,7 +108,11 @@ namespace MixLab
         }
 
         // Botones
-        public void OnRestartPressed() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        public void OnRestartPressed()
+        {
+            MainMenu.SkipNextLoad = true;   // reiniciar va directo al juego, sin pasar por el menú
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
 
         public void OnQuitPressed()
         {
