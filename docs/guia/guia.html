@@ -593,28 +593,72 @@ las luces ni al público. Si mañana se agrega otro tablero, no hay que tocar el
 
 <!-- ============================== 12 SCRIPTS ============================== -->
 <h1><span class="n">12</span>Los scripts, uno por uno</h1>
-<p>Todo el código del juego está en <code>Assets/Scripts/MixLab</code>, bajo el namespace <code>MixLab</code> y el assembly definition <code>MixLab.asmdef</code>.</p>
+<p>Todo el código del juego está en <code>Assets/Scripts/MixLab</code>, bajo el namespace <code>MixLab</code> y el assembly definition
+<code>MixLab.asmdef</code>. Está dividido en <b>tres carpetas según quién lo usa</b>:</p>
 
-<h2>Data — los datos editables</h2>
 <table>
-  <tr><th>Script</th><th>Qué es</th></tr>
-  <tr><td><code>IngredientData</code></td><td>ScriptableObject de un ingrediente: nombre, etiqueta, color y propiedades. Aquí está también la estructura <code>MixProps</code> (las propiedades y su suma).</td></tr>
-  <tr><td><code>RecipeData</code></td><td>ScriptableObject de una receta: nombre, frase del pedido, ingredientes, temperatura exigida.</td></tr>
-  <tr><td><code>ReactionData</code></td><td>ScriptableObject de una reacción: nombre, pista, frase, puntos, si es desmayo, colores, duración.</td></tr>
-  <tr><td><code>MixEnums</code></td><td>Tipos compartidos: <code>Temperature</code>, <code>ReactionId</code> (17), <code>MixClass</code> (Vacía/Estable/Inestable/Tóxica), y <code>MixState</code> (Onboarding/Playing/Finished).</td></tr>
+  <tr><th>Carpeta</th><th>Scripts</th><th>Qué contiene</th></tr>
+  <tr><td><b>Comun</b></td><td>24</td><td>Lo que comparten las dos versiones: química, turno, datos, cliente, tableros, ambiente y la estación (vaso, botellas, palancas, analizador).</td></tr>
+  <tr><td><b>VR</b></td><td>5</td><td>Lo que se agrega para jugar en el Meta Quest 3 con las manos.</td></tr>
+  <tr><td><b>PC</b></td><td>9</td><td>Lo que se agrega para jugar con mouse y teclado, más la demo automática.</td></tr>
 </table>
 
-<h2>Core — el cerebro</h2>
+<div class="flow">
+  <div><b>Versión VR</b>Comun (24) + VR (5)</div>
+  <div><b>Versión PC</b>Comun (24) + PC (9)</div>
+</div>
+
+<div class="say">"El código está en tres carpetas. Comun es el juego en sí: la química, el turno, los datos, el cliente y la estación.
+Encima de eso, la versión VR solo agrega cinco scripts: uno que activa el visor y cuatro para las manos —verter, el vaso, las palancas y el socket del posavasos.
+La versión de PC agrega los suyos para mouse y teclado. Las dos llaman a los mismos métodos, así que la lógica existe una sola vez."</div>
+
+<p class="muted">Detalle técnico: los objetos de la estación (vaso, botellas, palancas) heredan de <code>MixInteractable</code>, que está en PC, para
+poder responder también al clic. En VR esa parte simplemente no se usa: las manos llegan por los componentes de XR Interaction Toolkit.</p>
+
+<h2>VR — la capa del visor (5 scripts)</h2>
+<table>
+  <tr><th>Script</th><th>Qué hace</th></tr>
+  <tr><td><code>MixVrRig</code></td><td>Decide si se juega en VR y prepara la escena: activa el XR Origin y los componentes de XR Interaction Toolkit, apaga el jugador de PC (cap. 13).</td></tr>
+  <tr><td><code>VrPourable</code></td><td>Verter inclinando la botella sobre el vaso.</td></tr>
+  <tr><td><code>VrGlass</code></td><td>Agitar sacudiendo, vaciar volteando, volver a la estación, vibrar si la mezcla es inestable.</td></tr>
+  <tr><td><code>VrLever</code></td><td>Palancas que se arrastran con la mano.</td></tr>
+  <tr><td><code>CoasterSocket</code></td><td>Socket del posavasos que sirve la bebida.</td></tr>
+</table>
+
+<h2>PC — mouse y teclado (9 scripts)</h2>
+<table>
+  <tr><th>Script</th><th>Qué hace</th></tr>
+  <tr><td><code>DesktopPlayer</code></td><td>Primera persona con <code>CharacterController</code> (gravedad, choques), mouse, pasos y pausa.</td></tr>
+  <tr><td><code>DesktopHud</code> · <code>IAimHud</code></td><td>Mira, texto de acción, estado del vaso, ayuda de controles y menú de pausa con sensibilidad.</td></tr>
+  <tr><td><code>MixInteractor</code></td><td>La "mano" de PC: rayo desde el centro de la pantalla, con asistencia de puntería (sphere cast) para cosas delgadas, botones de los tableros, sostener el vaso.</td></tr>
+  <tr><td><code>MixInteractable</code></td><td>Clase base para lo que se usa con la mira: <code>Prompt</code>, <code>CanInteract</code>, <code>Interact</code>.</td></tr>
+  <tr><td><code>ServeSpot</code> · <code>SinkSpot</code> · <code>StationPad</code></td><td>Servir al cliente, vaciar en el lavaplatos y dejar el vaso en la base, con clic.</td></tr>
+  <tr><td><code>MixAutoDemo</code></td><td>Con <code>-autodemo</code>, juega un turno solo y saca capturas. Sirve para probar el .exe y documentar.</td></tr>
+</table>
+
+<h2>Comun — el juego en sí (24 scripts)</h2>
+
+<h3>Comun/Core — el cerebro</h3>
 <table>
   <tr><th>Script</th><th>Qué hace</th></tr>
   <tr><td><code>ReactionRules</code></td><td>Clase estática. <code>Sum</code> suma propiedades; <code>Evaluate</code> decide la reacción; <code>Classify</code> clasifica; <code>WillExplode</code>, <code>IsStabilized</code>, <code>MatchesRecipe</code>. No depende de la escena.</td></tr>
   <tr><td><code>MixGameManager</code></td><td>Director: estados, pedidos, paciencia, tiempo, servir (corrutina), puntaje, eventos inesperados, cambio de cliente, guardado al final. Publica los eventos. Es un singleton (<code>Instance</code>).</td></tr>
   <tr><td><code>MixSaveRepository</code></td><td>Lee y escribe <code>mix_save.json</code> con <code>JsonUtility</code>, conserva las últimas 50 sesiones y exporta el CSV. Todo con <code>try/catch</code>.</td></tr>
-  <tr><td><code>MixAutoDemo</code></td><td>Con <code>-autodemo</code>, juega un turno solo y saca capturas. Sirve para probar el .exe y documentar.</td></tr>
   <tr><td><code>PerfProbe</code></td><td>Con <code>-perf</code>, mide FPS, llamadas de dibujado, lotes y triángulos con <code>ProfilerRecorder</code>.</td></tr>
 </table>
 
-<h2>Interaction — la estación</h2>
+<h3>Comun/Data — los datos editables</h3>
+<table>
+  <tr><th>Script</th><th>Qué es</th></tr>
+  <tr><td><code>IngredientData</code></td><td>ScriptableObject de un ingrediente: nombre, etiqueta, color y propiedades. Aquí está también la estructura <code>MixProps</code> (las propiedades y su suma).</td></tr>
+  <tr><td><code>RecipeData</code></td><td>ScriptableObject de una receta: nombre, frase del pedido, ingredientes, temperatura exigida.</td></tr>
+  <tr><td><code>ReactionData</code></td><td>ScriptableObject de una reacción: nombre, pista, frase, puntos, si es desmayo, colores, duración.</td></tr>
+  <tr><td><code>MixEnums</code></td><td>Tipos compartidos: <code>Temperature</code>, <code>ReactionId</code> (17), <code>MixClass</code> (Vacía/Estable/Inestable/Tóxica) y <code>MixState</code> (Onboarding/Playing/Finished).</td></tr>
+</table>
+<div class="box"><b class="t">¿Por qué no juntar los datos en un solo archivo?</b>Unity exige que cada ScriptableObject esté en su propio archivo con el
+mismo nombre de la clase; si se juntan, los 74 archivos de datos (ingredientes, recetas, reacciones) dejan de cargar. Los tipos pequeños sí están juntos en <code>MixEnums</code>.</div>
+
+<h3>Comun/Interaction — la estación</h3>
 <table>
   <tr><th>Script</th><th>Qué hace</th></tr>
   <tr><td><code>MixGlass</code></td><td>Contenido del vaso (máx. 4), capas de color, agitar, vaciar, volar a un punto, volver a casa, temblar si es inestable, estallar con vidrios con física y reaparecer. Evento <code>OnChanged</code>.</td></tr>
@@ -622,19 +666,16 @@ las luces ni al público. Si mañana se agrega otro tablero, no hay que tocar el
   <tr><td><code>MixAnalyzer</code></td><td>Clasifica cada cuadro, colorea el letrero y la lámpara, lleva la cuenta regresiva con pitidos y hace estallar el vaso si se acaba.</td></tr>
   <tr><td><code>TemperatureLever</code></td><td>Tres posiciones; gira la palanca, colorea la perilla y el letrero. Evento <code>OnChanged</code>.</td></tr>
   <tr><td><code>ShakeLever</code></td><td>Agita el vaso si tiene 2+ ingredientes y está en su base.</td></tr>
-  <tr><td><code>ServeSpot</code> · <code>SinkSpot</code> · <code>StationPad</code></td><td>(PC) Servir al cliente, vaciar en el lavaplatos, dejar el vaso en la base.</td></tr>
-  <tr><td><code>MixInteractable</code></td><td>Clase base abstracta para lo que se usa con la mira en PC: <code>Prompt</code>, <code>CanInteract</code>, <code>Interact</code>.</td></tr>
-  <tr><td><code>MixInteractor</code></td><td>(PC) La "mano": rayo desde el centro de la pantalla, con asistencia de puntería (sphere cast) para cosas delgadas, botones de los tableros, sostener el vaso.</td></tr>
 </table>
 
-<h2>Customer — los personajes</h2>
+<h3>Comun/Customer — los personajes</h3>
 <table>
   <tr><th>Script</th><th>Qué hace</th></tr>
   <tr><td><code>Customer</code></td><td>El cliente principal: respira, parpadea, mira al jugador, mueve los brazos con cinemática inversa, se impacienta y muestra los síntomas de cada reacción. Maneja los 9 aspectos de clientes y el cambio entre ellos.</td></tr>
   <tr><td><code>Patron</code></td><td>Público: reacciona a lo que pasa en la barra (aplaude con un perfecto, se asusta con una explosión).</td></tr>
 </table>
 
-<h2>UI — los tableros</h2>
+<h3>Comun/UI — los tableros</h3>
 <table>
   <tr><th>Script</th><th>Qué hace</th></tr>
   <tr><td><code>MixBoard</code></td><td>Tablero central: espera, pedido/tiempo/puntos/paciencia/avisos y panel final con Reiniciar y Salir.</td></tr>
@@ -644,7 +685,7 @@ las luces ni al público. Si mañana se agrega otro tablero, no hay que tocar el
   <tr><td><code>JukeboxBoard</code></td><td>Pantalla de la rockola: género, canción, volumen y botones.</td></tr>
 </table>
 
-<h2>Ambience — el ambiente</h2>
+<h3>Comun/Ambience — el ambiente</h3>
 <table>
   <tr><th>Script</th><th>Qué hace</th></tr>
   <tr><td><code>MusicPlayer</code></td><td>Rockola: géneros incluidos más canciones propias de una carpeta; guarda género y volumen.</td></tr>
@@ -653,27 +694,11 @@ las luces ni al público. Si mañana se agrega otro tablero, no hay que tocar el
   <tr><td><code>QualityGovernor</code></td><td>Regulador de calidad: tres niveles y baja de nivel si caen los FPS.</td></tr>
 </table>
 
-<h2>Desktop — modo PC</h2>
-<table>
-  <tr><th>Script</th><th>Qué hace</th></tr>
-  <tr><td><code>DesktopPlayer</code></td><td>Primera persona con <code>CharacterController</code> (gravedad, choques), mouse, pasos y pausa.</td></tr>
-  <tr><td><code>DesktopHud</code> · <code>IAimHud</code></td><td>Mira, texto de acción, estado del vaso, ayuda de controles y menú de pausa con sensibilidad.</td></tr>
-</table>
-
-<h2>VR — la capa del visor</h2>
-<table>
-  <tr><th>Script</th><th>Qué hace</th></tr>
-  <tr><td><code>MixVrRig</code></td><td>Decide si se juega en VR y prepara la escena (cap. 13).</td></tr>
-  <tr><td><code>VrPourable</code></td><td>Verter inclinando la botella sobre el vaso.</td></tr>
-  <tr><td><code>VrGlass</code></td><td>Agitar sacudiendo, vaciar volteando, volver a la estación, vibrar si es inestable.</td></tr>
-  <tr><td><code>VrLever</code></td><td>Palancas que se arrastran con la mano.</td></tr>
-  <tr><td><code>CoasterSocket</code></td><td>Socket del posavasos que sirve la bebida.</td></tr>
-</table>
-
 <h2>Editor — herramientas (no van en el juego)</h2>
+<p>Están aparte, en <code>Assets/Editor</code>: solo se usan dentro de Unity para generar la escena y compilar.</p>
 <table>
   <tr><th>Script</th><th>Qué hace</th></tr>
-  <tr><td><code>MixSceneBuilder</code> (6 archivos)</td><td>Genera la escena completa: datos, sala, barra, estación, cliente, público, tableros, ambiente, rendimiento y capa VR.</td></tr>
+  <tr><td><code>MixSceneBuilder</code> (6 archivos, una sola clase)</td><td>Genera la escena completa: datos, sala, barra, estación, cliente, público, tableros, ambiente, rendimiento y capa VR.</td></tr>
   <tr><td><code>BuildKit</code></td><td>Utilidades del generador: lienzos, textos, botones, primitivas, modelos ajustados, materiales, audio.</td></tr>
   <tr><td><code>MixMusicGenerator</code></td><td>Sintetiza las 4 pistas originales en WAV.</td></tr>
   <tr><td><code>MixSnapshot</code></td><td>Saca capturas de la escena; <code>MixPipeline</code> encadena generar + compilar.</td></tr>
@@ -850,7 +875,10 @@ saltan con un pedido perfecto y reaccionan a lo que pasa. El público opcional s
 <pre>Assets/
   Scripts/MixLab.asmdef        assembly definition del juego
   Scripts/MixLab/
-    Core/  Data/  Interaction/  Customer/  UI/  Ambience/  Desktop/  VR/
+    Comun/   (24)  Core · Data · Interaction · Customer · UI · Ambience
+    VR/      (5)   lo que se agrega para el visor
+    PC/      (9)   lo que se agrega para mouse y teclado
+    LEEME.md       explica las tres carpetas
   Editor/                      generador de escena y herramientas de compilación
   Data/Mix/                    Ingredients · Recipes · Reactions (ScriptableObjects)
   Audio/Mix/                   pistas originales generadas por código
@@ -867,7 +895,8 @@ Builds/                        LaboratorioMezclas.exe y LaboratorioMezclas.apk</
 
 <h2>17.1 Decisiones que conviene explicar</h2>
 <ul>
-  <li><b>Carpetas por dominio</b>, no por tipo de archivo: todo lo del vaso está en Interaction, todo lo de la VR en VR.</li>
+  <li><b>Tres carpetas según quién usa el código</b>: <code>Comun</code> (el juego en sí), <code>VR</code> (5 scripts para el visor) y <code>PC</code> (mouse y teclado). Versión VR = Comun + VR.</li>
+  <li><b>Dentro de Comun, carpetas por dominio</b>, no por tipo de archivo: todo lo de la estación en Interaction, los tableros en UI, la química y el turno en Core.</li>
   <li><b>Assembly definitions</b> (<code>MixLab</code> y <code>MixLab.Tests</code>): separan el código en ensamblados, compilan más rápido y obligan a declarar dependencias (XR Toolkit, Input System, UI).</li>
   <li><b>Namespace</b> <code>MixLab</code> en todo el código del juego.</li>
   <li><b>Escena generada por código</b>: <code>Tools › Mix Lab › Build Scene</code> crea la escena, los datos y la capa VR. Ventajas: es reproducible, cualquier ajuste de diseño se aplica a todo de una vez, y no se pierden cambios por conflictos de la escena en git.</li>

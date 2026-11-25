@@ -69,28 +69,32 @@ métodos (`glass.Add`, `lever.Set`, `glass.Shake`, `gm.Serve`). Por eso la versi
 
 ### Scripts por carpeta (`Assets/Scripts/MixLab`)
 
+El código está en tres carpetas según quién lo usa: **Comun** (24 scripts, el juego en sí), **VR** (5, lo que se agrega
+para el visor) y **PC** (9, lo que se agrega para mouse y teclado). **Versión VR = Comun + VR.** Detalle en `Assets/Scripts/MixLab/LEEME.md`.
+
 | Carpeta | Script | Qué hace |
 |---|---|---|
-| Data | `IngredientData`, `RecipeData`, `ReactionData`, `MixEnums` | Datos editables sin código: propiedades, recetas, reacciones |
-| Core | `ReactionRules` | Suma propiedades y decide reacción, clasificación y si explota |
-| Core | `MixGameManager` | Máquina de estados (Onboarding → Playing → Finished), pedidos, puntaje, eventos inesperados, guardado |
-| Core | `MixSaveRepository` | Lee y escribe el JSON; exporta el CSV |
-| Core | `MixAutoDemo`, `PerfProbe` | Demo automática con capturas y medición de rendimiento |
-| Interaction | `MixGlass` | Contenido del vaso, capas de color, agitar, estallar |
-| Interaction | `Bottle` | Ingrediente; en PC hace la animación de verter |
-| Interaction | `MixAnalyzer` | Clasifica la mezcla y lleva la cuenta regresiva |
-| Interaction | `TemperatureLever`, `ShakeLever`, `ServeSpot`, `SinkSpot`, `StationPad` | Estación de trabajo |
-| Interaction | `MixInteractor`, `MixInteractable` | Mano de PC: apuntar y hacer clic |
-| Customer | `Customer` | Cara, cuerpo y síntomas de cada reacción |
-| Customer | `Patron` | Público que reacciona a lo que pasa en la barra |
-| UI | `MixBoard`, `ReactionBookBoard`, `MixTutorial`, `HistoryBoard`, `JukeboxBoard` | Tableros del bar |
-| Ambience | `MusicPlayer`, `DiscoLights`, `Dancer`, `QualityGovernor` | Música, luces al ritmo, baile, nivel de calidad |
-| Desktop | `DesktopPlayer`, `DesktopHud` | Jugador de PC |
 | VR | `MixVrRig` | Decide si hay visor y activa el XR Origin y los componentes XRI |
 | VR | `VrPourable` | Verter inclinando la botella sobre el vaso |
 | VR | `VrGlass` | Agitar sacudiendo, vaciar volteando, volver a la estación |
 | VR | `VrLever` | Arrastrar las palancas con la mano |
 | VR | `CoasterSocket` | Socket del posavasos que sirve la bebida |
+| PC | `DesktopPlayer`, `DesktopHud`, `IAimHud` | Jugador de PC, mira, ayuda y pausa |
+| PC | `MixInteractor`, `MixInteractable` | Mano de PC: apuntar y hacer clic |
+| PC | `ServeSpot`, `SinkSpot`, `StationPad` | Servir, vaciar y dejar el vaso con clic |
+| PC | `MixAutoDemo` | Demo automática del .exe con capturas |
+| Comun/Core | `ReactionRules` | Suma propiedades y decide reacción, clasificación y si explota |
+| Comun/Core | `MixGameManager` | Máquina de estados (Onboarding → Playing → Finished), pedidos, puntaje, eventos inesperados, guardado |
+| Comun/Core | `MixSaveRepository` | Lee y escribe el JSON; exporta el CSV |
+| Comun/Core | `PerfProbe` | Medición de rendimiento |
+| Comun/Data | `IngredientData`, `RecipeData`, `ReactionData`, `MixEnums` | Datos editables sin código: propiedades, recetas, reacciones |
+| Comun/Interaction | `MixGlass` | Contenido del vaso, capas de color, agitar, estallar |
+| Comun/Interaction | `Bottle` | Ingrediente; en PC hace la animación de verter |
+| Comun/Interaction | `MixAnalyzer` | Clasifica la mezcla y lleva la cuenta regresiva |
+| Comun/Interaction | `TemperatureLever`, `ShakeLever` | Palancas de la estación |
+| Comun/Customer | `Customer`, `Patron` | Cliente con sus síntomas y público que reacciona |
+| Comun/UI | `MixBoard`, `ReactionBookBoard`, `MixTutorial`, `HistoryBoard`, `JukeboxBoard` | Tableros del bar |
+| Comun/Ambience | `MusicPlayer`, `DiscoLights`, `Dancer`, `QualityGovernor` | Música, luces al ritmo, baile, nivel de calidad |
 
 `Assets/Editor/MixSceneBuilder*.cs` genera toda la escena desde código (sala, barra, cliente, público, tableros,
 capa VR). Ventaja: la escena es reproducible y cualquier cambio de diseño se aplica regenerándola.

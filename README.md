@@ -90,7 +90,7 @@ Ejecutar `Builds/Windows/LaboratorioMezclas.exe`, o abrir `Assets/Scenes/MixLab.
 
 ```
 Assets/
-  Scripts/MixLab/     Core · Data · Interaction · Customer · UI · Ambience · Desktop · VR
+  Scripts/MixLab/     Comun (24 scripts, el juego) · VR (5, visor) · PC (9, mouse y teclado) — ver LEEME.md
   Scripts/MixLab.asmdef
   Editor/             MixSceneBuilder (genera la escena, también la capa VR), BuildKit, MixSnapshot,
                       MixMusicGenerator, BuildQuest, ProjectSetup
