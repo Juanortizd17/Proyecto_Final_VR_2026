@@ -3,6 +3,7 @@
     "rootNamespace": "MixLab",
     "references": [
         "Unity.XR.Interaction.Toolkit",
+        "Unity.XR.CoreUtils",
         "Unity.XR.Management",
         "Unity.InputSystem",
         "UnityEngine.UI"

@@ -27,6 +27,7 @@ namespace MixLab
         MixInteractor hand;
         GameObject hud;
         float resetArmedUntil;
+        bool placedForVr;
 
         public void Setup(GameObject main, GameObject howTo, GameObject options, Text stats, Text howToBody,
                           Text music, Text master, Text sens, GameObject sensRowGo, Text reset)
@@ -82,6 +83,7 @@ namespace MixLab
         {
             // El jugador de PC bloquea el cursor al arrancar: mientras el menú está abierto, se mantiene libre.
             if (IsOpen && !MixVrRig.Active && Cursor.lockState != CursorLockMode.None) DesktopPlayer.SetCursorLocked(false);
+            if (IsOpen && MixVrRig.Active && MixVrRig.Placed && !placedForVr) PlaceInFrontOfHead();
             if (resetLabel && resetArmedUntil > 0f && Time.unscaledTime > resetArmedUntil)
             {
                 resetArmedUntil = 0f; resetLabel.text = "<b>BORRAR PROGRESO</b>";
@@ -89,6 +91,25 @@ namespace MixLab
         }
 
         void OnDestroy() { if (IsOpen) IsOpen = false; }
+
+        /// <summary>
+        /// En VR el panel de PC quedaría pegado a la cara: se pone a 85 cm frente a la cabeza,
+        /// a la altura de los ojos y un poco más grande, para leerlo y apuntarle cómodo con el rayo.
+        /// </summary>
+        void PlaceInFrontOfHead()
+        {
+            placedForVr = true;
+            var cam = Camera.main;
+            if (cam == null) return;
+            Vector3 fwd = cam.transform.forward; fwd.y = 0f;
+            if (fwd.sqrMagnitude < 0.01f) fwd = Vector3.forward;
+            fwd.Normalize();
+            transform.position = cam.transform.position + fwd * 0.85f + Vector3.down * 0.08f;   // antes de las botellas del estante (z 0.92) para que no lo tapen
+            transform.rotation = Quaternion.LookRotation(fwd);
+            transform.localScale = Vector3.one * 0.0008f;
+            var canvas = GetComponent<Canvas>();
+            if (canvas) canvas.worldCamera = cam;
+        }
 
         void ShowPanel(GameObject panel)
         {

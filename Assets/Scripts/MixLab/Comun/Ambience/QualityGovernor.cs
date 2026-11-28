@@ -50,10 +50,28 @@ namespace MixLab
                 adaptive = false;
             }
             if (Application.isBatchMode) adaptive = false;      // en pruebas automáticas no se mide
+            if (Application.isMobilePlatform) ConfigureForHeadset();
             Apply(start);
         }
 
         void OnDestroy() { if (Instance == this) Instance = null; }
+
+        /// <summary>
+        /// Visor autónomo (Quest): el juego se dibuja dos veces a 72 Hz con un procesador de celular.
+        /// Sin sombras en tiempo real, una sola luz por píxel, sin focos extra y menos público;
+        /// el color de discoteca lo siguen dando los materiales que brillan y las baldosas.
+        /// </summary>
+        void ConfigureForHeadset()
+        {
+            QualitySettings.shadows = ShadowQuality.Disable;
+            QualitySettings.softParticles = false;
+            QualitySettings.vSyncCount = 0;
+            pixelLightsPerTier = new[] { 1, 1, 1 };
+            extraLightsPerTier = new[] { 0, 0, 0 };
+            crowdPerTier = new[] { 8, 8, 6 };
+            foreach (var l in FindObjectsByType<Light>(FindObjectsSortMode.None)) l.shadows = LightShadows.None;
+            Debug.Log("[QualityGovernor] Modo visor: sin sombras, 1 luz por píxel, sin focos extra");
+        }
 
         public void Apply(int tier)
         {
