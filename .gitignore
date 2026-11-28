@@ -33,3 +33,5 @@ Assets/StreamingAssets/Musica/**/*.mp3
 Assets/StreamingAssets/Musica/**/*.mp3.meta
 Assets/StreamingAssets/Musica/**/*.ogg
 Assets/StreamingAssets/Musica/**/*.ogg.meta
+Assets/Resources/MusicaPlaylist.txt
+Assets/Resources/MusicaPlaylist.txt.meta

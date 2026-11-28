@@ -39,6 +39,7 @@ namespace MixLab.EditorTools
         static void Run(string output, BuildTarget target, BuildTargetGroup group)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(output));
+            MusicPlaylistBuilder.Write();   // canciones propias que viajan dentro del APK
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
                 scenes = EditorBuildSettings.scenes.Where(sc => sc.enabled).Select(sc => sc.path).ToArray(),

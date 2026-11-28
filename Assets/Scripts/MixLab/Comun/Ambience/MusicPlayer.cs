@@ -142,7 +142,37 @@ namespace MixLab
                 }
             }
             catch (Exception e) { Debug.LogWarning("[MusicPlayer] No se pudo leer la carpeta de música: " + e.Message); }
+            if (Application.platform == RuntimePlatform.Android) AddBundledSongs();
         }
+
+        /// <summary>
+        /// En el Quest las canciones de StreamingAssets/Musica viajan dentro del APK, pero ahí no se puede
+        /// listar la carpeta. Al compilar se genera Resources/MusicaPlaylist.txt ("Género/archivo.mp3" por línea)
+        /// y aquí se leen esas canciones directamente del APK.
+        /// </summary>
+        void AddBundledSongs()
+        {
+            var list = Resources.Load<TextAsset>(PlaylistResource);
+            if (list == null) return;
+            var byGenre = list.text.Split('\n').Select(l => l.Trim()).Where(l => l.Contains('/'))
+                .GroupBy(l => l.Substring(0, l.IndexOf('/')));
+            foreach (var group in byGenre)
+            {
+                var g = FindGenre(group.Key) ?? AddGenre(group.Key);
+                var included = g.tracks.Where(t => t.path == null).ToList();
+                g.tracks.RemoveAll(t => t.path == null);
+                foreach (var line in group.OrderBy(l => l))
+                {
+                    string file = line.Substring(line.IndexOf('/') + 1);
+                    string url = Application.streamingAssetsPath + "/" + FolderName + "/" + Uri.EscapeDataString(group.Key) + "/" + Uri.EscapeDataString(file);
+                    g.tracks.Add(new Track { title = Path.GetFileNameWithoutExtension(file), path = url });
+                }
+                g.tracks.AddRange(included);
+            }
+        }
+
+        /// <summary>Nombre del recurso con la lista de canciones incluidas (lo genera el Editor al compilar).</summary>
+        public const string PlaylistResource = "MusicaPlaylist";
 
         Genre AddGenre(string name) { var g = new Genre { name = name }; genres.Add(g); return g; }
         Genre FindGenre(string name) => genres.FirstOrDefault(g => Plain(g.name) == Plain(name));
@@ -236,7 +266,8 @@ namespace MixLab
             loading = true;
             string ext = Path.GetExtension(t.path).ToLowerInvariant();
             var type = ext == ".mp3" ? AudioType.MPEG : ext == ".ogg" ? AudioType.OGGVORBIS : AudioType.WAV;
-            using (var req = UnityWebRequestMultimedia.GetAudioClip(new Uri(t.path).AbsoluteUri, type))
+            string url = t.path.StartsWith("jar:") || t.path.Contains("://") ? t.path : new Uri(t.path).AbsoluteUri;   // en el Quest, la canción viene dentro del APK
+            using (var req = UnityWebRequestMultimedia.GetAudioClip(url, type))
             {
                 yield return req.SendWebRequest();
                 if (id != loadId) yield break;                      // el jugador ya cambió de canción
