@@ -27,3 +27,9 @@ crashlytics-build.properties
 Thumbs.db
 ~$*.pptx
 .utmp/
+
+# Canciones propias de la rockola (derechos de autor y tamaño)
+Assets/StreamingAssets/Musica/**/*.mp3
+Assets/StreamingAssets/Musica/**/*.mp3.meta
+Assets/StreamingAssets/Musica/**/*.ogg
+Assets/StreamingAssets/Musica/**/*.ogg.meta
